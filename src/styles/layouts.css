@@ -1,0 +1,21 @@
+.loyalty-page {
+  min-height: 100dvh;
+  background: var(--color-background);
+}
+
+.loyalty-shell {
+  width: min(100%, var(--loyalty-width));
+  min-height: 100dvh;
+  margin: 0 auto;
+  border-inline: 1px solid var(--color-ash);
+  background: var(--color-surface);
+}
+
+.loyalty-content {
+  padding: var(--space-7) var(--space-5) var(--space-10);
+}
+
+.page-container {
+  width: min(calc(100% - 40px), var(--content-width));
+  margin-inline: auto;
+}

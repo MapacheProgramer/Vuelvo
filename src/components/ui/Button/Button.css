@@ -1,0 +1,48 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 11px 15px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.7px;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+}
+
+.button--full {
+  width: 100%;
+}
+
+.button--primary,
+.button--sticker {
+  color: var(--color-white);
+  background: var(--color-action);
+}
+
+.button--sticker {
+  box-shadow: var(--shadow-sticker);
+}
+
+.button--outline {
+  color: var(--color-accent);
+  background: var(--color-white);
+  border-color: var(--color-accent);
+}
+
+.button--sticker:active:not(:disabled) {
+  transform: translate(3px, 3px);
+  box-shadow: 2px 2px 0 var(--color-crimson);
+}
+
+.button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}

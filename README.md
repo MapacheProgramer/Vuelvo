@@ -1,16 +1,92 @@
-# React + Vite
+# Vuelvo
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicación de fidelización con React + Vite y Supabase.
 
-Currently, two official plugins are available:
+## Rutas actuales
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- `/t/:code` — escaneo del QR, registro/identificación y registro de visita.
+- `/card/:code` — consulta de la tarjeta sin sumar una visita.
 
-## React Compiler
+## Estructura frontend
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```text
+src/
+├── app/                         # Router y composición de la aplicación
+├── components/
+│   ├── layout/                  # Cabeceras y futuros layouts
+│   ├── loyalty/                 # Componentes del programa de fidelización
+│   └── ui/                      # Primitivas visuales reutilizables
+├── features/
+│   └── loyalty/
+│       ├── api/                 # Llamadas específicas del dominio
+│       └── storage/             # Persistencia local del dominio
+├── hooks/                       # Hooks/utilidades ligadas a React/browser
+├── pages/
+│   └── public/                  # Páginas públicas del cliente
+├── services/                    # Infraestructura compartida (Edge Functions, etc.)
+└── styles/                      # Design system global y layouts base
+```
 
-## Expanding the ESLint configuration
+## Sistema visual
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Los tokens se centralizan en `src/styles/tokens.css`.
+
+Paleta principal:
+
+- Orange `#d25a24` — bordes y acentos.
+- Green `#113722` — acciones principales.
+- Crimson `#6b1229` — sombra rígida tipo sticker.
+- Neutrales — `#000000`, `#232323`, `#646464`, `#808080`, `#cccccc`, `#d7d7d7`, `#efefef`, `#ffffff`.
+
+Regla de estilos:
+
+- `styles/`: tokens, reset, tipografía y layouts globales.
+- CSS específico: junto al componente que lo usa.
+- No duplicar colores/espaciados: usar variables de `tokens.css`.
+
+## Desarrollo
+
+1. Crear/restaurar `.env` con las variables existentes del proyecto.
+2. Instalar dependencias:
+
+```bash
+npm install
+```
+
+3. Iniciar Vite:
+
+```bash
+npm run dev
+```
+
+4. Probar al menos:
+
+```text
+http://localhost:5173/t/MG001
+http://localhost:5173/card/MG001
+```
+
+## Supabase
+
+Las Edge Functions actuales están en:
+
+```text
+supabase/functions/visit/
+supabase/functions/card-status/
+```
+
+`card-status` está configurada con `verify_jwt = false` porque el flujo público actual identifica al cliente mediante `device_token` y aplica su propia validación/CORS.
+
+## Próximas áreas
+
+La estructura ya está preparada para incorporar posteriormente:
+
+- `pages/auth/`
+- `pages/dashboard/`
+- `pages/admin/`
+- `features/auth/`
+- `features/customers/`
+- `features/rewards/`
+- `features/businesses/`
+
+sin mezclar esas responsabilidades con el flujo público del cliente.

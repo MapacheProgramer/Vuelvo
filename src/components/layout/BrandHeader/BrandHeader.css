@@ -1,0 +1,27 @@
+.brand-bar {
+  min-height: 72px;
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: var(--color-black);
+  color: var(--color-white);
+  border-bottom: 4px solid var(--color-accent);
+}
+
+.brand-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--radius-sm);
+}
+
+.brand-name {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-black);
+  line-height: 1;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}

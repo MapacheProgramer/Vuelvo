@@ -1,0 +1,113 @@
+.stamp-card {
+  margin-top: var(--space-7);
+}
+
+.stamp-card__heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.stamp-card__heading strong {
+  font-size: 1.75rem;
+  line-height: 1;
+  font-weight: var(--font-weight-black);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.stamp-card__heading span {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  text-align: right;
+}
+
+.stamp-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.stamp {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-black);
+}
+
+.stamp--on {
+  color: var(--color-white);
+  background: var(--color-action);
+  border: 2px solid var(--color-action);
+  box-shadow: var(--shadow-sticker-sm);
+}
+
+.stamp--off {
+  color: var(--color-concrete);
+  background: var(--color-white);
+  border: 2px dashed var(--color-concrete);
+}
+
+.reward-panel {
+  margin-top: var(--space-5);
+  padding-top: 18px;
+  border-top: 1px solid var(--color-ash);
+}
+
+.reward-label {
+  margin: 0 0 6px;
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.reward-name {
+  margin: 0;
+  font-size: 1.375rem;
+  line-height: 1.2;
+  font-weight: var(--font-weight-black);
+  text-transform: uppercase;
+}
+
+.reward-earned {
+  margin-top: var(--space-5);
+  padding: var(--space-4);
+  color: var(--color-white);
+  background: var(--color-action);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sticker);
+}
+
+.reward-earned p {
+  margin-top: 0;
+}
+
+.reward-earned strong {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: 1.375rem;
+  text-transform: uppercase;
+}
+
+.reward-earned__copy {
+  margin-bottom: 0;
+  color: var(--color-white);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+@media (min-width: 420px) {
+  .stamp-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}

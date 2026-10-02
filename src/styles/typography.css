@@ -1,0 +1,30 @@
+.display-title {
+  margin: 0;
+  color: var(--color-text);
+  font-size: clamp(2.125rem, 9vw, 2.875rem);
+  font-weight: var(--font-weight-black);
+  line-height: 0.98;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.eyebrow {
+  margin: 0 0 var(--space-3);
+  color: var(--color-accent);
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+}
+
+.body-copy {
+  margin: var(--space-4) 0 0;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: var(--font-weight-regular);
+}
+
+.error-text {
+  color: var(--color-danger);
+}
