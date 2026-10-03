@@ -989,10 +989,6 @@ Deno.serve(
       brand_color:
         business.brand_color,
 
-      reward_name:
-        business.settings
-          ?.reward_name,
-
       stamps_required:
         business.settings
           ?.stamps_required,
