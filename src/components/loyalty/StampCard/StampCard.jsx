@@ -1,69 +1,96 @@
-import Panel from "../../ui/Panel/Panel";
 import "./StampCard.css";
 
 export default function StampCard({
-  stamps,
-  required,
-  rewardName = "Recompensa del negocio",
+  stamps = 0,
+  required = 8,
+  rewardName = "Premio de la casa",
   rewardAvailable = false,
-  rewardEarned = false,
 }) {
-  const hasProgress = Number.isFinite(Number(stamps)) && Number.isFinite(Number(required)) && Number(required) > 0;
-  const total = hasProgress ? Number(required) : 0;
-  const current = hasProgress ? Math.min(Math.max(Number(stamps), 0), total) : 0;
-  const filled = rewardEarned && hasProgress ? total : current;
-  const remaining = hasProgress ? Math.max(total - current, 0) : null;
+  const safeRequired = Number(required) > 0 ? Number(required) : 8;
+  const safeStamps = Math.max(
+    0,
+    Math.min(Number(stamps) || 0, safeRequired),
+  );
+
+  const remaining = Math.max(safeRequired - safeStamps, 0);
+
+  const stampItems = Array.from(
+    { length: safeRequired },
+    (_, index) => index + 1,
+  );
 
   return (
-    <Panel className="stamp-card" aria-label="Progreso de sellos">
-      <div className="stamp-card__heading">
-        <strong>{hasProgress ? `${filled} / ${total}` : "—"}</strong>
-        <span>{hasProgress ? "sellos" : "progreso guardado"}</span>
+    <section className="stamp-card">
+      <div className="stamp-card__header">
+        <div className="stamp-card__count">
+          {safeStamps} / {safeRequired}
+        </div>
+
+        <div className="stamp-card__label">
+          SELLOS
+        </div>
       </div>
 
-      {hasProgress ? (
-        <div className="stamp-grid" aria-label={`${filled} de ${total} sellos`}>
-          {Array.from({ length: total }).map((_, index) => (
-            <span
-              key={index}
-              className={`stamp ${index < filled ? "stamp--on" : "stamp--off"}`}
-              aria-hidden="true"
-            >
-              {index < filled ? "✓" : index + 1}
-            </span>
-          ))}
-        </div>
-      ) : (
-        <p className="body-copy">
-          Tu tarjeta está activa. El servidor todavía no devolvió el contador de sellos para esta consulta.
-        </p>
-      )}
+      <div className="stamp-card__grid">
+        {stampItems.map((number) => {
+          const active = number <= safeStamps;
 
-      <div className="reward-panel">
-        <p className="reward-label">Tu recompensa</p>
-        <p className="reward-name">{rewardName}</p>
-        {remaining !== null && (
-          <p className="body-copy">
+          return (
+            <div
+              key={number}
+              className={`stamp-card__stamp ${
+                active ? "stamp-card__stamp--active" : ""
+              }`}
+            >
+              {active ? "✓" : number}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="stamp-card__divider" />
+
+      <div className="stamp-card__reward-block">
+        <p className="stamp-card__eyebrow">
+          TU RECOMPENSA
+        </p>
+
+        <h3 className="stamp-card__reward-title">
+          {rewardName}
+        </h3>
+
+        {!rewardAvailable ? (
+          <p className="stamp-card__reward-copy">
             {remaining === 0
-              ? "Tarjeta completada."
-              : remaining === 1
-                ? "Te falta 1 sello para tu próxima recompensa."
-                : `Te faltan ${remaining} sellos para tu próxima recompensa.`}
+              ? "Ya completaste tu tarjeta."
+              : `Te faltan ${remaining} sello${
+                  remaining === 1 ? "" : "s"
+                } para tu próxima recompensa.`}
+          </p>
+        ) : (
+          <p className="stamp-card__reward-copy">
+            Ya completaste una tarjeta.
           </p>
         )}
       </div>
 
-      {(rewardAvailable || rewardEarned) && (
-        <div className="reward-earned">
-          <p className="reward-label">RECOMPENSA DISPONIBLE</p>
-          <strong>{rewardName}</strong>
-          {rewardAvailable && (
-            <p className="reward-earned__copy">
-              Ya completaste una tarjeta. Puedes reclamar esta recompensa en el negocio.
-            </p>
-          )}
+      {rewardAvailable && (
+        <div className="stamp-card__available">
+          <p className="stamp-card__available-label">
+            RECOMPENSA DISPONIBLE
+          </p>
+
+          <h4 className="stamp-card__available-title">
+            {rewardName}
+          </h4>
+
+          <p className="stamp-card__available-copy">
+            Ya completaste una tarjeta. Puedes reclamar esta
+            recompensa en el negocio o elegir una opción si el
+            comercio ofrece varias recompensas.
+          </p>
         </div>
       )}
-    </Panel>
+    </section>
   );
 }

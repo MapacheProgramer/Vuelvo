@@ -8,7 +8,21 @@ import {
   AuthProvider,
 } from "./features/auth/context/AuthContext.jsx";
 
+import {
+  initializeTheme,
+} from "./features/theme/theme.js";
+
 import "./styles/index.css";
+
+// ---------------------------------------------------------
+// Aplicar el tema guardado antes de renderizar React
+// ---------------------------------------------------------
+
+initializeTheme();
+
+// ---------------------------------------------------------
+// Render principal
+// ---------------------------------------------------------
 
 createRoot(
   document.getElementById("root"),

@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useState,
 } from "react";
@@ -9,10 +10,13 @@ import {
 
 import {
   getDashboardData,
+  getPendingRewards,
+  redeemReward,
 } from "../../features/dashboard/api/dashboardApi.js";
 
 import DashboardLayout from "../../components/layout/DashboardLayout/DashboardLayout.jsx";
 import StatCard from "../../components/ui/StatCard/StatCard.jsx";
+import ConfirmModal from "../../components/ui/ConfirmModal/ConfirmModal.jsx";
 
 import "./DashboardPage.css";
 
@@ -26,52 +30,203 @@ export default function DashboardPage() {
   const [data, setData] =
     useState(null);
 
+  const [
+    pendingRewards,
+    setPendingRewards,
+  ] = useState([]);
+
   const [loading, setLoading] =
     useState(true);
 
   const [error, setError] =
     useState("");
 
-  useEffect(() => {
-    let cancelled = false;
+  const [
+    redeemingRewardId,
+    setRedeemingRewardId,
+  ] = useState(null);
 
-    async function loadDashboard() {
-      try {
-        setLoading(true);
+  const [
+    rewardMessage,
+    setRewardMessage,
+  ] = useState("");
+
+  const [
+    rewardToRedeem,
+    setRewardToRedeem,
+  ] = useState(null);
+
+  // =========================================================
+  // CARGAR DASHBOARD
+  // =========================================================
+
+  const loadDashboard =
+    useCallback(
+      async ({
+        showLoading = false,
+      } = {}) => {
+        if (!businessId) {
+          return;
+        }
+
+        if (showLoading) {
+          setLoading(true);
+        }
+
         setError("");
 
-        const result =
-          await getDashboardData(
-            businessId,
+        try {
+          const [
+            dashboardResult,
+            pendingRewardsResult,
+          ] = await Promise.all([
+            getDashboardData(
+              businessId,
+            ),
+
+            getPendingRewards(
+              businessId,
+            ),
+          ]);
+
+          setData(
+            dashboardResult,
           );
 
-        if (!cancelled) {
-          setData(result);
-        }
-      } catch (error) {
-        console.error(error);
+          setPendingRewards(
+            pendingRewardsResult,
+          );
+        } catch (error) {
+          console.error(
+            "dashboard:",
+            error,
+          );
 
-        if (!cancelled) {
           setError(
-            error.message ||
+            error?.message ||
               "No pudimos cargar el dashboard.",
           );
+        } finally {
+          if (showLoading) {
+            setLoading(false);
+          }
         }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
+      },
+      [businessId],
+    );
+
+  // =========================================================
+  // PRIMERA CARGA
+  // =========================================================
+
+  useEffect(() => {
+    if (!businessId) {
+      return;
     }
 
-    if (businessId) {
-      loadDashboard();
+    loadDashboard({
+      showLoading: true,
+    });
+  }, [
+    businessId,
+    loadDashboard,
+  ]);
+
+  // =========================================================
+  // ABRIR MODAL DE CANJE
+  // =========================================================
+
+  function handleRequestRedeem(
+    reward,
+  ) {
+    if (
+      !reward?.selected_reward
+    ) {
+      setRewardMessage(
+        "El cliente todavía no ha elegido su recompensa.",
+      );
+
+      return;
     }
 
-    return () => {
-      cancelled = true;
-    };
-  }, [businessId]);
+    setRewardMessage("");
+
+    setRewardToRedeem(
+      reward,
+    );
+  }
+
+  // =========================================================
+  // CERRAR MODAL
+  // =========================================================
+
+  function handleCloseRedeemModal() {
+    if (redeemingRewardId) {
+      return;
+    }
+
+    setRewardToRedeem(
+      null,
+    );
+  }
+
+  // =========================================================
+  // CONFIRMAR CANJE
+  // =========================================================
+
+  async function handleConfirmRedeem() {
+    if (
+      !rewardToRedeem
+    ) {
+      return;
+    }
+
+    const reward =
+      rewardToRedeem;
+
+    try {
+      setRedeemingRewardId(
+        reward.id,
+      );
+
+      setRewardMessage("");
+
+      await redeemReward(
+        reward.id,
+      );
+
+      setRewardToRedeem(
+        null,
+      );
+
+      setRewardMessage(
+        `La recompensa de ${
+          reward.customer?.name ||
+          "el cliente"
+        } fue canjeada correctamente.`,
+      );
+
+      await loadDashboard();
+    } catch (error) {
+      console.error(
+        "redeem reward:",
+        error,
+      );
+
+      setRewardMessage(
+        error?.message ||
+          "No pudimos canjear la recompensa.",
+      );
+    } finally {
+      setRedeemingRewardId(
+        null,
+      );
+    }
+  }
+
+  // =========================================================
+  // LOADING
+  // =========================================================
 
   if (loading) {
     return (
@@ -88,6 +243,10 @@ export default function DashboardPage() {
       </DashboardLayout>
     );
   }
+
+  // =========================================================
+  // ERROR
+  // =========================================================
 
   if (error || !data) {
     return (
@@ -118,9 +277,7 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
-
       <section className="dashboard-hero">
-
         <div>
           <p className="eyebrow">
             PANEL DEL NEGOCIO
@@ -147,18 +304,20 @@ export default function DashboardPage() {
             {user?.email}
           </strong>
         </div>
-
       </section>
 
       <section className="dashboard-stats">
-
         <StatCard
-          value={stats.customers}
+          value={
+            stats.customers
+          }
           label="Clientes"
         />
 
         <StatCard
-          value={stats.visits}
+          value={
+            stats.visits
+          }
           label="Visitas"
         />
 
@@ -168,16 +327,197 @@ export default function DashboardPage() {
           }
           label="Recompensas pendientes"
           emphasis={
-            stats.pendingRewards > 0
+            stats.pendingRewards >
+            0
           }
         />
-
       </section>
 
       <section className="dashboard-section">
-
         <div className="dashboard-section__heading">
+          <div>
+            <p className="eyebrow">
+              FIDELIZACIÓN
+            </p>
 
+            <h2>
+              RECOMPENSAS PENDIENTES
+            </h2>
+          </div>
+
+          <span className="dashboard-section__count">
+            {
+              pendingRewards.length
+            }{" "}
+            {pendingRewards.length ===
+            1
+              ? "PENDIENTE"
+              : "PENDIENTES"}
+          </span>
+        </div>
+
+        {rewardMessage && (
+          <div className="reward-dashboard-message">
+            {rewardMessage}
+          </div>
+        )}
+
+        {pendingRewards.length ===
+        0 ? (
+          <div className="dashboard-empty">
+            <strong>
+              NO HAY RECOMPENSAS
+              PENDIENTES
+            </strong>
+
+            <p>
+              Cuando un cliente
+              complete una tarjeta,
+              su recompensa aparecerá
+              aquí.
+            </p>
+          </div>
+        ) : (
+          <div className="dashboard-rewards">
+            {pendingRewards.map(
+              (reward) => {
+                const customer =
+                  reward.customer;
+
+                const selectedReward =
+                  reward.selected_reward;
+
+                const isRedeeming =
+                  redeemingRewardId ===
+                  reward.id;
+
+                return (
+                  <article
+                    className="dashboard-reward"
+                    key={
+                      reward.id
+                    }
+                  >
+                    <div className="dashboard-reward__main">
+                      <div className="dashboard-reward__customer">
+                        <span className="customer-avatar">
+                          {customer?.name
+                            ?.charAt(0)
+                            .toUpperCase() ||
+                            "?"}
+                        </span>
+
+                        <div>
+                          <span className="dashboard-reward__label">
+                            CLIENTE
+                          </span>
+
+                          <strong className="dashboard-reward__customer-name">
+                            {customer?.name ||
+                              "Cliente"}
+                          </strong>
+
+                          <span className="dashboard-reward__phone">
+                            {customer?.whatsapp ||
+                              "Sin WhatsApp"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="dashboard-reward__details">
+                        {selectedReward ? (
+                          <>
+                            <span className="dashboard-reward__label">
+                              RECOMPENSA
+                            </span>
+
+                            <strong className="dashboard-reward__name">
+                              {
+                                selectedReward.name
+                              }
+                            </strong>
+
+                            {selectedReward.description && (
+                              <p className="dashboard-reward__description">
+                                {
+                                  selectedReward.description
+                                }
+                              </p>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <span className="dashboard-reward__label">
+                              RECOMPENSA
+                            </span>
+
+                            <strong className="dashboard-reward__waiting">
+                              ESPERANDO
+                              SELECCIÓN
+                            </strong>
+
+                            <p className="dashboard-reward__description">
+                              El cliente
+                              todavía no ha
+                              elegido qué
+                              recompensa
+                              quiere reclamar.
+                            </p>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="dashboard-reward__footer">
+                      <div className="dashboard-reward__date">
+                        <span>
+                          OBTENIDA
+                        </span>
+
+                        <strong>
+                          {new Date(
+                            reward.earned_at,
+                          ).toLocaleDateString(
+                            "es-CO",
+                          )}
+                        </strong>
+                      </div>
+
+                      {selectedReward ? (
+                        <button
+                          type="button"
+                          className="dashboard-reward__redeem"
+                          disabled={
+                            Boolean(
+                              redeemingRewardId,
+                            )
+                          }
+                          onClick={() =>
+                            handleRequestRedeem(
+                              reward,
+                            )
+                          }
+                        >
+                          {isRedeeming
+                            ? "CANJEANDO..."
+                            : "CANJEAR"}
+                        </button>
+                      ) : (
+                        <span className="dashboard-reward__pending-badge">
+                          PENDIENTE
+                        </span>
+                      )}
+                    </div>
+                  </article>
+                );
+              },
+            )}
+          </div>
+        )}
+      </section>
+
+      <section className="dashboard-section">
+        <div className="dashboard-section__heading">
           <div>
             <p className="eyebrow">
               ACTIVIDAD
@@ -194,30 +534,32 @@ export default function DashboardPage() {
           >
             VER TODOS
           </button>
-
         </div>
 
-        {recentCustomers.length === 0 ? (
+        {recentCustomers.length ===
+        0 ? (
           <div className="dashboard-empty">
             <strong>
-              TODAVÍA NO HAY CLIENTES
+              TODAVÍA NO HAY
+              CLIENTES
             </strong>
 
             <p>
               Los clientes aparecerán
-              aquí después de registrarse.
+              aquí después de
+              registrarse.
             </p>
           </div>
         ) : (
           <div className="customer-list">
-
             {recentCustomers.map(
               (customer) => (
                 <article
                   className="customer-row"
-                  key={customer.id}
+                  key={
+                    customer.id
+                  }
                 >
-
                   <div className="customer-row__identity">
                     <span className="customer-avatar">
                       {customer.name
@@ -228,7 +570,9 @@ export default function DashboardPage() {
 
                     <div>
                       <strong>
-                        {customer.name}
+                        {
+                          customer.name
+                        }
                       </strong>
 
                       <span>
@@ -251,16 +595,82 @@ export default function DashboardPage() {
                       )}
                     </strong>
                   </div>
-
                 </article>
               ),
             )}
-
           </div>
         )}
-
       </section>
 
+      <ConfirmModal
+        open={
+          Boolean(
+            rewardToRedeem,
+          )
+        }
+        eyebrow="Confirmar canje"
+        title="Canjear recompensa"
+        confirmText="Confirmar canje"
+        loading={
+          Boolean(
+            redeemingRewardId,
+          )
+        }
+        onClose={
+          handleCloseRedeemModal
+        }
+        onConfirm={
+          handleConfirmRedeem
+        }
+      >
+        {rewardToRedeem && (
+          <div className="redeem-confirmation">
+            <p>
+              Vas a marcar como
+              canjeada la recompensa de{" "}
+              <strong>
+                {rewardToRedeem
+                  .customer?.name ||
+                  "este cliente"}
+              </strong>
+              .
+            </p>
+
+            <div className="redeem-confirmation__reward">
+              <span>
+                RECOMPENSA
+              </span>
+
+              <strong>
+                {
+                  rewardToRedeem
+                    .selected_reward
+                    ?.name
+                }
+              </strong>
+
+              {rewardToRedeem
+                .selected_reward
+                ?.description && (
+                <small>
+                  {
+                    rewardToRedeem
+                      .selected_reward
+                      .description
+                  }
+                </small>
+              )}
+            </div>
+
+            <p className="redeem-confirmation__warning">
+              Una vez confirmado,
+              esta recompensa dejará
+              de aparecer como
+              pendiente.
+            </p>
+          </div>
+        )}
+      </ConfirmModal>
     </DashboardLayout>
   );
 }

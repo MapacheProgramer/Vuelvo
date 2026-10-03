@@ -1,16 +1,46 @@
+/* =========================================================
+   DASHBOARD
+   Diseño responsive fluido.
+
+   No utiliza breakpoints específicos para móvil/tablet.
+   El layout se adapta automáticamente según el espacio.
+   ========================================================= */
+
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
 .dashboard-hero {
   display: flex;
+  flex-wrap: wrap;
+
   align-items: flex-end;
   justify-content: space-between;
 
-  gap: var(--space-8);
+  gap: clamp(
+    20px,
+    4vw,
+    40px
+  );
 
   padding-bottom:
-    var(--space-8);
+    clamp(
+      24px,
+      4vw,
+      32px
+    );
 
   border-bottom:
     1px solid
-    var(--color-black);
+    var(--color-border);
+}
+
+.dashboard-hero > div:first-child {
+  flex:
+    1 1 420px;
+
+  min-width: 0;
 }
 
 .dashboard-hero h1 {
@@ -19,9 +49,9 @@
 
   font-size:
     clamp(
-      42px,
+      2.6rem,
       6vw,
-      76px
+      4.75rem
     );
 
   line-height:
@@ -32,69 +62,145 @@
 
   text-transform:
     uppercase;
+
+  overflow-wrap:
+    anywhere;
+
+  color:
+    var(--color-text);
 }
 
 .dashboard-intro {
-  max-width: 520px;
+  max-width:
+    520px;
 
   margin:
-    20px 0 0;
+    clamp(
+      14px,
+      2vw,
+      20px
+    )
+    0
+    0;
 
   color:
-    var(--color-slate);
+    var(--color-text-muted);
 
   line-height:
     1.5;
 }
 
+
+/* =========================================================
+   USUARIO
+   ========================================================= */
+
 .dashboard-user {
-  display: grid;
+  flex:
+    0 1 auto;
 
-  gap: 4px;
+  min-width:
+    min(
+      220px,
+      100%
+    );
 
-  text-align: right;
+  display:
+    grid;
+
+  gap:
+    4px;
+
+  text-align:
+    right;
 }
 
 .dashboard-user span {
   color:
     var(--color-orange);
 
-  font-size: 12px;
+  font-size:
+    12px;
 
-  font-weight: 800;
+  font-weight:
+    800;
 
   letter-spacing:
     0.08em;
 }
 
 .dashboard-user strong {
+  max-width:
+    100%;
+
+  overflow-wrap:
+    anywhere;
+
+  color:
+    var(--color-text);
+
   font-size:
     14px;
 }
 
+
+/* =========================================================
+   ESTADÍSTICAS
+
+   auto-fit decide automáticamente cuántas columnas caben.
+   ========================================================= */
+
 .dashboard-stats {
-  display: grid;
+  display:
+    grid;
 
   grid-template-columns:
     repeat(
-      3,
-      minmax(0, 1fr)
+      auto-fit,
+      minmax(
+        min(
+          220px,
+          100%
+        ),
+        1fr
+      )
     );
 
   gap:
-    var(--space-5);
+    clamp(
+      12px,
+      2vw,
+      20px
+    );
 
   margin-top:
-    var(--space-8);
+    clamp(
+      24px,
+      4vw,
+      32px
+    );
 }
+
+
+/* =========================================================
+   SECCIONES
+   ========================================================= */
 
 .dashboard-section {
   margin-top:
-    var(--space-10);
+    clamp(
+      32px,
+      5vw,
+      40px
+    );
 }
 
 .dashboard-section__heading {
-  display: flex;
+  display:
+    flex;
+
+  flex-wrap:
+    wrap;
 
   align-items:
     flex-end;
@@ -103,10 +209,29 @@
     space-between;
 
   gap:
-    var(--space-5);
+    clamp(
+      12px,
+      2vw,
+      20px
+    );
 
   margin-bottom:
-    var(--space-5);
+    clamp(
+      16px,
+      3vw,
+      20px
+    );
+}
+
+.dashboard-section__heading > div {
+  min-width:
+    min(
+      260px,
+      100%
+    );
+
+  flex:
+    1 1 360px;
 }
 
 .dashboard-section__heading h2 {
@@ -115,9 +240,9 @@
 
   font-size:
     clamp(
-      28px,
+      1.8rem,
       4vw,
-      42px
+      2.65rem
     );
 
   line-height:
@@ -125,9 +250,50 @@
 
   font-weight:
     900;
+
+  overflow-wrap:
+    anywhere;
+
+  color:
+    var(--color-text);
 }
 
+.dashboard-section__count {
+  flex:
+    0 0 auto;
+
+  padding:
+    9px 12px;
+
+  border:
+    1px solid
+    var(--color-orange);
+
+  border-radius:
+    var(--radius-sm);
+
+  color:
+    var(--color-orange);
+
+  font-size:
+    11px;
+
+  font-weight:
+    900;
+
+  letter-spacing:
+    0.08em;
+}
+
+
+/* =========================================================
+   BOTÓN SECUNDARIO
+   ========================================================= */
+
 .dashboard-link {
+  flex:
+    0 0 auto;
+
   padding:
     10px 14px;
 
@@ -139,7 +305,7 @@
     var(--radius-sm);
 
   background:
-    var(--color-white);
+    var(--color-surface);
 
   color:
     var(--color-orange);
@@ -157,34 +323,528 @@
     pointer;
 }
 
-.customer-list {
-  border-top:
-    1px solid
-    var(--color-black);
+.dashboard-link:hover {
+  background:
+    var(--color-surface-muted);
 }
 
-.customer-row {
-  display: flex;
+
+/* =========================================================
+   MENSAJE DE CANJE
+   ========================================================= */
+
+.reward-dashboard-message {
+  margin-bottom:
+    clamp(
+      14px,
+      2vw,
+      20px
+    );
+
+  padding:
+    clamp(
+      12px,
+      2vw,
+      16px
+    );
+
+  border:
+    1px solid
+    var(--color-orange);
+
+  border-radius:
+    var(--radius-sm);
+
+  background:
+    var(--color-surface-muted);
+
+  color:
+    var(--color-text);
+
+  font-size:
+    14px;
+
+  font-weight:
+    700;
+
+  line-height:
+    1.4;
+}
+
+
+/* =========================================================
+   LISTA DE RECOMPENSAS
+   ========================================================= */
+
+.dashboard-rewards {
+  display:
+    grid;
+
+  gap:
+    clamp(
+      12px,
+      2vw,
+      16px
+    );
+}
+
+.dashboard-reward {
+  width:
+    100%;
+
+  min-width:
+    0;
+
+  overflow:
+    hidden;
+
+  border:
+    1px solid
+    var(--color-border-soft);
+
+  border-radius:
+    var(--radius-sm);
+
+  background:
+    var(--color-surface);
+}
+
+
+/* =========================================================
+   CUERPO DE RECOMPENSA
+
+   Con auto-fit pasa automáticamente de dos columnas
+   a una cuando deja de haber espacio suficiente.
+   ========================================================= */
+
+.dashboard-reward__main {
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(
+        min(
+          260px,
+          100%
+        ),
+        1fr
+      )
+    );
+
+  gap:
+    clamp(
+      18px,
+      3vw,
+      28px
+    );
+
+  padding:
+    clamp(
+      16px,
+      3vw,
+      20px
+    );
+}
+
+
+/* =========================================================
+   CLIENTE
+   ========================================================= */
+
+.dashboard-reward__customer {
+  min-width:
+    0;
+
+  display:
+    flex;
+
+  flex-wrap:
+    wrap;
 
   align-items:
     center;
 
-  justify-content:
-    space-between;
+  gap:
+    14px;
+}
+
+.dashboard-reward__customer > div {
+  min-width:
+    0;
+
+  flex:
+    1 1 150px;
+
+  display:
+    grid;
 
   gap:
-    var(--space-5);
+    4px;
+}
+
+.dashboard-reward__label {
+  color:
+    var(--color-orange);
+
+  font-size:
+    10px;
+
+  font-weight:
+    900;
+
+  letter-spacing:
+    0.09em;
+
+  text-transform:
+    uppercase;
+}
+
+.dashboard-reward__customer-name {
+  max-width:
+    100%;
+
+  overflow:
+    hidden;
+
+  color:
+    var(--color-text);
+
+  font-size:
+    clamp(
+      16px,
+      2vw,
+      18px
+    );
+
+  font-weight:
+    900;
+
+  text-overflow:
+    ellipsis;
+
+  white-space:
+    nowrap;
+}
+
+.dashboard-reward__phone {
+  color:
+    var(--color-text-muted);
+
+  font-size:
+    13px;
+}
+
+
+/* =========================================================
+   INFORMACIÓN DE RECOMPENSA
+   ========================================================= */
+
+.dashboard-reward__details {
+  min-width:
+    0;
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  justify-content:
+    center;
+
+  gap:
+    5px;
+}
+
+.dashboard-reward__name {
+  color:
+    var(--color-text);
+
+  font-size:
+    clamp(
+      18px,
+      2.5vw,
+      20px
+    );
+
+  font-weight:
+    900;
+
+  line-height:
+    1.1;
+
+  overflow-wrap:
+    anywhere;
+}
+
+.dashboard-reward__description {
+  max-width:
+    620px;
+
+  margin:
+    2px 0 0;
+
+  color:
+    var(--color-text-muted);
+
+  font-size:
+    14px;
+
+  line-height:
+    1.45;
+
+  overflow-wrap:
+    anywhere;
+}
+
+.dashboard-reward__waiting {
+  color:
+    var(--color-orange);
+
+  font-size:
+    clamp(
+      15px,
+      2vw,
+      17px
+    );
+
+  font-weight:
+    900;
+}
+
+
+/* =========================================================
+   PIE DE RECOMPENSA
+
+   También utiliza grid automático.
+   ========================================================= */
+
+.dashboard-reward__footer {
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(
+        min(
+          160px,
+          100%
+        ),
+        1fr
+      )
+    );
+
+  align-items:
+    center;
+
+  gap:
+    12px;
 
   padding:
-    20px 0;
+    clamp(
+      12px,
+      2vw,
+      16px
+    )
+    clamp(
+      16px,
+      3vw,
+      20px
+    );
+
+  border-top:
+    1px solid
+    var(--color-border-soft);
+
+  background:
+    var(--color-surface-muted);
+}
+
+.dashboard-reward__date {
+  min-width:
+    0;
+
+  display:
+    grid;
+
+  gap:
+    3px;
+}
+
+.dashboard-reward__date span {
+  color:
+    var(--color-text-muted);
+
+  font-size:
+    10px;
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    0.08em;
+}
+
+.dashboard-reward__date strong {
+  color:
+    var(--color-text);
+
+  font-size:
+    13px;
+}
+
+
+/* =========================================================
+   BOTÓN CANJEAR
+   ========================================================= */
+
+.dashboard-reward__redeem {
+  width:
+    100%;
+
+  min-height:
+    42px;
+
+  padding:
+    12px 18px;
+
+  border:
+    1px solid
+    var(--color-green);
+
+  border-radius:
+    var(--radius-sm);
+
+  background:
+    var(--color-green);
+
+  color:
+    var(--color-white);
+
+  font-size:
+    12px;
+
+  font-weight:
+    900;
+
+  letter-spacing:
+    0.07em;
+
+  cursor:
+    pointer;
+
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.dashboard-reward__redeem:hover:not(:disabled) {
+  transform:
+    translateY(-1px);
+}
+
+.dashboard-reward__redeem:disabled {
+  opacity:
+    0.55;
+
+  cursor:
+    not-allowed;
+}
+
+
+/* =========================================================
+   PENDIENTE DE SELECCIÓN
+   ========================================================= */
+
+.dashboard-reward__pending-badge {
+  width:
+    100%;
+
+  padding:
+    10px 12px;
+
+  border:
+    1px solid
+    var(--color-orange);
+
+  border-radius:
+    var(--radius-sm);
+
+  color:
+    var(--color-orange);
+
+  font-size:
+    10px;
+
+  font-weight:
+    900;
+
+  letter-spacing:
+    0.08em;
+
+  text-align:
+    center;
+}
+
+
+/* =========================================================
+   CLIENTES RECIENTES
+   ========================================================= */
+
+.customer-list {
+  border-top:
+    1px solid
+    var(--color-border);
+}
+
+.customer-row {
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(
+        min(
+          220px,
+          100%
+        ),
+        1fr
+      )
+    );
+
+  align-items:
+    center;
+
+  gap:
+    clamp(
+      12px,
+      2vw,
+      20px
+    );
+
+  padding:
+    clamp(
+      16px,
+      2.5vw,
+      20px
+    )
+    0;
 
   border-bottom:
     1px solid
-    var(--color-ash);
+    var(--color-border-soft);
 }
 
 .customer-row__identity {
-  display: flex;
+  min-width:
+    0;
+
+  display:
+    flex;
 
   align-items:
     center;
@@ -194,10 +854,22 @@
 }
 
 .customer-avatar {
-  width: 46px;
-  height: 46px;
+  width:
+    clamp(
+      42px,
+      6vw,
+      46px
+    );
 
-  display: grid;
+  height:
+    clamp(
+      42px,
+      6vw,
+      46px
+    );
+
+  display:
+    grid;
 
   place-items:
     center;
@@ -213,30 +885,63 @@
     var(--radius-sm);
 
   background:
-    var(--color-white);
+    var(--color-surface);
+
+  color:
+    var(--color-text);
 
   font-weight:
     900;
 }
 
 .customer-row__identity div {
-  display: grid;
+  min-width:
+    0;
 
-  gap: 4px;
+  display:
+    grid;
+
+  gap:
+    4px;
 }
 
-.customer-row__identity span {
+.customer-row__identity strong {
+  max-width:
+    100%;
+
+  overflow:
+    hidden;
+
   color:
-    var(--color-slate);
+    var(--color-text);
+
+  text-overflow:
+    ellipsis;
+
+  white-space:
+    nowrap;
+}
+
+.customer-row__identity span:not(.customer-avatar) {
+  color:
+    var(--color-text-muted);
 
   font-size:
     14px;
+
+  overflow-wrap:
+    anywhere;
 }
 
 .customer-row__date {
-  display: grid;
+  min-width:
+    0;
 
-  gap: 4px;
+  display:
+    grid;
+
+  gap:
+    4px;
 
   text-align:
     right;
@@ -244,7 +949,7 @@
 
 .customer-row__date span {
   color:
-    var(--color-slate);
+    var(--color-text-muted);
 
   font-size:
     11px;
@@ -256,9 +961,28 @@
     0.08em;
 }
 
+.customer-row__date strong {
+  color:
+    var(--color-text);
+}
+
+
+/* =========================================================
+   ESTADO VACÍO
+   ========================================================= */
+
 .dashboard-empty {
   padding:
-    40px 20px;
+    clamp(
+      24px,
+      5vw,
+      40px
+    )
+    clamp(
+      16px,
+      3vw,
+      20px
+    );
 
   border:
     1px solid
@@ -266,6 +990,14 @@
 
   border-radius:
     var(--radius-sm);
+
+  background:
+    var(--color-surface);
+}
+
+.dashboard-empty strong {
+  color:
+    var(--color-text);
 }
 
 .dashboard-empty p {
@@ -273,68 +1005,102 @@
     8px 0 0;
 
   color:
-    var(--color-slate);
+    var(--color-text-muted);
+
+  line-height:
+    1.5;
 }
+
+
+/* =========================================================
+   ESTADOS GENERALES
+   ========================================================= */
 
 .dashboard-state {
   padding:
-    var(--space-10);
+    clamp(
+      24px,
+      5vw,
+      40px
+    );
+
+  color:
+    var(--color-text);
+}
+/* =========================================================
+   MODAL DE CANJE
+   ========================================================= */
+
+.redeem-confirmation {
+  display: grid;
+
+  gap: 18px;
 }
 
-
-/* Tablet */
-
-@media (
-  max-width: 900px
-) {
-  .dashboard-stats {
-    grid-template-columns:
-      repeat(
-        2,
-        minmax(0, 1fr)
-      );
-  }
+.redeem-confirmation > p {
+  margin: 0;
 }
 
+.redeem-confirmation strong {
+  color:
+    var(--color-text);
+}
 
-/* Mobile */
+.redeem-confirmation__reward {
+  display: grid;
 
-@media (
-  max-width: 600px
-) {
-  .dashboard-hero {
-    align-items:
-      flex-start;
+  gap: 5px;
 
-    flex-direction:
-      column;
-  }
+  padding: 16px;
 
-  .dashboard-user {
-    text-align:
-      left;
-  }
+  border:
+    1px solid
+    var(--color-orange);
 
-  .dashboard-stats {
-    grid-template-columns:
-      1fr;
-  }
+  border-radius:
+    var(--radius-sm);
 
-  .dashboard-section__heading {
-    align-items:
-      flex-start;
+  background:
+    var(--color-surface-muted);
+}
 
-    flex-direction:
-      column;
-  }
+.redeem-confirmation__reward span {
+  color:
+    var(--color-orange);
 
-  .customer-row {
-    align-items:
-      flex-start;
-  }
+  font-size:
+    0.68rem;
 
-  .customer-row__date {
-    text-align:
-      right;
-  }
+  font-weight:
+    900;
+
+  letter-spacing:
+    0.1em;
+}
+
+.redeem-confirmation__reward strong {
+  font-size:
+    1.2rem;
+
+  font-weight:
+    900;
+}
+
+.redeem-confirmation__reward small {
+  color:
+    var(--color-text-muted);
+
+  font-size:
+    0.86rem;
+
+  line-height:
+    1.4;
+}
+
+.redeem-confirmation__warning {
+  padding-left: 12px;
+
+  border-left:
+    3px solid
+    var(--color-orange);
 }

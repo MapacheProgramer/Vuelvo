@@ -1,40 +1,590 @@
-.status-box {
-  margin-top: var(--space-7);
-  padding: var(--space-5);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+/* =========================================================
+   PÁGINAS PÚBLICAS
+   Diseño actual - modo oscuro
+   ========================================================= */
+
+.loyalty-page {
+  min-height: 100vh;
+
+  background: #050505;
+  color: #ffffff;
+
+  display: flex;
+  justify-content: center;
+
+  padding: 0 16px 40px;
 }
 
-.status-box p {
-  line-height: 1.5;
+.loyalty-shell {
+  width: 100%;
+  max-width: 500px;
+  min-height: 100vh;
+
+  background: #0b0b0b;
+
+  border-left: 1px solid
+    rgba(255, 255, 255, 0.08);
+
+  border-right: 1px solid
+    rgba(255, 255, 255, 0.08);
 }
 
-.loading-mark {
-  width: 42px;
-  height: 42px;
-  margin-bottom: 18px;
-  border: 5px solid var(--color-ash);
-  border-top-color: var(--color-accent);
-  border-radius: 50%;
-  animation: loyalty-spin 0.8s linear infinite;
+.loyalty-content {
+  padding: 24px 20px 40px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* =========================================================
+   TEXTOS GENERALES
+   ========================================================= */
+
+.eyebrow {
+  margin: 0;
+
+  font-size: 0.88rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+
+  text-transform: uppercase;
+
+  color: #f05a28;
+}
+
+.display-title {
+  margin: 0;
+
+  font-size: clamp(
+    2.1rem,
+    7vw,
+    3.7rem
+  );
+
+  line-height: 0.95;
+
+  font-weight: 900;
+  text-transform: uppercase;
+
+  color: #ffffff;
+}
+
+.body-copy {
+  margin: 0;
+
+  font-size: 1rem;
+  line-height: 1.55;
+
+  color: rgba(
+    255,
+    255,
+    255,
+    0.8
+  );
 }
 
 .public-page__primary-action {
-  margin-top: var(--space-7);
-}
-
-.public-page__secondary-action {
-  margin-top: var(--space-6);
+  margin-top: 10px;
 }
 
 .snapshot-note {
-  margin: 18px 0 0;
-  color: var(--color-text-muted);
-  font-size: 0.6875rem;
+  margin: 0;
+
+  font-size: 0.88rem;
   line-height: 1.4;
+
   text-align: center;
+
+  color: rgba(
+    255,
+    255,
+    255,
+    0.58
+  );
 }
 
-@keyframes loyalty-spin {
-  to { transform: rotate(360deg); }
+/* =========================================================
+   SECCIÓN DE RECOMPENSAS
+   ========================================================= */
+
+.reward-selector {
+  display: flex;
+  flex-direction: column;
+
+  gap: 14px;
+}
+
+.reward-selector__eyebrow {
+  margin: 0;
+
+  font-size: 0.88rem;
+  font-weight: 900;
+
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+
+  color: #f05a28;
+}
+
+.reward-selector__title {
+  margin: 0;
+
+  font-size: 1.9rem;
+  line-height: 1.05;
+
+  font-weight: 900;
+
+  color: #ffffff;
+}
+
+.reward-selector__list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 16px;
+}
+
+/* =========================================================
+   TARJETA DE RECOMPENSA PENDIENTE
+   ========================================================= */
+
+.reward-selector__pending-card {
+  border: 1px solid
+    rgba(240, 90, 40, 0.45);
+
+  border-radius: 18px;
+
+  background: rgba(
+    255,
+    255,
+    255,
+    0.02
+  );
+
+  padding: 18px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+.reward-selector__pending-index {
+  margin: 0;
+
+  font-size: 0.95rem;
+  font-weight: 700;
+
+  color: rgba(
+    255,
+    255,
+    255,
+    0.8
+  );
+}
+
+.reward-selector__pending-status {
+  margin: 0;
+
+  font-size: 0.88rem;
+  font-weight: 900;
+
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  color: #f05a28;
+}
+
+.reward-selector__subtitle {
+  margin: 0;
+
+  font-size: 1.5rem;
+  line-height: 1.05;
+
+  font-weight: 900;
+
+  color: #ffffff;
+}
+
+.reward-selector__copy {
+  margin: 0;
+
+  font-size: 0.98rem;
+  line-height: 1.5;
+
+  color: rgba(
+    255,
+    255,
+    255,
+    0.8
+  );
+}
+
+/* =========================================================
+   RECOMPENSA YA ELEGIDA
+   ========================================================= */
+
+.reward-selector__chosen {
+  border-radius: 14px;
+
+  border: 1px solid
+    rgba(22, 125, 77, 0.5);
+
+  background: rgba(
+    18,
+    86,
+    54,
+    0.35
+  );
+
+  padding: 14px 16px;
+
+  font-size: 1rem;
+  font-weight: 800;
+
+  color: #ffffff;
+}
+
+/* =========================================================
+   MENSAJES DEL SELECTOR
+   ========================================================= */
+
+.reward-selector__feedback {
+  margin: 0;
+
+  padding: 12px 14px;
+
+  border-radius: 12px;
+
+  background: rgba(
+    240,
+    90,
+    40,
+    0.12
+  );
+
+  border: 1px solid
+    rgba(
+      240,
+      90,
+      40,
+      0.28
+    );
+
+  color: #ffffff;
+
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+/* =========================================================
+   OPCIONES DE RECOMPENSA
+   ========================================================= */
+
+.reward-options {
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+.reward-option {
+  border: 1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.12
+    );
+
+  border-radius: 14px;
+
+  padding: 14px;
+
+  background: rgba(
+    255,
+    255,
+    255,
+    0.015
+  );
+
+  display: flex;
+
+  gap: 12px;
+
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.reward-option__content {
+  min-width: 0;
+
+  flex: 1;
+}
+
+.reward-option__title {
+  margin: 0 0 6px;
+
+  font-size: 1.05rem;
+  line-height: 1.2;
+
+  font-weight: 900;
+
+  color: #ffffff;
+}
+
+.reward-option__description {
+  margin: 0;
+
+  font-size: 0.95rem;
+  line-height: 1.45;
+
+  color: rgba(
+    255,
+    255,
+    255,
+    0.76
+  );
+}
+
+/* =========================================================
+   BOTÓN ELEGIR
+   ========================================================= */
+
+.reward-option__button {
+  flex-shrink: 0;
+
+  border: none;
+
+  border-radius: 12px;
+
+  background: #176c43;
+
+  color: #ffffff;
+
+  padding: 12px 16px;
+
+  font-size: 0.92rem;
+  font-weight: 900;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease,
+    background 0.15s ease;
+}
+
+.reward-option__button:hover {
+  background: #1d7f50;
+
+  transform: translateY(-1px);
+}
+
+.reward-option__button:disabled {
+  opacity: 0.72;
+
+  cursor: not-allowed;
+
+  transform: none;
+}
+
+/* =========================================================
+   MODO CLARO
+   Solo cambia visibilidad/contraste.
+   No modifica la identidad de Vuelvo.
+   ========================================================= */
+
+[data-theme="light"]
+  .loyalty-page {
+  background: #efefef;
+
+  color: #000000;
+}
+
+[data-theme="light"]
+  .loyalty-shell {
+  background: #ffffff;
+
+  border-left-color: #d7d7d7;
+  border-right-color: #d7d7d7;
+}
+
+/* Título principal */
+
+[data-theme="light"]
+  .display-title {
+  color: #000000;
+}
+
+/* Texto descriptivo */
+
+[data-theme="light"]
+  .body-copy {
+  color: #646464;
+}
+
+/* Última visita */
+
+[data-theme="light"]
+  .snapshot-note {
+  color: #646464;
+}
+
+/* =========================================================
+   RECOMPENSAS - LIGHT
+   ========================================================= */
+
+[data-theme="light"]
+  .reward-selector__title {
+  color: #000000;
+}
+
+[data-theme="light"]
+  .reward-selector__pending-card {
+  background: #ffffff;
+
+  border-color: rgba(
+    210,
+    90,
+    36,
+    0.55
+  );
+}
+
+[data-theme="light"]
+  .reward-selector__pending-index {
+  color: #646464;
+}
+
+[data-theme="light"]
+  .reward-selector__subtitle {
+  color: #000000;
+}
+
+[data-theme="light"]
+  .reward-selector__copy {
+  color: #646464;
+}
+
+/* =========================================================
+   OPCIONES - LIGHT
+   ========================================================= */
+
+[data-theme="light"]
+  .reward-option {
+  background: #ffffff;
+
+  border-color: #d7d7d7;
+}
+
+[data-theme="light"]
+  .reward-option__title {
+  color: #000000;
+}
+
+[data-theme="light"]
+  .reward-option__description {
+  color: #646464;
+}
+
+/* El botón conserva el verde actual */
+
+[data-theme="light"]
+  .reward-option__button {
+  background: #176c43;
+
+  color: #ffffff;
+}
+
+[data-theme="light"]
+  .reward-option__button:hover {
+  background: #1d7f50;
+}
+
+/* =========================================================
+   RECOMPENSA ELEGIDA - LIGHT
+   ========================================================= */
+
+[data-theme="light"]
+  .reward-selector__chosen {
+  background: rgba(
+    17,
+    55,
+    34,
+    0.08
+  );
+
+  border-color: rgba(
+    17,
+    55,
+    34,
+    0.3
+  );
+
+  color: #113722;
+}
+
+/* =========================================================
+   MENSAJES - LIGHT
+   ========================================================= */
+
+[data-theme="light"]
+  .reward-selector__feedback {
+  background: rgba(
+    210,
+    90,
+    36,
+    0.08
+  );
+
+  border-color: rgba(
+    210,
+    90,
+    36,
+    0.3
+  );
+
+  color: #232323;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 520px) {
+  .loyalty-page {
+    padding: 0;
+  }
+
+  .loyalty-shell {
+    max-width: 100%;
+
+    border-left: none;
+    border-right: none;
+  }
+
+  .loyalty-content {
+    padding:
+      22px
+      16px
+      36px;
+  }
+
+  .reward-selector__title {
+    font-size: 1.65rem;
+  }
+
+  .reward-selector__subtitle {
+    font-size: 1.28rem;
+  }
+
+  .reward-option {
+    flex-direction: column;
+  }
+
+  .reward-option__button {
+    width: 100%;
+  }
 }

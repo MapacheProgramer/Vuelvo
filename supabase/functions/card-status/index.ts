@@ -3,15 +3,18 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const DEV_ORIGIN =
   /^http:\/\/(localhost|127\.0\.0\.1|192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}):\d{2,5}$/;
 
-const ALLOW_DEV = Deno.env.get("ALLOW_DEV_ORIGINS") === "true";
+const ALLOW_DEV =
+  Deno.env.get("ALLOW_DEV_ORIGINS") === "true";
 
 const PROD_ORIGINS = (Deno.env.get("ALLOWED_ORIGINS") ?? "")
   .split(",")
-  .map((s) => s.trim())
+  .map((value) => value.trim())
   .filter(Boolean);
 
 function isAllowedOrigin(origin: string | null): boolean {
-  if (!origin) return true;
+  if (!origin) {
+    return true;
+  }
 
   return (
     PROD_ORIGINS.includes(origin) ||
@@ -24,7 +27,7 @@ function corsHeaders(origin: string | null): Record<string, string> {
     "Access-Control-Allow-Headers":
       "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Vary": "Origin",
+    Vary: "Origin",
   };
 
   if (origin && isAllowedOrigin(origin)) {
@@ -50,6 +53,10 @@ Deno.serve(async (req) => {
       },
     });
 
+  // ---------------------------------------------------------
+  // 1. Validar origen
+  // ---------------------------------------------------------
+
   if (!isAllowedOrigin(origin)) {
     return json(
       {
@@ -60,12 +67,20 @@ Deno.serve(async (req) => {
     );
   }
 
+  // ---------------------------------------------------------
+  // 2. Preflight CORS
+  // ---------------------------------------------------------
+
   if (req.method === "OPTIONS") {
     return new Response(null, {
       status: 204,
       headers: cors,
     });
   }
+
+  // ---------------------------------------------------------
+  // 3. Solo POST
+  // ---------------------------------------------------------
 
   if (req.method !== "POST") {
     return json(
@@ -76,6 +91,10 @@ Deno.serve(async (req) => {
       405,
     );
   }
+
+  // ---------------------------------------------------------
+  // 4. Leer JSON
+  // ---------------------------------------------------------
 
   let payload;
 
@@ -93,6 +112,10 @@ Deno.serve(async (req) => {
 
   const { code, device_token } = payload ?? {};
 
+  // ---------------------------------------------------------
+  // 5. Validar código
+  // ---------------------------------------------------------
+
   if (
     typeof code !== "string" ||
     !CODE_RE.test(code)
@@ -105,6 +128,10 @@ Deno.serve(async (req) => {
       400,
     );
   }
+
+  // ---------------------------------------------------------
+  // 6. Validar dispositivo
+  // ---------------------------------------------------------
 
   if (
     typeof device_token !== "string" ||
@@ -119,23 +146,33 @@ Deno.serve(async (req) => {
     );
   }
 
+  // ---------------------------------------------------------
+  // 7. Cliente Supabase interno
+  // ---------------------------------------------------------
+
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
   // ---------------------------------------------------------
-  // 1. Buscar tag y negocio
+  // 8. Buscar tag
   // ---------------------------------------------------------
 
-  const { data: tag, error: tagError } = await supabase
+  const {
+    data: tag,
+    error: tagError,
+  } = await supabase
     .from("tags")
     .select("id, business_id, active")
     .eq("code", code)
     .maybeSingle();
 
   if (tagError) {
-    console.error("tag lookup error:", tagError.message);
+    console.error(
+      "tag lookup error:",
+      tagError.message,
+    );
 
     return json(
       {
@@ -155,14 +192,26 @@ Deno.serve(async (req) => {
     );
   }
 
-  const { data: business, error: businessError } =
-    await supabase
-      .from("businesses")
-      .select(
-        "id, name, logo_url, brand_color, settings",
-      )
-      .eq("id", tag.business_id)
-      .single();
+  // ---------------------------------------------------------
+  // 9. Buscar negocio
+  // ---------------------------------------------------------
+
+  const {
+    data: business,
+    error: businessError,
+  } = await supabase
+    .from("businesses")
+    .select(
+      `
+      id,
+      name,
+      logo_url,
+      brand_color,
+      settings
+      `,
+    )
+    .eq("id", tag.business_id)
+    .single();
 
   if (businessError || !business) {
     console.error(
@@ -178,6 +227,10 @@ Deno.serve(async (req) => {
       500,
     );
   }
+
+  // ---------------------------------------------------------
+  // 10. Configuración del negocio
+  // ---------------------------------------------------------
 
   const required =
     Number(
@@ -195,16 +248,18 @@ Deno.serve(async (req) => {
   };
 
   // ---------------------------------------------------------
-  // 2. Buscar cliente usando business + device_token
+  // 11. Buscar cliente por negocio + dispositivo
   // ---------------------------------------------------------
 
-  const { data: customer, error: customerError } =
-    await supabase
-      .from("customers")
-      .select("id, name")
-      .eq("business_id", business.id)
-      .eq("device_token", device_token)
-      .maybeSingle();
+  const {
+    data: customer,
+    error: customerError,
+  } = await supabase
+    .from("customers")
+    .select("id, name")
+    .eq("business_id", business.id)
+    .eq("device_token", device_token)
+    .maybeSingle();
 
   if (customerError) {
     console.error(
@@ -229,25 +284,38 @@ Deno.serve(async (req) => {
   }
 
   // ---------------------------------------------------------
-  // 3. Buscar último premio ganado
+  // 12. Buscar último premio ganado
+  //
+  // Se usa para saber desde qué momento contar los sellos
+  // correspondientes a la tarjeta actual.
   // ---------------------------------------------------------
 
-  const { data: lastReward, error: rewardError } =
-    await supabase
-      .from("rewards")
-      .select("id, status, earned_at, redeemed_at")
-      .eq("business_id", business.id)
-      .eq("customer_id", customer.id)
-      .order("earned_at", {
-        ascending: false,
-      })
-      .limit(1)
-      .maybeSingle();
+  const {
+    data: lastReward,
+    error: lastRewardError,
+  } = await supabase
+    .from("rewards")
+    .select(
+      `
+      id,
+      status,
+      earned_at,
+      redeemed_at,
+      reward_id
+      `,
+    )
+    .eq("business_id", business.id)
+    .eq("customer_id", customer.id)
+    .order("earned_at", {
+      ascending: false,
+    })
+    .limit(1)
+    .maybeSingle();
 
-  if (rewardError) {
+  if (lastRewardError) {
     console.error(
-      "reward lookup error:",
-      rewardError.message,
+      "last reward lookup error:",
+      lastRewardError.message,
     );
 
     return json(
@@ -260,7 +328,213 @@ Deno.serve(async (req) => {
   }
 
   // ---------------------------------------------------------
-  // 4. Contar visitas desde el último premio
+  // 13. Buscar TODAS las recompensas pendientes
+  // ---------------------------------------------------------
+
+  const {
+    data: pendingRewardsRaw,
+    error: pendingRewardsError,
+  } = await supabase
+    .from("rewards")
+    .select(
+      `
+      id,
+      status,
+      earned_at,
+      redeemed_at,
+      reward_id
+      `,
+    )
+    .eq("business_id", business.id)
+    .eq("customer_id", customer.id)
+    .eq("status", "earned")
+    .order("earned_at", {
+      ascending: false,
+    });
+
+  if (pendingRewardsError) {
+    console.error(
+      "pending rewards lookup error:",
+      pendingRewardsError.message,
+    );
+
+    return json(
+      {
+        status: "error",
+        message: "No pudimos consultar tus recompensas",
+      },
+      500,
+    );
+  }
+
+  const rawPendingRewards =
+    pendingRewardsRaw ?? [];
+
+  // ---------------------------------------------------------
+  // 14. IDs de premios ya seleccionados
+  // ---------------------------------------------------------
+
+  const selectedRewardIds = [
+    ...new Set(
+      rawPendingRewards
+        .map((reward) => reward.reward_id)
+        .filter(
+          (rewardId): rewardId is string =>
+            typeof rewardId === "string",
+        ),
+    ),
+  ];
+
+  // ---------------------------------------------------------
+  // 15. Mapa con datos del catálogo ya seleccionado
+  // ---------------------------------------------------------
+
+  const selectedRewardMap = new Map<
+    string,
+    {
+      id: string;
+      name: string;
+      description: string | null;
+      active: boolean;
+    }
+  >();
+
+  if (selectedRewardIds.length > 0) {
+    const {
+      data: selectedCatalog,
+      error: selectedCatalogError,
+    } = await supabase
+      .from("reward_catalog")
+      .select(
+        `
+        id,
+        name,
+        description,
+        active
+        `,
+      )
+      .eq("business_id", business.id)
+      .in("id", selectedRewardIds);
+
+    if (selectedCatalogError) {
+      console.error(
+        "selected catalog lookup error:",
+        selectedCatalogError.message,
+      );
+
+      return json(
+        {
+          status: "error",
+          message: "No pudimos consultar tus recompensas",
+        },
+        500,
+      );
+    }
+
+    for (const reward of selectedCatalog ?? []) {
+      selectedRewardMap.set(
+        reward.id,
+        reward,
+      );
+    }
+  }
+
+  // ---------------------------------------------------------
+  // 16. Verificar si existe algún premio sin seleccionar
+  // ---------------------------------------------------------
+
+  const hasUnselectedReward =
+    rawPendingRewards.some(
+      (reward) => !reward.reward_id,
+    );
+
+  // ---------------------------------------------------------
+  // 17. Obtener catálogo activo
+  // ---------------------------------------------------------
+
+  let rewardCatalog: Array<{
+    id: string;
+    name: string;
+    description: string | null;
+  }> = [];
+
+  if (hasUnselectedReward) {
+    const {
+      data: catalog,
+      error: catalogError,
+    } = await supabase
+      .from("reward_catalog")
+      .select(
+        `
+        id,
+        name,
+        description
+        `,
+      )
+      .eq("business_id", business.id)
+      .eq("active", true)
+      .order("created_at", {
+        ascending: true,
+      });
+
+    if (catalogError) {
+      console.error(
+        "catalog lookup error:",
+        catalogError.message,
+      );
+
+      return json(
+        {
+          status: "error",
+          message:
+            "No pudimos consultar el catálogo de recompensas",
+        },
+        500,
+      );
+    }
+
+    rewardCatalog =
+      catalog ?? [];
+  }
+
+  // ---------------------------------------------------------
+  // 18. Formatear premios pendientes
+  // ---------------------------------------------------------
+
+  const pendingRewards =
+    rawPendingRewards.map(
+      (reward) => {
+        const selectedReward =
+          reward.reward_id
+            ? selectedRewardMap.get(
+                reward.reward_id,
+              ) ?? null
+            : null;
+
+        return {
+          id: reward.id,
+          status: reward.status,
+          earned_at: reward.earned_at,
+          redeemed_at: reward.redeemed_at,
+          reward_id: reward.reward_id,
+
+          selected_reward:
+            selectedReward
+              ? {
+                  id: selectedReward.id,
+                  name: selectedReward.name,
+                  description:
+                    selectedReward.description,
+                  active:
+                    selectedReward.active,
+                }
+              : null,
+        };
+      },
+    );
+
+  // ---------------------------------------------------------
+  // 19. Contar sellos desde el último premio
   // ---------------------------------------------------------
 
   let visitQuery = supabase
@@ -299,10 +573,11 @@ Deno.serve(async (req) => {
     );
   }
 
-  const stamps = count ?? 0;
+  const stamps =
+    count ?? 0;
 
   // ---------------------------------------------------------
-  // 5. Buscar última visita
+  // 20. Buscar última visita
   // ---------------------------------------------------------
 
   const {
@@ -327,13 +602,8 @@ Deno.serve(async (req) => {
   }
 
   // ---------------------------------------------------------
-  // 6. Determinar si hay recompensa pendiente
+  // 21. Respuesta final
   // ---------------------------------------------------------
-
-  const rewardAvailable =
-    Boolean(lastReward) &&
-    lastReward.status !== "redeemed" &&
-    !lastReward.redeemed_at;
 
   return json({
     status: "ok",
@@ -345,17 +615,19 @@ Deno.serve(async (req) => {
     stamps,
     required,
 
-    reward_available: rewardAvailable,
+    reward_available:
+      pendingRewards.length > 0,
 
-    reward: lastReward
-      ? {
-          id: lastReward.id,
-          status: lastReward.status,
-          earned_at: lastReward.earned_at,
-          redeemed_at:
-            lastReward.redeemed_at,
-        }
-      : null,
+    // Compatibilidad temporal con CardPage actual.
+    reward:
+      pendingRewards[0] ?? null,
+
+    // Nueva información para el sistema de recompensas.
+    pending_rewards:
+      pendingRewards,
+
+    reward_catalog:
+      rewardCatalog,
 
     last_visit:
       lastVisit?.created_at ?? null,

@@ -1,113 +1,268 @@
 .stamp-card {
-  margin-top: var(--space-7);
+  border: 1px solid #f05a28;
+  border-radius: 18px;
+  padding: 20px 18px;
+  background: rgba(255, 255, 255, 0.02);
 }
 
-.stamp-card__heading {
+.stamp-card__header {
   display: flex;
-  align-items: end;
+  align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
-  padding-bottom: var(--space-4);
-  border-bottom: 1px solid var(--color-border);
+  gap: 16px;
 }
 
-.stamp-card__heading strong {
-  font-size: 1.75rem;
+.stamp-card__count {
+  font-size: 2.25rem;
   line-height: 1;
-  font-weight: var(--font-weight-black);
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
+  font-weight: 900;
+  color: #ffffff;
 }
 
-.stamp-card__heading span {
-  color: var(--color-text-muted);
-  font-size: 0.75rem;
-  font-weight: var(--font-weight-bold);
-  letter-spacing: 0.7px;
-  text-transform: uppercase;
-  text-align: right;
+.stamp-card__label {
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.78);
 }
 
-.stamp-grid {
+.stamp-card__grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--space-3);
-  margin-top: var(--space-5);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
 }
 
-.stamp {
-  aspect-ratio: 1;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  font-size: 1.25rem;
-  font-weight: var(--font-weight-black);
+.stamp-card__stamp {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 999px;
+  border: 2px dashed rgba(255, 255, 255, 0.28);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 1.45rem;
+  font-weight: 900;
+
+  color: rgba(255, 255, 255, 0.65);
+
+  background: transparent;
 }
 
-.stamp--on {
-  color: var(--color-white);
-  background: var(--color-action);
-  border: 2px solid var(--color-action);
-  box-shadow: var(--shadow-sticker-sm);
+.stamp-card__stamp--active {
+  color: #ffffff;
+
+  border-style: solid;
+  border-color: rgba(240, 90, 40, 0.9);
+
+  background: linear-gradient(
+    180deg,
+    rgba(23, 108, 67, 0.95) 0%,
+    rgba(18, 86, 54, 0.95) 100%
+  );
 }
 
-.stamp--off {
-  color: var(--color-concrete);
-  background: var(--color-white);
-  border: 2px dashed var(--color-concrete);
+.stamp-card__divider {
+  height: 1px;
+
+  background: rgba(255, 255, 255, 0.1);
+
+  margin: 18px 0;
 }
 
-.reward-panel {
-  margin-top: var(--space-5);
-  padding-top: 18px;
-  border-top: 1px solid var(--color-ash);
+.stamp-card__reward-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.reward-label {
-  margin: 0 0 6px;
-  font-size: 0.75rem;
-  font-weight: var(--font-weight-bold);
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-}
-
-.reward-name {
+.stamp-card__eyebrow {
   margin: 0;
-  font-size: 1.375rem;
-  line-height: 1.2;
-  font-weight: var(--font-weight-black);
+
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+
+  color: #ffffff;
+}
+
+.stamp-card__reward-title {
+  margin: 0;
+
+  font-size: 1.2rem;
+  line-height: 1.1;
+
+  font-weight: 900;
+
+  color: #ffffff;
+
   text-transform: uppercase;
 }
 
-.reward-earned {
-  margin-top: var(--space-5);
-  padding: var(--space-4);
-  color: var(--color-white);
-  background: var(--color-action);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-sticker);
+.stamp-card__reward-copy {
+  margin: 0;
+
+  font-size: 0.98rem;
+  line-height: 1.5;
+
+  color: rgba(255, 255, 255, 0.8);
 }
 
-.reward-earned p {
-  margin-top: 0;
+.stamp-card__available {
+  margin-top: 18px;
+
+  border-radius: 14px;
+
+  border: 1px solid rgba(240, 90, 40, 0.55);
+
+  background: rgba(18, 86, 54, 0.92);
+
+  padding: 16px;
+
+  box-shadow: none;
 }
 
-.reward-earned strong {
-  display: block;
-  margin-top: var(--space-1);
-  font-size: 1.375rem;
+.stamp-card__available-label {
+  margin: 0 0 6px;
+
+  font-size: 0.82rem;
+  font-weight: 900;
+
+  letter-spacing: 0.08em;
+
+  color: #f4f4f4;
+}
+
+.stamp-card__available-title {
+  margin: 0 0 6px;
+
+  font-size: 1.05rem;
+  line-height: 1.15;
+
+  font-weight: 900;
+
+  color: #ffffff;
+
   text-transform: uppercase;
 }
 
-.reward-earned__copy {
-  margin-bottom: 0;
-  color: var(--color-white);
-  font-size: 0.9375rem;
+.stamp-card__available-copy {
+  margin: 0;
+
+  font-size: 0.95rem;
   line-height: 1.45;
+
+  color: rgba(255, 255, 255, 0.88);
 }
 
-@media (min-width: 420px) {
-  .stamp-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+/* =========================================================
+   MODO CLARO
+
+   El diseño oscuro de arriba queda intacto.
+   Estas reglas solamente corrigen contraste y visibilidad
+   cuando el usuario selecciona light.
+   ========================================================= */
+
+[data-theme="light"] .stamp-card {
+  background: #ffffff;
+}
+
+[data-theme="light"] .stamp-card__count {
+  color: #000000;
+}
+
+[data-theme="light"] .stamp-card__label {
+  color: #646464;
+}
+
+[data-theme="light"] .stamp-card__stamp {
+  border-color: rgba(0, 0, 0, 0.28);
+
+  color: rgba(0, 0, 0, 0.62);
+}
+
+/*
+  Los sellos activos conservan exactamente
+  el verde y blanco actuales.
+*/
+
+[data-theme="light"] .stamp-card__stamp--active {
+  color: #ffffff;
+
+  border-color: rgba(240, 90, 40, 0.9);
+
+  background: linear-gradient(
+    180deg,
+    rgba(23, 108, 67, 0.95) 0%,
+    rgba(18, 86, 54, 0.95) 100%
+  );
+}
+
+[data-theme="light"] .stamp-card__divider {
+  background: #d7d7d7;
+}
+
+[data-theme="light"] .stamp-card__eyebrow {
+  color: #232323;
+}
+
+[data-theme="light"] .stamp-card__reward-title {
+  color: #000000;
+}
+
+[data-theme="light"] .stamp-card__reward-copy {
+  color: #646464;
+}
+
+/*
+  La caja de RECOMPENSA DISPONIBLE conserva
+  su verde original también en modo claro.
+*/
+
+[data-theme="light"] .stamp-card__available {
+  background: rgba(18, 86, 54, 0.92);
+
+  border-color: rgba(240, 90, 40, 0.55);
+
+  box-shadow: none;
+}
+
+[data-theme="light"] .stamp-card__available-label {
+  color: #f4f4f4;
+}
+
+[data-theme="light"] .stamp-card__available-title {
+  color: #ffffff;
+}
+
+[data-theme="light"] .stamp-card__available-copy {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 520px) {
+  .stamp-card {
+    padding: 18px 14px;
+  }
+
+  .stamp-card__count {
+    font-size: 1.95rem;
+  }
+
+  .stamp-card__grid {
+    gap: 10px;
+  }
+
+  .stamp-card__stamp {
+    font-size: 1.2rem;
+  }
+
+  .stamp-card__reward-title {
+    font-size: 1.05rem;
   }
 }

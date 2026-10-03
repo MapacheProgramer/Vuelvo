@@ -1,95 +1,297 @@
+/* =========================================================
+   DASHBOARD HEADER
+   Fluido y compatible con light / dark
+   ========================================================= */
+
 .dashboard-header {
   min-height: 72px;
-  display: flex;
+
+  display: grid;
+
+  grid-template-columns:
+    auto
+    minmax(0, 1fr)
+    auto;
+
   align-items: center;
-  gap: var(--space-4);
-  padding: 0 var(--space-8);
-  border-bottom: 1px solid var(--color-black);
-  background: var(--color-white);
+
+  gap:
+    clamp(
+      10px,
+      2vw,
+      16px
+    );
+
+  padding-inline:
+    clamp(
+      16px,
+      3vw,
+      32px
+    );
+
+  border-bottom:
+    1px solid
+    var(--color-border);
+
+  background:
+    var(--color-surface);
+
+  color:
+    var(--color-text);
 }
+
+
+/* =========================================================
+   BOTÓN DE MENÚ
+   ========================================================= */
 
 .dashboard-header__menu {
   width: 42px;
   height: 42px;
+
   display: grid;
+
   place-content: center;
+
   gap: 4px;
+
   flex: 0 0 auto;
-  border: 1px solid var(--color-black);
-  border-radius: var(--radius-sm);
-  background: var(--color-white);
+
+  border:
+    1px solid
+    var(--color-border);
+
+  border-radius:
+    var(--radius-sm);
+
+  background:
+    var(--color-surface);
+
+  color:
+    var(--color-text);
+
   cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.dashboard-header__menu:hover {
+  background:
+    var(--color-surface-muted);
 }
 
 .dashboard-header__menu span {
   width: 18px;
   height: 2px;
-  background: var(--color-black);
+
+  background:
+    currentColor;
 }
+
+
+/* =========================================================
+   CONTEXTO DEL NEGOCIO
+   ========================================================= */
 
 .dashboard-header__context {
-  display: grid;
-  gap: 1px;
   min-width: 0;
+
+  display: grid;
+
+  gap: 2px;
 }
 
-.dashboard-header__context span,
-.dashboard-header__account-copy small {
-  color: var(--color-slate);
-  font-size: .75rem;
+.dashboard-header__context span {
+  color:
+    var(--color-text-muted);
+
+  font-size:
+    0.75rem;
 }
 
-.dashboard-header__context strong,
-.dashboard-header__account-copy strong {
+.dashboard-header__context strong {
+  min-width: 0;
+
   overflow: hidden;
+
+  color:
+    var(--color-text);
+
+  font-size:
+    clamp(
+      0.9rem,
+      2vw,
+      1rem
+    );
+
   text-overflow: ellipsis;
+
   white-space: nowrap;
 }
 
-.dashboard-header__account {
+
+/* =========================================================
+   ZONA DERECHA
+   Tema + cuenta
+   ========================================================= */
+
+.dashboard-header__actions {
+  min-width: 0;
+
   display: flex;
+
   align-items: center;
-  gap: var(--space-3);
-  margin-left: auto;
-  padding: 6px 8px;
-  border: 0;
-  background: transparent;
-  text-align: left;
-  cursor: pointer;
+
+  justify-content: flex-end;
+
+  gap:
+    clamp(
+      6px,
+      1.5vw,
+      12px
+    );
 }
+
+
+/* =========================================================
+   CUENTA
+   ========================================================= */
+
+.dashboard-header__account {
+  min-width: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  gap:
+    clamp(
+      8px,
+      1.5vw,
+      12px
+    );
+
+  padding:
+    6px 8px;
+
+  border: 0;
+
+  background:
+    transparent;
+
+  color:
+    var(--color-text);
+
+  text-align: left;
+
+  cursor: pointer;
+
+  border-radius:
+    var(--radius-sm);
+
+  transition:
+    background 0.15s ease;
+}
+
+.dashboard-header__account:hover {
+  background:
+    var(--color-surface-muted);
+}
+
+
+/* =========================================================
+   AVATAR
+   ========================================================= */
 
 .dashboard-header__avatar {
   width: 38px;
   height: 38px;
+
   display: grid;
+
   place-items: center;
+
   flex: 0 0 auto;
-  border-radius: var(--radius-sm);
-  background: var(--color-green);
-  color: var(--color-white);
-  font-size: .75rem;
-  font-weight: var(--font-weight-black);
-  box-shadow: var(--shadow-sticker-sm);
+
+  border-radius:
+    var(--radius-sm);
+
+  background:
+    var(--color-green);
+
+  color:
+    var(--color-white);
+
+  font-size:
+    0.75rem;
+
+  font-weight:
+    var(--font-weight-black);
+
+  box-shadow:
+    var(--shadow-sticker-sm);
 }
 
+
+/* =========================================================
+   DATOS DE CUENTA
+   ========================================================= */
+
 .dashboard-header__account-copy {
+  min-width: 0;
+
   display: grid;
+
+  gap: 2px;
 }
+
+.dashboard-header__account-copy strong {
+  max-width:
+    clamp(
+      90px,
+      14vw,
+      180px
+    );
+
+  overflow: hidden;
+
+  color:
+    var(--color-text);
+
+  font-size:
+    0.85rem;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+.dashboard-header__account-copy small {
+  color:
+    var(--color-text-muted);
+
+  font-size:
+    0.75rem;
+}
+
+
+/* =========================================================
+   ÚNICO CAMBIO ESTRUCTURAL
+
+   El sidebar de DashboardLayout ya queda fijo a partir
+   de 960px, por eso el botón hamburguesa deja de ser útil.
+   ========================================================= */
 
 @media (min-width: 960px) {
   .dashboard-header__menu {
     display: none;
   }
-}
 
-@media (max-width: 720px) {
   .dashboard-header {
-    min-height: 64px;
-    padding: 0 var(--space-5);
-  }
-
-  .dashboard-header__context span,
-  .dashboard-header__account-copy {
-    display: none;
+    grid-template-columns:
+      minmax(0, 1fr)
+      auto;
   }
 }
