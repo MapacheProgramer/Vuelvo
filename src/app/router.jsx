@@ -6,15 +6,25 @@ import {
 
 import TagPage from "../pages/public/TagPage.jsx";
 import CardPage from "../pages/public/CardPage.jsx";
+
 import LoginPage from "../pages/auth/LoginPage.jsx";
+
 import DashboardPage from "../pages/dashboard/DashboardPage.jsx";
+import CustomersPage from "../pages/dashboard/CustomersPage.jsx";
+import RewardsPage from "../pages/dashboard/RewardsPage.jsx";
+import CatalogPage from "../pages/dashboard/CatalogPage.jsx";
 
 import ProtectedRoute from "../features/auth/components/ProtectedRoute.jsx";
+
 
 export default function AppRouter() {
   return (
     <Routes>
-      {/* Inicio */}
+
+      {/* =====================================================
+          INICIO
+          ===================================================== */}
+
       <Route
         path="/"
         element={
@@ -25,27 +35,43 @@ export default function AppRouter() {
         }
       />
 
-      {/* Autenticación */}
+
+      {/* =====================================================
+          AUTENTICACIÓN
+          ===================================================== */}
+
       <Route
         path="/login"
-        element={<LoginPage />}
+        element={
+          <LoginPage />
+        }
       />
 
-      {/* Rutas públicas del cliente */}
 
-      {/* Escanear QR / registrar visita */}
+      {/* =====================================================
+          RUTAS PÚBLICAS
+          ===================================================== */}
+
       <Route
         path="/t/:code"
-        element={<TagPage />}
+        element={
+          <TagPage />
+        }
       />
 
-      {/* Consultar tarjeta sin sumar sello */}
+
       <Route
         path="/card/:code"
-        element={<CardPage />}
+        element={
+          <CardPage />
+        }
       />
 
-      {/* Panel del negocio */}
+
+      {/* =====================================================
+          DASHBOARD
+          ===================================================== */}
+
       <Route
         path="/dashboard"
         element={
@@ -55,7 +81,53 @@ export default function AppRouter() {
         }
       />
 
-      {/* Ruta inexistente */}
+
+      {/* =====================================================
+          CLIENTES
+          ===================================================== */}
+
+      <Route
+        path="/dashboard/clientes"
+        element={
+          <ProtectedRoute>
+            <CustomersPage />
+          </ProtectedRoute>
+        }
+      />
+
+
+      {/* =====================================================
+          RECOMPENSAS
+          ===================================================== */}
+
+      <Route
+        path="/dashboard/recompensas"
+        element={
+          <ProtectedRoute>
+            <RewardsPage />
+          </ProtectedRoute>
+        }
+      />
+
+
+      {/* =====================================================
+          CATÁLOGO
+          ===================================================== */}
+
+      <Route
+        path="/dashboard/catalogo"
+        element={
+          <ProtectedRoute>
+            <CatalogPage />
+          </ProtectedRoute>
+        }
+      />
+
+
+      {/* =====================================================
+          RUTA NO ENCONTRADA
+          ===================================================== */}
+
       <Route
         path="*"
         element={
@@ -65,6 +137,7 @@ export default function AppRouter() {
           />
         }
       />
+
     </Routes>
   );
 }

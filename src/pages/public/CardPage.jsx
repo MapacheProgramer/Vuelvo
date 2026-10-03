@@ -9,7 +9,12 @@ import {
 } from "react-router-dom";
 
 import BrandHeader from "../../components/layout/BrandHeader/BrandHeader";
+
 import StampCard from "../../components/loyalty/StampCard/StampCard";
+
+import RewardCatalogPreview from "../../components/loyalty/RewardCatalogPreview/RewardCatalogPreview";
+
+import VisitCooldown from "../../components/loyalty/VisitCooldown/VisitCooldown";
 
 import {
   ButtonLink,
@@ -26,28 +31,38 @@ import {
 
 import "./public-pages.css";
 
-export default function CardPage() {
-  const { code } = useParams();
 
-  const [state, setState] = useState({
+export default function CardPage() {
+  const {
+    code,
+  } = useParams();
+
+
+  const [
+    state,
+    setState,
+  ] = useState({
     loading: true,
     error: null,
     data: null,
   });
+
 
   const [
     selectingKey,
     setSelectingKey,
   ] = useState(null);
 
+
   const [
     selectionMessage,
     setSelectionMessage,
   ] = useState("");
 
-  // ---------------------------------------------------------
-  // Cargar tarjeta
-  // ---------------------------------------------------------
+
+  // =========================================================
+  // CARGAR TARJETA
+  // =========================================================
 
   const loadCard =
     useCallback(
@@ -55,22 +70,35 @@ export default function CardPage() {
         showLoading = false,
       } = {}) => {
         if (showLoading) {
-          setState((current) => ({
-            ...current,
-            loading: true,
-            error: null,
-          }));
+          setState(
+            (current) => ({
+              ...current,
+
+              loading:
+                true,
+
+              error:
+                null,
+            }),
+          );
         }
+
 
         const deviceToken =
           getDeviceToken({
-            create: false,
+            create:
+              false,
           });
+
 
         if (!deviceToken) {
           setState({
-            loading: false,
-            error: null,
+            loading:
+              false,
+
+            error:
+              null,
+
             data: {
               status:
                 "not_registered",
@@ -80,16 +108,23 @@ export default function CardPage() {
           return;
         }
 
+
         try {
           const data =
             await getCardStatus({
               code,
+
               deviceToken,
             });
 
+
           setState({
-            loading: false,
-            error: null,
+            loading:
+              false,
+
+            error:
+              null,
+
             data,
           });
         } catch (error) {
@@ -98,30 +133,42 @@ export default function CardPage() {
             error,
           );
 
+
           setState({
-            loading: false,
+            loading:
+              false,
+
             error:
               "No pudimos cargar tu tarjeta.",
-            data: null,
+
+            data:
+              null,
           });
         }
       },
-      [code],
+      [
+        code,
+      ],
     );
 
-  // ---------------------------------------------------------
-  // Primera carga
-  // ---------------------------------------------------------
+
+  // =========================================================
+  // PRIMERA CARGA
+  // =========================================================
 
   useEffect(() => {
     loadCard({
-      showLoading: true,
+      showLoading:
+        true,
     });
-  }, [loadCard]);
+  }, [
+    loadCard,
+  ]);
 
-  // ---------------------------------------------------------
-  // Elegir recompensa
-  // ---------------------------------------------------------
+
+  // =========================================================
+  // ELEGIR RECOMPENSA
+  // =========================================================
 
   async function handleSelectReward(
     earnedRewardId,
@@ -129,8 +176,10 @@ export default function CardPage() {
   ) {
     const deviceToken =
       getDeviceToken({
-        create: false,
+        create:
+          false,
       });
+
 
     if (!deviceToken) {
       setSelectionMessage(
@@ -140,24 +189,36 @@ export default function CardPage() {
       return;
     }
 
+
     const actionKey =
       `${earnedRewardId}:${catalogRewardId}`;
 
-    try {
-      setSelectingKey(actionKey);
 
-      setSelectionMessage("");
+    try {
+      setSelectingKey(
+        actionKey,
+      );
+
+      setSelectionMessage(
+        "",
+      );
+
 
       await selectCustomerReward({
         code,
+
         deviceToken,
+
         earnedRewardId,
+
         catalogRewardId,
       });
 
-      // Volvemos a consultar Supabase para
-      // mostrar el estado real guardado.
+
+      // Volvemos a consultar el estado real
+      // después de seleccionar la recompensa.
       await loadCard();
+
 
       setSelectionMessage(
         "Recompensa seleccionada correctamente.",
@@ -168,19 +229,23 @@ export default function CardPage() {
         error,
       );
 
+
       setSelectionMessage(
         error?.data?.message ||
           error?.message ||
           "No pudimos seleccionar la recompensa.",
       );
     } finally {
-      setSelectingKey(null);
+      setSelectingKey(
+        null,
+      );
     }
   }
 
-  // ---------------------------------------------------------
-  // Cargando
-  // ---------------------------------------------------------
+
+  // =========================================================
+  // CARGANDO
+  // =========================================================
 
   if (state.loading) {
     return (
@@ -191,26 +256,31 @@ export default function CardPage() {
     );
   }
 
-  // ---------------------------------------------------------
-  // Error
-  // ---------------------------------------------------------
+
+  // =========================================================
+  // ERROR
+  // =========================================================
 
   if (state.error) {
     return (
       <PublicState
         eyebrow="Vuelvo"
         title="Algo salió mal"
-        text={state.error}
+        text={
+          state.error
+        }
       />
     );
   }
 
+
   const data =
     state.data;
 
-  // ---------------------------------------------------------
-  // No registrado
-  // ---------------------------------------------------------
+
+  // =========================================================
+  // NO REGISTRADO
+  // =========================================================
 
   if (
     data?.status ===
@@ -219,27 +289,33 @@ export default function CardPage() {
   ) {
     return (
       <main className="loyalty-page">
+
         <div className="loyalty-shell">
+
           <BrandHeader
             business={
               data?.business
             }
           />
 
+
           <section className="loyalty-content">
+
             <p className="eyebrow">
               Tu tarjeta
             </p>
+
 
             <h1 className="display-title">
               Aún no tienes tarjeta
             </h1>
 
+
             <p className="body-copy">
-              Escanea el código del
-              negocio para registrarte y
-              obtener tu primer sello.
+              Escanea el código del negocio para
+              registrarte y obtener tu primer sello.
             </p>
+
 
             <ButtonLink
               to={`/t/${code}`}
@@ -249,15 +325,19 @@ export default function CardPage() {
             >
               Escanear código
             </ButtonLink>
+
           </section>
+
         </div>
+
       </main>
     );
   }
 
-  // ---------------------------------------------------------
-  // Código inexistente
-  // ---------------------------------------------------------
+
+  // =========================================================
+  // CÓDIGO INEXISTENTE
+  // =========================================================
 
   if (
     data.status ===
@@ -271,25 +351,31 @@ export default function CardPage() {
     );
   }
 
-  // ---------------------------------------------------------
-  // Datos
-  // ---------------------------------------------------------
+
+  // =========================================================
+  // DATOS DE LA TARJETA
+  // =========================================================
 
   const required =
-    Number(data.required) || 0;
+    Number(
+      data.required,
+    ) || 0;
+
 
   const stamps =
     Math.max(
       0,
+
       Math.min(
-        Number(data.stamps) || 0,
-        required || Infinity,
+        Number(
+          data.stamps,
+        ) || 0,
+
+        required ||
+          Infinity,
       ),
     );
 
-  const rewardName =
-    data.business?.reward_name ||
-    "Premio de la casa";
 
   const pendingRewards =
     Array.isArray(
@@ -298,6 +384,7 @@ export default function CardPage() {
       ? data.pending_rewards
       : [];
 
+
   const rewardCatalog =
     Array.isArray(
       data.reward_catalog,
@@ -305,21 +392,67 @@ export default function CardPage() {
       ? data.reward_catalog
       : [];
 
-  // ---------------------------------------------------------
-  // Render
-  // ---------------------------------------------------------
+
+  // Hay al menos una recompensa ganada
+  // que todavía necesita que el cliente
+  // seleccione una opción del catálogo.
+  const hasUnselectedReward =
+    pendingRewards.some(
+      (reward) =>
+        !reward.selected_reward,
+    );
+
+
+  // =========================================================
+  // COOLDOWN DEL SIGUIENTE SELLO
+  // =========================================================
+
+  const secondsUntilNextVisit =
+    Math.max(
+      0,
+
+      Number(
+        data.seconds_until_next_visit,
+      ) || 0,
+    );
+
+
+  const minHoursBetweenVisits =
+    Math.max(
+      0,
+
+      Number(
+        data.min_hours_between_visits,
+      ) || 0,
+    );
+
+
+  // =========================================================
+  // RENDER
+  // =========================================================
 
   return (
     <main className="loyalty-page">
+
       <div className="loyalty-shell">
+
         <BrandHeader
-          business={data.business}
+          business={
+            data.business
+          }
         />
 
+
         <section className="loyalty-content">
+
+          {/* =================================================
+              CABECERA
+              ================================================= */}
+
           <p className="eyebrow">
             Tu tarjeta
           </p>
+
 
           <h1 className="display-title">
             Hola
@@ -328,26 +461,94 @@ export default function CardPage() {
               : ""}
           </h1>
 
+
           <p className="body-copy">
-            Consulta tu progreso sin
-            registrar una nueva visita.
+            Consulta tu progreso, las recompensas
+            disponibles y cuándo podrás sumar tu
+            próximo sello.
           </p>
 
+
+          {/* =================================================
+              TARJETA DE SELLOS
+              ================================================= */}
+
           <StampCard
-            stamps={stamps}
-            required={required}
-            rewardName={rewardName}
-            rewardAvailable={Boolean(
-              data.reward_available,
-            )}
+            stamps={
+              stamps
+            }
+            required={
+              required
+            }
+            rewardAvailable={
+              Boolean(
+                data.reward_available,
+              )
+            }
+            rewardNeedsSelection={
+              hasUnselectedReward
+            }
           />
+
+
+          {/* =================================================
+              CATÁLOGO PREVIO
+
+              Lo mostramos mientras no exista una recompensa
+              pendiente que necesite elección.
+
+              Cuando llega a 8/8 y debe escoger premio,
+              el selector real sustituye esta vista.
+              ================================================= */}
+
+          {rewardCatalog.length >
+            0 &&
+            !hasUnselectedReward && (
+            <RewardCatalogPreview
+              rewards={
+                rewardCatalog
+              }
+              required={
+                required
+              }
+              stamps={
+                stamps
+              }
+            />
+          )}
+
+
+          {/* =================================================
+              PRÓXIMO SELLO
+              ================================================= */}
+
+          <VisitCooldown
+            canRegister={
+              Boolean(
+                data.can_register_visit,
+              )
+            }
+            secondsRemaining={
+              secondsUntilNextVisit
+            }
+            minHours={
+              minHoursBetweenVisits
+            }
+          />
+
+
+          {/* =================================================
+              RECOMPENSAS GANADAS
+              ================================================= */}
 
           {pendingRewards.length >
             0 && (
             <section className="reward-selector">
+
               <p className="reward-selector__eyebrow">
                 Tus recompensas
               </p>
+
 
               <h2 className="reward-selector__title">
                 Tienes{" "}
@@ -360,7 +561,9 @@ export default function CardPage() {
                   : "recompensas pendientes"}
               </h2>
 
+
               <div className="reward-selector__list">
+
                 {pendingRewards.map(
                   (
                     pendingReward,
@@ -370,6 +573,7 @@ export default function CardPage() {
                       pendingReward
                         .selected_reward;
 
+
                     return (
                       <article
                         key={
@@ -377,10 +581,20 @@ export default function CardPage() {
                         }
                         className="reward-selector__pending-card"
                       >
+
+                        {/* =====================================
+                            NÚMERO
+                            ===================================== */}
+
                         <p className="reward-selector__pending-index">
                           Recompensa{" "}
                           {index + 1}
                         </p>
+
+
+                        {/* =====================================
+                            ESTADO
+                            ===================================== */}
 
                         <p className="reward-selector__pending-status">
                           {selectedReward
@@ -388,13 +602,20 @@ export default function CardPage() {
                             : "PREMIO DESBLOQUEADO"}
                         </p>
 
+
+                        {/* =====================================
+                            YA ELIGIÓ RECOMPENSA
+                            ===================================== */}
+
                         {selectedReward ? (
                           <>
+
                             <h3 className="reward-selector__subtitle">
                               {
                                 selectedReward.name
                               }
                             </h3>
+
 
                             {selectedReward.description && (
                               <p className="reward-selector__copy">
@@ -404,34 +625,41 @@ export default function CardPage() {
                               </p>
                             )}
 
+
                             <div className="reward-selector__chosen">
                               Pendiente de canje
                             </div>
 
+
                             <p className="reward-selector__copy">
-                              Presenta esta
-                              recompensa en el
-                              negocio para
-                              reclamarla.
+                              Presenta esta recompensa en
+                              el negocio para reclamarla.
                             </p>
+
                           </>
                         ) : (
                           <>
+
+                            {/* ================================
+                                DEBE ELEGIR RECOMPENSA
+                                ================================ */}
+
                             <h3 className="reward-selector__subtitle">
-                              Elige tu
-                              recompensa
+                              Elige tu recompensa
                             </h3>
 
+
                             <p className="reward-selector__copy">
-                              Completaste tu
-                              tarjeta. Selecciona
-                              el premio que
+                              Completaste tu tarjeta.
+                              Selecciona el premio que
                               quieres reclamar.
                             </p>
+
 
                             {rewardCatalog.length >
                             0 ? (
                               <div className="reward-options">
+
                                 {rewardCatalog.map(
                                   (
                                     rewardOption,
@@ -439,9 +667,11 @@ export default function CardPage() {
                                     const actionKey =
                                       `${pendingReward.id}:${rewardOption.id}`;
 
+
                                     const isSelecting =
                                       selectingKey ===
                                       actionKey;
+
 
                                     return (
                                       <div
@@ -450,12 +680,15 @@ export default function CardPage() {
                                         }
                                         className="reward-option"
                                       >
+
                                         <div className="reward-option__content">
+
                                           <h4 className="reward-option__title">
                                             {
                                               rewardOption.name
                                             }
                                           </h4>
+
 
                                           {rewardOption.description && (
                                             <p className="reward-option__description">
@@ -464,7 +697,9 @@ export default function CardPage() {
                                               }
                                             </p>
                                           )}
+
                                         </div>
+
 
                                         <button
                                           type="button"
@@ -485,26 +720,34 @@ export default function CardPage() {
                                             ? "Eligiendo..."
                                             : "Elegir"}
                                         </button>
+
                                       </div>
                                     );
                                   },
                                 )}
+
                               </div>
                             ) : (
                               <p className="reward-selector__copy">
-                                No hay
-                                recompensas
-                                disponibles en
-                                este momento.
+                                No hay recompensas disponibles
+                                en este momento.
                               </p>
                             )}
+
                           </>
                         )}
+
                       </article>
                     );
                   },
                 )}
+
               </div>
+
+
+              {/* ===============================================
+                  MENSAJE DESPUÉS DE SELECCIONAR
+                  =============================================== */}
 
               {selectionMessage && (
                 <p className="reward-selector__feedback">
@@ -513,8 +756,14 @@ export default function CardPage() {
                   }
                 </p>
               )}
+
             </section>
           )}
+
+
+          {/* =================================================
+              ÚLTIMA VISITA
+              ================================================= */}
 
           {data.last_visit && (
             <p className="snapshot-note">
@@ -526,42 +775,58 @@ export default function CardPage() {
               )}
             </p>
           )}
+
         </section>
+
       </div>
+
     </main>
   );
 }
 
-// -----------------------------------------------------------
-// Estado genérico
-// -----------------------------------------------------------
+
+// ===========================================================
+// ESTADO GENÉRICO
+// ===========================================================
 
 function PublicState({
-  eyebrow = "Tu tarjeta",
+  eyebrow =
+    "Tu tarjeta",
+
   title,
+
   text,
 }) {
   return (
     <main className="loyalty-page">
+
       <div className="loyalty-shell">
+
         <BrandHeader />
 
+
         <section className="loyalty-content">
+
           <p className="eyebrow">
             {eyebrow}
           </p>
 
+
           <h1 className="display-title">
             {title}
           </h1>
+
 
           {text && (
             <p className="body-copy">
               {text}
             </p>
           )}
+
         </section>
+
       </div>
+
     </main>
   );
 }

@@ -1,0 +1,578 @@
+.rewards-page {
+  display: grid;
+
+  gap:
+    clamp(
+      32px,
+      5vw,
+      56px
+    );
+}
+
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+.rewards-page__hero {
+  padding-bottom:
+    clamp(
+      24px,
+      4vw,
+      36px
+    );
+
+  border-bottom:
+    1px solid
+    var(--color-border);
+}
+
+.rewards-page__hero h1 {
+  margin:
+    6px 0 0;
+
+  color:
+    var(--color-text);
+
+  font-size:
+    clamp(
+      2.4rem,
+      7vw,
+      4.5rem
+    );
+
+  line-height:
+    0.95;
+
+  font-weight:
+    var(--font-weight-black);
+
+  letter-spacing:
+    0.02em;
+
+  text-transform:
+    uppercase;
+}
+
+.rewards-page__intro {
+  max-width:
+    650px;
+
+  margin:
+    16px 0 0;
+
+  color:
+    var(--color-text-muted);
+
+  line-height:
+    1.55;
+}
+
+
+/* =========================================================
+   RESUMEN
+   ========================================================= */
+
+.rewards-summary {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(
+        min(
+          190px,
+          100%
+        ),
+        1fr
+      )
+    );
+
+  gap:
+    clamp(
+      12px,
+      2vw,
+      18px
+    );
+}
+
+.rewards-summary__item {
+  min-height:
+    120px;
+
+  display: flex;
+  flex-direction: column;
+
+  padding:
+    18px;
+
+  border:
+    1px solid
+    var(--color-border);
+
+  border-top:
+    4px solid
+    var(--color-orange);
+
+  border-radius:
+    var(--radius-sm);
+
+  background:
+    var(--color-surface);
+}
+
+.rewards-summary__item span {
+  color:
+    var(--color-text-muted);
+
+  font-size:
+    0.7rem;
+
+  font-weight:
+    var(--font-weight-black);
+
+  letter-spacing:
+    0.09em;
+}
+
+.rewards-summary__item strong {
+  margin-top:
+    auto;
+
+  color:
+    var(--color-text);
+
+  font-size:
+    clamp(
+      2rem,
+      5vw,
+      3.2rem
+    );
+
+  line-height: 1;
+
+  font-weight:
+    var(--font-weight-black);
+}
+
+
+/* =========================================================
+   SECCIÓN
+   ========================================================= */
+
+.rewards-page__section {
+  display: grid;
+
+  gap:
+    20px;
+}
+
+.rewards-page__heading {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  align-items:
+    flex-end;
+
+  justify-content:
+    space-between;
+
+  gap:
+    20px;
+}
+
+.rewards-page__heading h2 {
+  margin:
+    4px 0 0;
+
+  color:
+    var(--color-text);
+
+  font-size:
+    clamp(
+      1.5rem,
+      4vw,
+      2.4rem
+    );
+
+  line-height: 1;
+
+  font-weight:
+    var(--font-weight-black);
+
+  letter-spacing:
+    0.03em;
+}
+
+
+/* =========================================================
+   FILTROS
+   ========================================================= */
+
+.rewards-filters {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+}
+
+.rewards-filter {
+  min-height:
+    38px;
+
+  padding:
+    8px 12px;
+
+  border:
+    1px solid
+    var(--color-border);
+
+  border-radius:
+    var(--radius-sm);
+
+  background:
+    var(--color-surface);
+
+  color:
+    var(--color-text-muted);
+
+  font: inherit;
+
+  font-size:
+    0.7rem;
+
+  font-weight:
+    var(--font-weight-black);
+
+  letter-spacing:
+    0.06em;
+
+  cursor:
+    pointer;
+}
+
+.rewards-filter:hover {
+  border-color:
+    var(--color-orange);
+
+  color:
+    var(--color-text);
+}
+
+.rewards-filter.is-active {
+  border-color:
+    var(--color-orange);
+
+  background:
+    var(--color-orange);
+
+  color:
+    var(--color-white);
+}
+
+
+/* =========================================================
+   LISTA
+   ========================================================= */
+
+.rewards-list {
+  display: grid;
+
+  gap: 12px;
+}
+
+.reward-history {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(
+        min(
+          190px,
+          100%
+        ),
+        1fr
+      )
+    );
+
+  align-items:
+    center;
+
+  gap:
+    clamp(
+      16px,
+      3vw,
+      28px
+    );
+
+  padding:
+    clamp(
+      16px,
+      3vw,
+      22px
+    );
+
+  border:
+    1px solid
+    var(--color-border-soft);
+
+  border-left:
+    4px solid
+    var(--color-orange);
+
+  border-radius:
+    var(--radius-sm);
+
+  background:
+    var(--color-surface);
+}
+
+
+/* =========================================================
+   CLIENTE
+   ========================================================= */
+
+.reward-history__customer {
+  min-width: 0;
+
+  display: flex;
+
+  align-items:
+    center;
+
+  gap:
+    12px;
+}
+
+.reward-history__avatar {
+  width:
+    42px;
+
+  height:
+    42px;
+
+  display: grid;
+
+  place-items:
+    center;
+
+  flex:
+    0 0 auto;
+
+  border:
+    1px solid
+    var(--color-orange);
+
+  border-radius:
+    var(--radius-sm);
+
+  color:
+    var(--color-text);
+
+  font-weight:
+    var(--font-weight-black);
+}
+
+.reward-history__customer > div,
+.reward-history__reward {
+  min-width: 0;
+
+  display: grid;
+
+  gap: 3px;
+}
+
+.reward-history__customer strong,
+.reward-history__reward strong {
+  overflow: hidden;
+
+  color:
+    var(--color-text);
+
+  text-overflow:
+    ellipsis;
+
+  white-space:
+    nowrap;
+}
+
+.reward-history__customer small,
+.reward-history__reward small {
+  color:
+    var(--color-text-muted);
+
+  line-height:
+    1.35;
+}
+
+
+/* =========================================================
+   ETIQUETAS
+   ========================================================= */
+
+.reward-history__label,
+.reward-history__dates span {
+  color:
+    var(--color-orange);
+
+  font-size:
+    0.66rem;
+
+  font-weight:
+    var(--font-weight-black);
+
+  letter-spacing:
+    0.08em;
+}
+
+
+/* =========================================================
+   FECHAS
+   ========================================================= */
+
+.reward-history__dates {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap:
+    18px;
+}
+
+.reward-history__dates > div {
+  display: grid;
+
+  gap:
+    3px;
+}
+
+.reward-history__dates strong {
+  color:
+    var(--color-text);
+
+  font-size:
+    0.82rem;
+}
+
+
+/* =========================================================
+   ESTADO
+   ========================================================= */
+
+.reward-history__status {
+  display: flex;
+
+  justify-content:
+    flex-end;
+}
+
+.reward-status {
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  min-height:
+    30px;
+
+  padding:
+    6px 10px;
+
+  border:
+    1px solid;
+
+  border-radius:
+    var(--radius-sm);
+
+  font-size:
+    0.66rem;
+
+  font-weight:
+    var(--font-weight-black);
+
+  letter-spacing:
+    0.08em;
+}
+
+.reward-status--pending {
+  border-color:
+    var(--color-orange);
+
+  color:
+    var(--color-orange);
+}
+
+.reward-status--redeemed {
+  border-color:
+    var(--color-green);
+
+  background:
+    var(--color-green);
+
+  color:
+    var(--color-white);
+}
+
+
+/* =========================================================
+   ESTADOS VACÍOS
+   ========================================================= */
+
+.rewards-state {
+  min-height:
+    170px;
+
+  display: grid;
+
+  place-content:
+    center;
+
+  gap: 8px;
+
+  padding:
+    30px;
+
+  border:
+    1px solid
+    var(--color-border-soft);
+
+  border-top:
+    4px solid
+    var(--color-orange);
+
+  border-radius:
+    var(--radius-sm);
+
+  background:
+    var(--color-surface);
+
+  text-align:
+    center;
+}
+
+.rewards-state--error {
+  border-top-color:
+    var(--color-danger);
+}
+
+.rewards-state strong {
+  color:
+    var(--color-text);
+
+  font-weight:
+    var(--font-weight-black);
+}
+
+.rewards-state p {
+  margin: 0;
+
+  color:
+    var(--color-text-muted);
+}

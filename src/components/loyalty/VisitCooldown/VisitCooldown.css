@@ -1,0 +1,282 @@
+.visit-cooldown {
+  display: grid;
+
+  gap:
+    16px;
+
+  padding:
+    clamp(
+      16px,
+      4vw,
+      20px
+    );
+
+  border:
+    1px solid
+    var(--color-orange);
+
+  border-radius:
+    var(--radius-sm);
+
+  background:
+    var(--color-surface);
+
+  color:
+    var(--color-text);
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.visit-cooldown__header {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  align-items:
+    flex-start;
+
+  justify-content:
+    space-between;
+
+  gap:
+    12px;
+}
+
+.visit-cooldown__eyebrow {
+  margin:
+    0 0 5px;
+
+  color:
+    var(--color-orange);
+
+  font-size:
+    0.68rem;
+
+  font-weight:
+    var(--font-weight-black);
+
+  letter-spacing:
+    0.1em;
+}
+
+.visit-cooldown__title {
+  margin: 0;
+
+  color:
+    var(--color-text);
+
+  font-size:
+    clamp(
+      1rem,
+      4vw,
+      1.25rem
+    );
+
+  line-height:
+    1.1;
+
+  font-weight:
+    var(--font-weight-black);
+
+  letter-spacing:
+    0.03em;
+}
+
+
+/* =========================================================
+   ESTADO
+   ========================================================= */
+
+.visit-cooldown__status {
+  padding:
+    6px 9px;
+
+  border:
+    1px solid
+    var(--color-orange);
+
+  border-radius:
+    var(--radius-sm);
+
+  color:
+    var(--color-orange);
+
+  font-size:
+    0.62rem;
+
+  font-weight:
+    var(--font-weight-black);
+
+  letter-spacing:
+    0.08em;
+}
+
+.visit-cooldown__status--available {
+  border-color:
+    var(--color-green);
+
+  background:
+    var(--color-green);
+
+  color:
+    var(--color-white);
+}
+
+
+/* =========================================================
+   TEXTO
+   ========================================================= */
+
+.visit-cooldown__copy,
+.visit-cooldown__rule {
+  margin: 0;
+
+  color:
+    var(--color-text-muted);
+
+  font-size:
+    0.85rem;
+
+  line-height:
+    1.45;
+}
+
+.visit-cooldown__rule strong {
+  color:
+    var(--color-text);
+}
+
+
+/* =========================================================
+   CONTADOR
+   ========================================================= */
+
+.visit-cooldown__timer {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(
+        min(
+          72px,
+          100%
+        ),
+        1fr
+      )
+    );
+
+  gap:
+    8px;
+}
+
+.visit-cooldown__unit {
+  min-height:
+    74px;
+
+  display: grid;
+
+  place-content:
+    center;
+
+  gap:
+    3px;
+
+  border:
+    1px solid
+    var(--color-border-soft);
+
+  border-radius:
+    var(--radius-sm);
+
+  background:
+    var(--color-surface-muted);
+
+  text-align:
+    center;
+}
+
+.visit-cooldown__unit strong {
+  color:
+    var(--color-text);
+
+  font-size:
+    clamp(
+      1.4rem,
+      5vw,
+      1.8rem
+    );
+
+  line-height: 1;
+
+  font-weight:
+    var(--font-weight-black);
+}
+
+.visit-cooldown__unit span {
+  color:
+    var(--color-text-muted);
+
+  font-size:
+    0.65rem;
+
+  font-weight:
+    var(--font-weight-bold);
+
+  letter-spacing:
+    0.06em;
+
+  text-transform:
+    uppercase;
+}
+
+
+/* =========================================================
+   DISPONIBLE
+   ========================================================= */
+
+.visit-cooldown--available {
+  border-color:
+    var(--color-green);
+}
+
+.visit-cooldown__available {
+  display: grid;
+
+  gap:
+    5px;
+
+  padding:
+    14px;
+
+  border-left:
+    4px solid
+    var(--color-green);
+
+  background:
+    var(--color-surface-muted);
+}
+
+.visit-cooldown__available strong {
+  color:
+    var(--color-text);
+
+  font-size:
+    0.9rem;
+}
+
+.visit-cooldown__available p {
+  margin: 0;
+
+  color:
+    var(--color-text-muted);
+
+  font-size:
+    0.82rem;
+
+  line-height:
+    1.45;
+}
