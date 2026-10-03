@@ -4,6 +4,10 @@ import {
   useState,
 } from "react";
 
+import {
+  useNavigate,
+} from "react-router-dom";
+
 import DashboardLayout from "../../components/layout/DashboardLayout/DashboardLayout.jsx";
 
 import {
@@ -21,6 +25,10 @@ export default function CustomersPage() {
   const {
     businessId,
   } = useAuth();
+
+
+  const navigate =
+    useNavigate();
 
 
   const [
@@ -52,17 +60,25 @@ export default function CustomersPage() {
   // =========================================================
 
   useEffect(() => {
-    let cancelled = false;
+    let cancelled =
+      false;
 
 
     async function loadCustomers() {
-      if (!businessId) {
+      if (
+        !businessId
+      ) {
         return;
       }
 
 
-      setLoading(true);
-      setError("");
+      setLoading(
+        true,
+      );
+
+      setError(
+        "",
+      );
 
 
       try {
@@ -72,7 +88,9 @@ export default function CustomersPage() {
           );
 
 
-        if (cancelled) {
+        if (
+          cancelled
+        ) {
           return;
         }
 
@@ -80,25 +98,33 @@ export default function CustomersPage() {
         setCustomers(
           data,
         );
-      } catch (error) {
-        if (cancelled) {
+      } catch (
+        loadError
+      ) {
+        if (
+          cancelled
+        ) {
           return;
         }
 
 
         console.error(
           "customers:",
-          error,
+          loadError,
         );
 
 
         setError(
-          error?.message ||
+          loadError?.message ||
             "No pudimos cargar los clientes.",
         );
       } finally {
-        if (!cancelled) {
-          setLoading(false);
+        if (
+          !cancelled
+        ) {
+          setLoading(
+            false,
+          );
         }
       }
     }
@@ -108,7 +134,8 @@ export default function CustomersPage() {
 
 
     return () => {
-      cancelled = true;
+      cancelled =
+        true;
     };
   }, [
     businessId,
@@ -128,21 +155,38 @@ export default function CustomersPage() {
             .toLowerCase();
 
 
-        if (!query) {
+        if (
+          !query
+        ) {
           return customers;
         }
 
 
+        const numericQuery =
+          query.replace(
+            /\D/g,
+            "",
+          );
+
+
         return customers.filter(
-          (customer) => {
+          (
+            customer,
+          ) => {
             const name =
               customer.name
                 ?.toLowerCase() ||
               "";
 
+
             const whatsapp =
               customer.whatsapp
                 ?.toLowerCase() ||
+              "";
+
+
+            const cedula =
+              customer.cedula ||
               "";
 
 
@@ -152,6 +196,12 @@ export default function CustomersPage() {
               ) ||
               whatsapp.includes(
                 query,
+              ) ||
+              (
+                numericQuery &&
+                cedula.includes(
+                  numericQuery,
+                )
               )
             );
           },
@@ -165,7 +215,7 @@ export default function CustomersPage() {
 
 
   // =========================================================
-  // ESTADÍSTICAS
+  // RESUMEN
   // =========================================================
 
   const summary =
@@ -203,6 +253,10 @@ export default function CustomersPage() {
       ],
     );
 
+
+  // =========================================================
+  // RENDER
+  // =========================================================
 
   return (
     <DashboardLayout>
@@ -328,7 +382,7 @@ export default function CustomersPage() {
                   value={
                     search
                   }
-                  placeholder="Buscar por nombre o WhatsApp..."
+                  placeholder="Buscar por nombre, cédula o WhatsApp..."
                   aria-label="Buscar clientes"
                   onChange={(
                     event,
@@ -402,7 +456,7 @@ export default function CustomersPage() {
               0 && (
               <StateBox
                 title="NO ENCONTRAMOS RESULTADOS"
-                text="Prueba con otro nombre o número de WhatsApp."
+                text="Prueba con otro nombre, cédula o número de WhatsApp."
               />
             )}
 
@@ -428,6 +482,11 @@ export default function CustomersPage() {
                       customer={
                         customer
                       }
+                      onOpen={() =>
+                        navigate(
+                          `/dashboard/clientes/${customer.id}`,
+                        )
+                      }
                     />
                   ),
                 )}
@@ -450,6 +509,7 @@ export default function CustomersPage() {
 
 function CustomerRow({
   customer,
+  onOpen,
 }) {
   const {
     stats,
@@ -484,6 +544,13 @@ function CustomerRow({
             {customer.name ||
               "Cliente"}
           </strong>
+
+
+          <small>
+            {maskCedula(
+              customer.cedula,
+            )}
+          </small>
 
 
           <small>
@@ -572,6 +639,9 @@ function CustomerRow({
       <button
         type="button"
         className="customer-entry__view"
+        onClick={
+          onOpen
+        }
       >
         VER CLIENTE
       </button>
@@ -676,13 +746,62 @@ function StateBox({
 
 
 // ===========================================================
+// CÉDULA ENMASCARADA
+// ===========================================================
+
+function maskCedula(
+  cedula,
+) {
+  if (
+    !cedula
+  ) {
+    return "C.C. no disponible";
+  }
+
+
+  const value =
+    String(
+      cedula,
+    );
+
+
+  if (
+    value.length <= 4
+  ) {
+    return `C.C. ${value}`;
+  }
+
+
+  const visible =
+    value.slice(
+      -4,
+    );
+
+
+  const hidden =
+    "•".repeat(
+      Math.max(
+        value.length -
+          4,
+        4,
+      ),
+    );
+
+
+  return `C.C. ${hidden}${visible}`;
+}
+
+
+// ===========================================================
 // FECHA
 // ===========================================================
 
 function formatDate(
   value,
 ) {
-  if (!value) {
+  if (
+    !value
+  ) {
     return "—";
   }
 
@@ -692,9 +811,14 @@ function formatDate(
   ).toLocaleDateString(
     "es-CO",
     {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
+      day:
+        "2-digit",
+
+      month:
+        "2-digit",
+
+      year:
+        "numeric",
     },
   );
 }

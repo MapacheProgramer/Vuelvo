@@ -1,21 +1,27 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
 const DEV_ORIGIN =
   /^http:\/\/(localhost|127\.0\.0\.1|192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}):\d{2,5}$/;
+
 const ALLOW_DEV =
   Deno.env.get("ALLOW_DEV_ORIGINS") === "true";
+
 const PROD_ORIGINS = (Deno.env.get("ALLOWED_ORIGINS") ?? "")
   .split(",")
   .map((value) => value.trim())
   .filter(Boolean);
+
 function isAllowedOrigin(origin: string | null): boolean {
   if (!origin) {
     return true;
   }
+
   return (
     PROD_ORIGINS.includes(origin) ||
     (ALLOW_DEV && DEV_ORIGIN.test(origin))
   );
 }
+
 function corsHeaders(origin: string | null): Record<string, string> {
   const headers: Record<string, string> = {
     "Access-Control-Allow-Headers":
@@ -23,16 +29,21 @@ function corsHeaders(origin: string | null): Record<string, string> {
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     Vary: "Origin",
   };
+
   if (origin && isAllowedOrigin(origin)) {
     headers["Access-Control-Allow-Origin"] = origin;
   }
+
   return headers;
 }
+
 const CODE_RE = /^[A-Za-z0-9_-]{3,32}$/;
 const TOKEN_RE = /^[A-Za-z0-9_-]{8,64}$/;
+
 Deno.serve(async (req) => {
   const origin = req.headers.get("origin");
   const cors = corsHeaders(origin);
+
   const json = (body: unknown, status = 200) =>
     new Response(JSON.stringify(body), {
       status,
@@ -41,9 +52,11 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
       },
     });
+
   // ---------------------------------------------------------
   // 1. Validar origen
   // ---------------------------------------------------------
+
   if (!isAllowedOrigin(origin)) {
     return json(
       {
@@ -53,18 +66,22 @@ Deno.serve(async (req) => {
       403,
     );
   }
+
   // ---------------------------------------------------------
   // 2. Preflight CORS
   // ---------------------------------------------------------
+
   if (req.method === "OPTIONS") {
     return new Response(null, {
       status: 204,
       headers: cors,
     });
   }
+
   // ---------------------------------------------------------
   // 3. Solo POST
   // ---------------------------------------------------------
+
   if (req.method !== "POST") {
     return json(
       {
@@ -74,10 +91,13 @@ Deno.serve(async (req) => {
       405,
     );
   }
+
   // ---------------------------------------------------------
   // 4. Leer JSON
   // ---------------------------------------------------------
+
   let payload;
+
   try {
     payload = await req.json();
   } catch {
@@ -89,10 +109,13 @@ Deno.serve(async (req) => {
       400,
     );
   }
+
   const { code, device_token } = payload ?? {};
+
   // ---------------------------------------------------------
   // 5. Validar código
   // ---------------------------------------------------------
+
   if (
     typeof code !== "string" ||
     !CODE_RE.test(code)
@@ -105,9 +128,11 @@ Deno.serve(async (req) => {
       400,
     );
   }
+
   // ---------------------------------------------------------
   // 6. Validar dispositivo
   // ---------------------------------------------------------
+
   if (
     typeof device_token !== "string" ||
     !TOKEN_RE.test(device_token)
@@ -120,16 +145,20 @@ Deno.serve(async (req) => {
       400,
     );
   }
+
   // ---------------------------------------------------------
   // 7. Cliente Supabase interno
   // ---------------------------------------------------------
+
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
+
   // ---------------------------------------------------------
   // 8. Buscar tag
   // ---------------------------------------------------------
+
   const {
     data: tag,
     error: tagError,
@@ -138,11 +167,13 @@ Deno.serve(async (req) => {
     .select("id, business_id, active")
     .eq("code", code)
     .maybeSingle();
+
   if (tagError) {
     console.error(
       "tag lookup error:",
       tagError.message,
     );
+
     return json(
       {
         status: "error",
@@ -151,6 +182,7 @@ Deno.serve(async (req) => {
       500,
     );
   }
+
   if (!tag || !tag.active) {
     return json(
       {
@@ -159,9 +191,11 @@ Deno.serve(async (req) => {
       404,
     );
   }
+
   // ---------------------------------------------------------
   // 9. Buscar negocio
   // ---------------------------------------------------------
+
   const {
     data: business,
     error: businessError,
@@ -178,11 +212,13 @@ Deno.serve(async (req) => {
     )
     .eq("id", tag.business_id)
     .single();
+
   if (businessError || !business) {
     console.error(
       "business lookup error:",
       businessError?.message,
     );
+
     return json(
       {
         status: "error",
@@ -191,34 +227,38 @@ Deno.serve(async (req) => {
       500,
     );
   }
+
   // ---------------------------------------------------------
   // 10. Configuración del negocio
   // ---------------------------------------------------------
+
   const required =
     Number(
       business.settings?.stamps_required ?? 8,
     ) || 8;
+
   const configuredMinHours =
     Number(
       business.settings?.min_hours_between_visits ?? 12,
     );
+
   const minHoursBetweenVisits =
     Number.isFinite(configuredMinHours) &&
     configuredMinHours >= 0
       ? configuredMinHours
       : 12;
+
   const brand = {
     name: business.name,
     logo_url: business.logo_url,
     brand_color: business.brand_color,
-    reward_name:
-      business.settings?.reward_name ??
-      "Recompensa",
     stamps_required: required,
   };
+
   // ---------------------------------------------------------
   // 11. Buscar cliente por negocio + dispositivo
   // ---------------------------------------------------------
+
   const {
     data: customer,
     error: customerError,
@@ -228,11 +268,13 @@ Deno.serve(async (req) => {
     .eq("business_id", business.id)
     .eq("device_token", device_token)
     .maybeSingle();
+
   if (customerError) {
     console.error(
       "customer lookup error:",
       customerError.message,
     );
+
     return json(
       {
         status: "error",
@@ -241,18 +283,21 @@ Deno.serve(async (req) => {
       500,
     );
   }
+
   if (!customer) {
     return json({
       status: "not_registered",
       business: brand,
     });
   }
+
   // ---------------------------------------------------------
   // 12. Buscar último premio ganado
   //
   // Se usa para saber desde qué momento contar los sellos
   // correspondientes a la tarjeta actual.
   // ---------------------------------------------------------
+
   const {
     data: lastReward,
     error: lastRewardError,
@@ -274,11 +319,13 @@ Deno.serve(async (req) => {
     })
     .limit(1)
     .maybeSingle();
+
   if (lastRewardError) {
     console.error(
       "last reward lookup error:",
       lastRewardError.message,
     );
+
     return json(
       {
         status: "error",
@@ -287,9 +334,11 @@ Deno.serve(async (req) => {
       500,
     );
   }
+
   // ---------------------------------------------------------
   // 13. Buscar TODAS las recompensas pendientes
   // ---------------------------------------------------------
+
   const {
     data: pendingRewardsRaw,
     error: pendingRewardsError,
@@ -310,11 +359,13 @@ Deno.serve(async (req) => {
     .order("earned_at", {
       ascending: false,
     });
+
   if (pendingRewardsError) {
     console.error(
       "pending rewards lookup error:",
       pendingRewardsError.message,
     );
+
     return json(
       {
         status: "error",
@@ -323,11 +374,14 @@ Deno.serve(async (req) => {
       500,
     );
   }
+
   const rawPendingRewards =
     pendingRewardsRaw ?? [];
+
   // ---------------------------------------------------------
   // 14. IDs de premios ya seleccionados
   // ---------------------------------------------------------
+
   const selectedRewardIds = [
     ...new Set(
       rawPendingRewards
@@ -338,9 +392,11 @@ Deno.serve(async (req) => {
         ),
     ),
   ];
+
   // ---------------------------------------------------------
   // 15. Mapa con datos del catálogo ya seleccionado
   // ---------------------------------------------------------
+
   const selectedRewardMap = new Map<
     string,
     {
@@ -350,6 +406,7 @@ Deno.serve(async (req) => {
       active: boolean;
     }
   >();
+
   if (selectedRewardIds.length > 0) {
     const {
       data: selectedCatalog,
@@ -366,11 +423,13 @@ Deno.serve(async (req) => {
       )
       .eq("business_id", business.id)
       .in("id", selectedRewardIds);
+
     if (selectedCatalogError) {
       console.error(
         "selected catalog lookup error:",
         selectedCatalogError.message,
       );
+
       return json(
         {
           status: "error",
@@ -379,6 +438,7 @@ Deno.serve(async (req) => {
         500,
       );
     }
+
     for (const reward of selectedCatalog ?? []) {
       selectedRewardMap.set(
         reward.id,
@@ -386,12 +446,14 @@ Deno.serve(async (req) => {
       );
     }
   }
+
   // ---------------------------------------------------------
   // 16. Obtener catálogo activo
   //
   // Se consulta siempre para que el cliente pueda ver
   // de antemano qué recompensas podrá desbloquear.
   // ---------------------------------------------------------
+
   const {
     data: catalog,
     error: catalogError,
@@ -428,9 +490,11 @@ Deno.serve(async (req) => {
 
   const rewardCatalog =
     catalog ?? [];
+
   // ---------------------------------------------------------
   // 18. Formatear premios pendientes
   // ---------------------------------------------------------
+
   const pendingRewards =
     rawPendingRewards.map(
       (reward) => {
@@ -440,6 +504,7 @@ Deno.serve(async (req) => {
                 reward.reward_id,
               ) ?? null
             : null;
+
         return {
           id: reward.id,
           status: reward.status,
@@ -460,9 +525,11 @@ Deno.serve(async (req) => {
         };
       },
     );
+
   // ---------------------------------------------------------
   // 19. Contar sellos desde el último premio
   // ---------------------------------------------------------
+
   let visitQuery = supabase
     .from("visits")
     .select("id", {
@@ -471,21 +538,25 @@ Deno.serve(async (req) => {
     })
     .eq("business_id", business.id)
     .eq("customer_id", customer.id);
+
   if (lastReward?.earned_at) {
     visitQuery = visitQuery.gt(
       "created_at",
       lastReward.earned_at,
     );
   }
+
   const {
     count,
     error: visitError,
   } = await visitQuery;
+
   if (visitError) {
     console.error(
       "visit count error:",
       visitError.message,
     );
+
     return json(
       {
         status: "error",
@@ -494,11 +565,14 @@ Deno.serve(async (req) => {
       500,
     );
   }
+
   const stamps =
     count ?? 0;
+
   // ---------------------------------------------------------
   // 20. Buscar última visita
   // ---------------------------------------------------------
+
   const {
     data: lastVisit,
     error: lastVisitError,
@@ -512,19 +586,24 @@ Deno.serve(async (req) => {
     })
     .limit(1)
     .maybeSingle();
+
   if (lastVisitError) {
     console.error(
       "last visit error:",
       lastVisitError.message,
     );
   }
+
   // ---------------------------------------------------------
   // 21. Calcular cuándo puede sumar el siguiente sello
   // ---------------------------------------------------------
+
   const serverNowMs = Date.now();
+
   let nextVisitAt: string | null = null;
   let secondsUntilNextVisit = 0;
   let canRegisterVisit = true;
+
   if (
     lastVisit?.created_at &&
     minHoursBetweenVisits > 0
@@ -533,6 +612,7 @@ Deno.serve(async (req) => {
       new Date(
         lastVisit.created_at,
       ).getTime();
+
     if (Number.isFinite(lastVisitMs)) {
       const nextVisitMs =
         lastVisitMs +
@@ -540,57 +620,77 @@ Deno.serve(async (req) => {
           60 *
           60 *
           1000;
+
       const remainingMs =
         Math.max(
           0,
           nextVisitMs - serverNowMs,
         );
+
       nextVisitAt =
         new Date(
           nextVisitMs,
         ).toISOString();
+
       secondsUntilNextVisit =
         Math.ceil(
           remainingMs / 1000,
         );
+
       canRegisterVisit =
         secondsUntilNextVisit <= 0;
     }
   }
+
   // ---------------------------------------------------------
   // 22. Respuesta final
   // ---------------------------------------------------------
+
   return json({
     status: "ok",
+
     customer: {
       name: customer.name,
     },
+
     stamps,
+
     required,
+
     reward_available:
       pendingRewards.length > 0,
+
     // Compatibilidad temporal con CardPage actual.
     reward:
       pendingRewards[0] ?? null,
+
     // Nueva información para el sistema de recompensas.
     pending_rewards:
       pendingRewards,
+
     reward_catalog:
       rewardCatalog,
+
     last_visit:
       lastVisit?.created_at ?? null,
+
     min_hours_between_visits:
       minHoursBetweenVisits,
+
     can_register_visit:
       canRegisterVisit,
+
     next_visit_at:
       nextVisitAt,
+
     seconds_until_next_visit:
       secondsUntilNextVisit,
+
     server_time:
       new Date(
         serverNowMs,
       ).toISOString(),
+
     business: brand,
   });
 });

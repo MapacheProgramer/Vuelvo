@@ -8,12 +8,13 @@ import {
 } from "../hooks/useAuth.js";
 
 
-export default function ProtectedRoute({
+export default function OwnerOnlyRoute({
   children,
 }) {
   const {
     loading,
     isAuthenticated,
+    isOwner,
     needsOnboarding,
   } = useAuth();
 
@@ -23,7 +24,7 @@ export default function ProtectedRoute({
 
 
   // =========================================================
-  // CARGANDO AUTH
+  // CARGANDO
   // =========================================================
 
   if (
@@ -42,7 +43,7 @@ export default function ProtectedRoute({
 
 
   // =========================================================
-  // NO AUTENTICADO
+  // SIN SESIÓN
   // =========================================================
 
   if (
@@ -78,7 +79,23 @@ export default function ProtectedRoute({
 
 
   // =========================================================
-  // ACCESO PERMITIDO
+  // NO ES OWNER
+  // =========================================================
+
+  if (
+    !isOwner
+  ) {
+    return (
+      <Navigate
+        to="/dashboard"
+        replace
+      />
+    );
+  }
+
+
+  // =========================================================
+  // OWNER AUTORIZADO
   // =========================================================
 
   return children;

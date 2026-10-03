@@ -2,25 +2,36 @@
   min-height: 100svh;
 
   display: grid;
+
   grid-template-columns:
     minmax(0, 1fr)
     minmax(420px, 0.85fr);
 
   background:
-    var(--color-white);
+    var(--color-surface);
+
+  color:
+    var(--color-text);
 }
+
+
+/* =========================================================
+   BLOQUE DE MARCA
+   ========================================================= */
 
 .login-brand {
   display: flex;
+
   align-items: flex-end;
 
   min-height: 100svh;
 
-  padding: clamp(
-    32px,
-    6vw,
-    80px
-  );
+  padding:
+    clamp(
+      32px,
+      6vw,
+      80px
+    );
 
   background:
     var(--color-black);
@@ -33,22 +44,31 @@
     var(--color-orange);
 }
 
+
 .login-brand > div {
   max-width: 720px;
 }
 
+
 .login-brand__eyebrow {
-  margin: 0 0 16px;
+  margin:
+    0 0 16px;
 
   color:
     var(--color-orange);
 
   font-weight: 800;
-  letter-spacing: 0.1em;
+
+  letter-spacing:
+    0.1em;
 }
+
 
 .login-brand h1 {
   margin: 0;
+
+  color:
+    var(--color-white);
 
   font-size:
     clamp(
@@ -57,31 +77,51 @@
       108px
     );
 
-  line-height: 0.88;
+  line-height:
+    0.88;
 
-  font-weight: 900;
+  font-weight:
+    900;
 
   letter-spacing:
     -0.035em;
 }
 
+
 .login-brand p:last-child {
-  max-width: 500px;
+  max-width:
+    500px;
 
   margin:
     32px 0 0;
 
-  font-size: 18px;
-  line-height: 1.5;
-
   color:
-    var(--color-concrete);
+    var(--color-white);
+
+  font-size:
+    18px;
+
+  line-height:
+    1.5;
+
+  opacity:
+    0.78;
 }
 
+
+/* =========================================================
+   PANEL DE LOGIN
+   ========================================================= */
+
 .login-panel {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
 
   padding:
     clamp(
@@ -89,20 +129,40 @@
       6vw,
       80px
     );
+
+  background:
+    var(--color-surface);
+
+  color:
+    var(--color-text);
 }
+
 
 .login-box {
-  width: 100%;
-  max-width: 460px;
+  width:
+    100%;
+
+  max-width:
+    460px;
 }
 
+
+/* =========================================================
+   ENCABEZADO
+   ========================================================= */
+
 .login-box__heading {
-  margin-bottom: 40px;
+  margin-bottom:
+    40px;
 }
+
 
 .login-box__heading h2 {
   margin:
     8px 0 12px;
+
+  color:
+    var(--color-text);
 
   font-size:
     clamp(
@@ -111,67 +171,143 @@
       56px
     );
 
-  line-height: 0.95;
+  line-height:
+    0.95;
 
-  font-weight: 900;
+  font-weight:
+    900;
 }
+
 
 .login-box__heading > p:last-child {
   margin: 0;
 
   color:
-    var(--color-slate);
+    var(--color-text-muted);
 
-  line-height: 1.5;
+  line-height:
+    1.5;
 }
+
+
+/* =========================================================
+   FORMULARIO
+   ========================================================= */
 
 .login-form {
-  display: grid;
+  display:
+    grid;
 
-  gap: 24px;
+  gap:
+    24px;
 }
 
+
 .login-form label {
-  display: grid;
+  display:
+    grid;
 
-  gap: 8px;
+  gap:
+    8px;
 
-  font-size: 13px;
-  font-weight: 700;
+  color:
+    var(--color-text);
+
+  font-size:
+    13px;
+
+  font-weight:
+    700;
 
   letter-spacing:
     0.08em;
 }
 
+
 .login-form input {
-  width: 100%;
+  width:
+    100%;
+
+  min-height:
+    48px;
 
   padding:
     14px 16px;
 
   border:
     1px solid
-    var(--color-fog);
+    var(--color-border-soft);
 
   border-radius:
     var(--radius-sm);
 
   background:
-    var(--color-white);
+    var(--color-surface-muted);
 
   color:
-    var(--color-black);
+    var(--color-text);
 
-  outline: none;
+  font: inherit;
+
+  outline:
+    none;
+
+  transition:
+    border-color 150ms ease,
+    background 150ms ease;
 }
+
+
+.login-form input::placeholder {
+  color:
+    var(--color-text-muted);
+
+  opacity:
+    0.72;
+}
+
+
+.login-form input:hover {
+  border-color:
+    var(--color-border);
+}
+
 
 .login-form input:focus {
   border-color:
     var(--color-orange);
 }
 
+
+/* Evita que el navegador rompa el tema
+   con el color automático del autocompletado */
+
+.login-form input:-webkit-autofill,
+.login-form input:-webkit-autofill:hover,
+.login-form input:-webkit-autofill:focus {
+  -webkit-text-fill-color:
+    var(--color-text);
+
+  caret-color:
+    var(--color-text);
+
+  transition:
+    background-color 9999s ease-in-out 0s;
+
+  box-shadow:
+    0 0 0 1000px
+    var(--color-surface-muted)
+    inset;
+}
+
+
+/* =========================================================
+   ERROR
+   ========================================================= */
+
 .login-error {
-  padding: 14px;
+  padding:
+    14px;
 
   border:
     1px solid
@@ -181,13 +317,23 @@
     var(--radius-sm);
 
   color:
-    var(--color-crimson);
+    var(--color-text);
 
-  font-size: 14px;
+  background:
+    var(--color-surface-muted);
+
+  font-size:
+    14px;
 }
 
+
+/* =========================================================
+   BOTÓN
+   ========================================================= */
+
 .login-submit {
-  min-height: 50px;
+  min-height:
+    50px;
 
   padding:
     14px 18px;
@@ -203,18 +349,27 @@
   color:
     var(--color-white);
 
-  font-weight: 800;
+  font: inherit;
+
+  font-weight:
+    800;
 
   letter-spacing:
     0.08em;
 
-  cursor: pointer;
+  cursor:
+    pointer;
 
   box-shadow:
     var(--shadow-sticker);
+
+  transition:
+    transform 150ms ease,
+    opacity 150ms ease;
 }
 
-.login-submit:hover {
+
+.login-submit:hover:not(:disabled) {
   transform:
     translate(
       -1px,
@@ -222,7 +377,8 @@
     );
 }
 
-.login-submit:active {
+
+.login-submit:active:not(:disabled) {
   transform:
     translate(
       3px,
@@ -234,15 +390,19 @@
     var(--color-crimson);
 }
 
+
 .login-submit:disabled {
-  opacity: 0.6;
+  opacity:
+    0.6;
 
   cursor:
     not-allowed;
 }
 
 
-/* Tablet / móvil */
+/* =========================================================
+   TABLET / MÓVIL
+   ========================================================= */
 
 @media (
   max-width: 800px
@@ -252,6 +412,7 @@
       1fr;
   }
 
+
   .login-brand {
     min-height:
       auto;
@@ -259,12 +420,14 @@
     padding:
       36px 24px;
 
-    border-right: 0;
+    border-right:
+      0;
 
     border-bottom:
       4px solid
       var(--color-orange);
   }
+
 
   .login-brand h1 {
     font-size:
@@ -275,17 +438,22 @@
       );
   }
 
-  .login-brand p:last-child {
-    margin-top: 20px;
 
-    font-size: 16px;
+  .login-brand p:last-child {
+    margin-top:
+      20px;
+
+    font-size:
+      16px;
   }
+
 
   .login-panel {
     padding:
       44px 24px
       64px;
   }
+
 
   .login-box__heading {
     margin-bottom:

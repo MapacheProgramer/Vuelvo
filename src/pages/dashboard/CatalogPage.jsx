@@ -46,6 +46,7 @@ function sortRewards(
 export default function CatalogPage() {
   const {
     businessId,
+    isOwner,
   } = useAuth();
 
 
@@ -58,15 +59,18 @@ export default function CatalogPage() {
     setRewards,
   ] = useState([]);
 
+
   const [
     loading,
     setLoading,
   ] = useState(true);
 
+
   const [
     error,
     setError,
   ] = useState("");
+
 
   const [
     message,
@@ -83,6 +87,7 @@ export default function CatalogPage() {
     setCreateOpen,
   ] = useState(false);
 
+
   const [
     createForm,
     setCreateForm,
@@ -90,10 +95,12 @@ export default function CatalogPage() {
     EMPTY_FORM,
   );
 
+
   const [
     creating,
     setCreating,
   ] = useState(false);
+
 
   const [
     createError,
@@ -110,6 +117,7 @@ export default function CatalogPage() {
     setEditingReward,
   ] = useState(null);
 
+
   const [
     editForm,
     setEditForm,
@@ -117,10 +125,12 @@ export default function CatalogPage() {
     EMPTY_FORM,
   );
 
+
   const [
     updating,
     setUpdating,
   ] = useState(false);
+
 
   const [
     editError,
@@ -133,15 +143,26 @@ export default function CatalogPage() {
   // =========================================================
 
   useEffect(() => {
-    let cancelled = false;
+    let cancelled =
+      false;
+
 
     async function loadCatalog() {
-      if (!businessId) {
+      if (
+        !businessId
+      ) {
         return;
       }
 
-      setLoading(true);
-      setError("");
+
+      setLoading(
+        true,
+      );
+
+      setError(
+        "",
+      );
+
 
       try {
         const data =
@@ -149,36 +170,55 @@ export default function CatalogPage() {
             businessId,
           );
 
-        if (cancelled) {
+
+        if (
+          cancelled
+        ) {
           return;
         }
 
-        setRewards(data);
-      } catch (error) {
-        if (cancelled) {
+
+        setRewards(
+          data,
+        );
+      } catch (
+        error
+      ) {
+        if (
+          cancelled
+        ) {
           return;
         }
+
 
         console.error(
           "catalog:",
           error,
         );
 
+
         setError(
           error?.message ||
             "No pudimos cargar el catálogo.",
         );
       } finally {
-        if (!cancelled) {
-          setLoading(false);
+        if (
+          !cancelled
+        ) {
+          setLoading(
+            false,
+          );
         }
       }
     }
 
+
     loadCatalog();
 
+
     return () => {
-      cancelled = true;
+      cancelled =
+        true;
     };
   }, [
     businessId,
@@ -190,14 +230,30 @@ export default function CatalogPage() {
   // =========================================================
 
   function handleOpenCreate() {
+    if (
+      !isOwner
+    ) {
+      return;
+    }
+
+
     setCreateForm(
       EMPTY_FORM,
     );
 
-    setCreateError("");
-    setMessage("");
 
-    setCreateOpen(true);
+    setCreateError(
+      "",
+    );
+
+    setMessage(
+      "",
+    );
+
+
+    setCreateOpen(
+      true,
+    );
   }
 
 
@@ -206,12 +262,20 @@ export default function CatalogPage() {
   // =========================================================
 
   function handleCloseCreate() {
-    if (creating) {
+    if (
+      creating
+    ) {
       return;
     }
 
-    setCreateOpen(false);
-    setCreateError("");
+
+    setCreateOpen(
+      false,
+    );
+
+    setCreateError(
+      "",
+    );
   }
 
 
@@ -223,10 +287,19 @@ export default function CatalogPage() {
     field,
     value,
   ) {
+    if (
+      !isOwner
+    ) {
+      return;
+    }
+
+
     setCreateForm(
       (current) => ({
         ...current,
-        [field]: value,
+
+        [field]:
+          value,
       }),
     );
   }
@@ -237,7 +310,21 @@ export default function CatalogPage() {
   // =========================================================
 
   async function handleCreateReward() {
-    setCreateError("");
+    if (
+      !isOwner
+    ) {
+      setCreateError(
+        "No tienes permisos para crear recompensas.",
+      );
+
+      return;
+    }
+
+
+    setCreateError(
+      "",
+    );
+
 
     if (
       !createForm.name.trim()
@@ -246,11 +333,16 @@ export default function CatalogPage() {
         "Escribe el nombre de la recompensa.",
       );
 
+
       return;
     }
 
+
     try {
-      setCreating(true);
+      setCreating(
+        true,
+      );
+
 
       const reward =
         await createReward({
@@ -266,6 +358,7 @@ export default function CatalogPage() {
             createForm.active,
         });
 
+
       setRewards(
         (current) =>
           sortRewards([
@@ -274,27 +367,37 @@ export default function CatalogPage() {
           ]),
       );
 
-      setCreateOpen(false);
+
+      setCreateOpen(
+        false,
+      );
+
 
       setCreateForm(
         EMPTY_FORM,
       );
 
+
       setMessage(
         `"${reward.name}" fue agregada al catálogo correctamente.`,
       );
-    } catch (error) {
+    } catch (
+      error
+    ) {
       console.error(
         "create reward:",
         error,
       );
+
 
       setCreateError(
         error?.message ||
           "No pudimos crear la recompensa.",
       );
     } finally {
-      setCreating(false);
+      setCreating(
+        false,
+      );
     }
   }
 
@@ -306,12 +409,26 @@ export default function CatalogPage() {
   function handleOpenEdit(
     reward,
   ) {
-    setMessage("");
-    setEditError("");
+    if (
+      !isOwner
+    ) {
+      return;
+    }
+
+
+    setMessage(
+      "",
+    );
+
+    setEditError(
+      "",
+    );
+
 
     setEditingReward(
       reward,
     );
+
 
     setEditForm({
       name:
@@ -335,15 +452,21 @@ export default function CatalogPage() {
   // =========================================================
 
   function handleCloseEdit() {
-    if (updating) {
+    if (
+      updating
+    ) {
       return;
     }
+
 
     setEditingReward(
       null,
     );
 
-    setEditError("");
+
+    setEditError(
+      "",
+    );
   }
 
 
@@ -355,10 +478,19 @@ export default function CatalogPage() {
     field,
     value,
   ) {
+    if (
+      !isOwner
+    ) {
+      return;
+    }
+
+
     setEditForm(
       (current) => ({
         ...current,
-        [field]: value,
+
+        [field]:
+          value,
       }),
     );
   }
@@ -369,11 +501,28 @@ export default function CatalogPage() {
   // =========================================================
 
   async function handleUpdateReward() {
-    if (!editingReward) {
+    if (
+      !isOwner
+    ) {
+      setEditError(
+        "No tienes permisos para modificar recompensas.",
+      );
+
       return;
     }
 
-    setEditError("");
+
+    if (
+      !editingReward
+    ) {
+      return;
+    }
+
+
+    setEditError(
+      "",
+    );
+
 
     if (
       !editForm.name.trim()
@@ -382,11 +531,16 @@ export default function CatalogPage() {
         "Escribe el nombre de la recompensa.",
       );
 
+
       return;
     }
 
+
     try {
-      setUpdating(true);
+      setUpdating(
+        true,
+      );
+
 
       const updatedReward =
         await updateReward({
@@ -405,6 +559,7 @@ export default function CatalogPage() {
             editForm.active,
         });
 
+
       setRewards(
         (current) =>
           sortRewards(
@@ -418,25 +573,32 @@ export default function CatalogPage() {
           ),
       );
 
+
       setEditingReward(
         null,
       );
 
+
       setMessage(
         `"${updatedReward.name}" fue actualizada correctamente.`,
       );
-    } catch (error) {
+    } catch (
+      error
+    ) {
       console.error(
         "update reward:",
         error,
       );
+
 
       setEditError(
         error?.message ||
           "No pudimos actualizar la recompensa.",
       );
     } finally {
-      setUpdating(false);
+      setUpdating(
+        false,
+      );
     }
   }
 
@@ -447,59 +609,116 @@ export default function CatalogPage() {
 
   return (
     <DashboardLayout>
+
       <section className="catalog-page">
 
+        {/* ===================================================
+            HERO
+            =================================================== */}
+
         <div className="catalog-page__hero">
+
           <div>
+
             <p className="eyebrow">
               FIDELIZACIÓN
             </p>
+
 
             <h1>
               CATÁLOGO DE RECOMPENSAS
             </h1>
 
+
             <p className="catalog-page__intro">
-              Administra las recompensas que tus clientes
-              pueden elegir cuando completan su tarjeta.
+
+              {isOwner
+                ? (
+                  <>
+                    Administra las recompensas que tus clientes
+                    pueden elegir cuando completan su tarjeta.
+                  </>
+                )
+                : (
+                  <>
+                    Consulta las recompensas disponibles para los
+                    clientes de este negocio.
+                  </>
+                )}
+
             </p>
+
           </div>
 
-          <button
-            type="button"
-            className="catalog-page__create"
-            onClick={
-              handleOpenCreate
-            }
-          >
-            + NUEVA RECOMPENSA
-          </button>
+
+          {isOwner && (
+            <button
+              type="button"
+              className="catalog-page__create"
+              onClick={
+                handleOpenCreate
+              }
+            >
+              + NUEVA RECOMPENSA
+            </button>
+          )}
+
         </div>
 
+
+        {/* ===================================================
+            CATÁLOGO
+            =================================================== */}
 
         <section className="catalog-page__section">
 
           <div className="catalog-page__section-heading">
+
             <div>
+
               <p className="eyebrow">
                 RECOMPENSAS
               </p>
 
+
               <h2>
                 TU CATÁLOGO
               </h2>
+
             </div>
+
 
             {!loading && (
               <span className="catalog-page__count">
+
                 {rewards.length}{" "}
-                {rewards.length === 1
+
+                {rewards.length ===
+                1
                   ? "RECOMPENSA"
                   : "RECOMPENSAS"}
+
               </span>
             )}
+
           </div>
 
+
+          {/* =================================================
+              AVISO STAFF
+              ================================================= */}
+
+          {!isOwner && (
+            <div className="catalog-page__message">
+              Tienes acceso de consulta. Solo el propietario puede
+              crear o modificar recompensas.
+            </div>
+          )}
+
+
+          {/* =================================================
+              MENSAJES
+              ================================================= */}
 
           {message && (
             <div className="catalog-page__message">
@@ -508,57 +727,96 @@ export default function CatalogPage() {
           )}
 
 
+          {/* =================================================
+              CARGANDO
+              ================================================= */}
+
           {loading && (
             <div className="catalog-page__empty">
+
               <strong>
                 CARGANDO CATÁLOGO...
               </strong>
+
 
               <p>
                 Estamos consultando las recompensas
                 configuradas para tu negocio.
               </p>
+
             </div>
           )}
 
 
+          {/* =================================================
+              ERROR
+              ================================================= */}
+
           {!loading &&
             error && (
               <div className="catalog-page__empty catalog-page__empty--error">
+
                 <strong>
                   NO PUDIMOS CARGAR EL CATÁLOGO
                 </strong>
 
+
                 <p>
                   {error}
                 </p>
+
               </div>
             )}
 
+
+          {/* =================================================
+              VACÍO
+              ================================================= */}
 
           {!loading &&
             !error &&
             rewards.length ===
               0 && (
               <div className="catalog-page__empty">
+
                 <strong>
                   TODAVÍA NO HAY RECOMPENSAS
                 </strong>
 
+
                 <p>
-                  Crea tu primera recompensa para que
-                  tus clientes puedan elegirla al
-                  completar su tarjeta.
+
+                  {isOwner
+                    ? (
+                      <>
+                        Crea tu primera recompensa para que
+                        tus clientes puedan elegirla al
+                        completar su tarjeta.
+                      </>
+                    )
+                    : (
+                      <>
+                        El propietario todavía no ha configurado
+                        recompensas para este negocio.
+                      </>
+                    )}
+
                 </p>
+
               </div>
             )}
 
+
+          {/* =================================================
+              LISTA
+              ================================================= */}
 
           {!loading &&
             !error &&
             rewards.length >
               0 && (
               <div className="catalog-grid">
+
                 {rewards.map(
                   (reward) => (
                     <RewardCard
@@ -568,12 +826,16 @@ export default function CatalogPage() {
                       reward={
                         reward
                       }
+                      canEdit={
+                        isOwner
+                      }
                       onEdit={
                         handleOpenEdit
                       }
                     />
                   ),
                 )}
+
               </div>
             )}
 
@@ -586,80 +848,88 @@ export default function CatalogPage() {
           MODAL CREAR
           ===================================================== */}
 
-      <ConfirmModal
-        open={
-          createOpen
-        }
-        eyebrow="Catálogo"
-        title="Nueva recompensa"
-        confirmText="Crear recompensa"
-        cancelText="Cancelar"
-        loading={
-          creating
-        }
-        onClose={
-          handleCloseCreate
-        }
-        onConfirm={
-          handleCreateReward
-        }
-      >
-        <RewardForm
-          form={
-            createForm
+      {isOwner && (
+        <ConfirmModal
+          open={
+            createOpen
           }
-          disabled={
+          eyebrow="Catálogo"
+          title="Nueva recompensa"
+          confirmText="Crear recompensa"
+          cancelText="Cancelar"
+          loading={
             creating
           }
-          error={
-            createError
+          onClose={
+            handleCloseCreate
           }
-          onChange={
-            updateCreateField
+          onConfirm={
+            handleCreateReward
           }
-        />
-      </ConfirmModal>
+        >
+
+          <RewardForm
+            form={
+              createForm
+            }
+            disabled={
+              creating
+            }
+            error={
+              createError
+            }
+            onChange={
+              updateCreateField
+            }
+          />
+
+        </ConfirmModal>
+      )}
 
 
       {/* =====================================================
           MODAL EDITAR
           ===================================================== */}
 
-      <ConfirmModal
-        open={
-          Boolean(
-            editingReward,
-          )
-        }
-        eyebrow="Catálogo"
-        title="Editar recompensa"
-        confirmText="Guardar cambios"
-        cancelText="Cancelar"
-        loading={
-          updating
-        }
-        onClose={
-          handleCloseEdit
-        }
-        onConfirm={
-          handleUpdateReward
-        }
-      >
-        <RewardForm
-          form={
-            editForm
+      {isOwner && (
+        <ConfirmModal
+          open={
+            Boolean(
+              editingReward,
+            )
           }
-          disabled={
+          eyebrow="Catálogo"
+          title="Editar recompensa"
+          confirmText="Guardar cambios"
+          cancelText="Cancelar"
+          loading={
             updating
           }
-          error={
-            editError
+          onClose={
+            handleCloseEdit
           }
-          onChange={
-            updateEditField
+          onConfirm={
+            handleUpdateReward
           }
-        />
-      </ConfirmModal>
+        >
+
+          <RewardForm
+            form={
+              editForm
+            }
+            disabled={
+              updating
+            }
+            error={
+              editError
+            }
+            onChange={
+              updateEditField
+            }
+          />
+
+        </ConfirmModal>
+      )}
 
     </DashboardLayout>
   );
@@ -672,12 +942,14 @@ export default function CatalogPage() {
 
 function RewardCard({
   reward,
+  canEdit,
   onEdit,
 }) {
   const isActive =
     Boolean(
       reward.active,
     );
+
 
   return (
     <article
@@ -708,17 +980,20 @@ function RewardCard({
             : "INACTIVA"}
         </span>
 
-        <button
-          type="button"
-          className="catalog-reward__edit"
-          onClick={() =>
-            onEdit(
-              reward,
-            )
-          }
-        >
-          EDITAR
-        </button>
+
+        {canEdit && (
+          <button
+            type="button"
+            className="catalog-reward__edit"
+            onClick={() =>
+              onEdit(
+                reward,
+              )
+            }
+          >
+            EDITAR
+          </button>
+        )}
 
       </div>
 
@@ -729,9 +1004,11 @@ function RewardCard({
           RECOMPENSA
         </p>
 
+
         <h3>
           {reward.name}
         </h3>
+
 
         <p className="catalog-reward__description">
           {reward.description ||
@@ -759,9 +1036,11 @@ function RewardForm({
     <div className="catalog-form">
 
       <label className="catalog-form__field">
+
         <span>
           NOMBRE
         </span>
+
 
         <input
           type="text"
@@ -785,13 +1064,16 @@ function RewardForm({
             )
           }
         />
+
       </label>
 
 
       <label className="catalog-form__field">
+
         <span>
           DESCRIPCIÓN
         </span>
+
 
         <textarea
           value={
@@ -814,20 +1096,26 @@ function RewardForm({
             )
           }
         />
+
       </label>
 
 
       <label className="catalog-form__toggle">
+
         <div>
+
           <strong>
             RECOMPENSA ACTIVA
           </strong>
+
 
           <small>
             Si está activa, podrá aparecer
             como opción para los clientes.
           </small>
+
         </div>
+
 
         <input
           type="checkbox"
@@ -847,6 +1135,7 @@ function RewardForm({
             )
           }
         />
+
       </label>
 
 

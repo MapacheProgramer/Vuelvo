@@ -1,0 +1,896 @@
+.business-page {
+  display: grid;
+  gap: clamp(26px, 5vw, 46px);
+}
+
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+.business-page__hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+
+  padding-bottom: clamp(24px, 4vw, 36px);
+
+  border-bottom:
+    1px solid
+    var(--color-border);
+}
+
+
+.business-page__hero h1 {
+  margin: 4px 0 0;
+
+  color:
+    var(--color-text);
+
+  font-size:
+    clamp(2.6rem, 8vw, 5.5rem);
+
+  line-height: 0.9;
+
+  font-weight:
+    var(--font-weight-black);
+}
+
+
+.business-page__intro {
+  max-width: 600px;
+
+  margin: 14px 0 0;
+
+  color:
+    var(--color-text-muted);
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   ACCIONES
+   ========================================================= */
+
+.business-page__actions,
+.business-page__footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+
+.business-page__footer {
+  padding-top: 24px;
+
+  border-top:
+    1px solid
+    var(--color-border);
+}
+
+
+.business-page__save,
+.business-page__reset {
+  min-height: 44px;
+
+  padding: 10px 16px;
+
+  border-radius:
+    var(--radius-sm);
+
+  font: inherit;
+
+  font-size: 0.68rem;
+
+  font-weight:
+    var(--font-weight-black);
+
+  letter-spacing: 0.07em;
+
+  cursor: pointer;
+
+  transition:
+    transform 120ms ease,
+    opacity 120ms ease,
+    background 120ms ease;
+}
+
+
+.business-page__save {
+  border:
+    1px solid
+    var(--color-green);
+
+  background:
+    var(--color-green);
+
+  color:
+    var(--color-white);
+}
+
+
+.business-page__reset {
+  border:
+    1px solid
+    var(--color-border-soft);
+
+  background:
+    transparent;
+
+  color:
+    var(--color-text);
+}
+
+
+.business-page__save:hover,
+.business-page__reset:hover {
+  transform:
+    translateY(-1px);
+}
+
+
+.business-page__save:disabled,
+.business-page__reset:disabled {
+  cursor:
+    not-allowed;
+
+  opacity: 0.55;
+
+  transform: none;
+}
+
+
+/* =========================================================
+   FEEDBACK
+   ========================================================= */
+
+.business-feedback {
+  display: grid;
+  gap: 5px;
+
+  padding: 14px 16px;
+
+  border:
+    1px solid
+    var(--color-border-soft);
+
+  border-left:
+    4px solid
+    var(--color-orange);
+
+  border-radius:
+    var(--radius-sm);
+
+  background:
+    var(--color-surface);
+}
+
+
+.business-feedback strong {
+  color:
+    var(--color-text);
+
+  font-size: 0.7rem;
+
+  letter-spacing: 0.07em;
+}
+
+
+.business-feedback p {
+  margin: 0;
+
+  color:
+    var(--color-text-muted);
+
+  font-size: 0.8rem;
+
+  line-height: 1.5;
+}
+
+
+.business-feedback--success {
+  border-left-color:
+    var(--color-green);
+}
+
+
+.business-feedback--error {
+  border-left-color:
+    var(--color-crimson);
+}
+
+
+/* =========================================================
+   SECCIONES
+   ========================================================= */
+
+.business-section {
+  display: grid;
+
+  grid-template-columns:
+    minmax(220px, 0.65fr)
+    minmax(0, 1.35fr);
+
+  gap: clamp(22px, 5vw, 56px);
+
+  padding:
+    clamp(22px, 4vw, 34px);
+
+  border:
+    1px solid
+    var(--color-border-soft);
+
+  border-top:
+    4px solid
+    var(--color-orange);
+
+  border-radius:
+    var(--radius-sm);
+
+  background:
+    var(--color-surface);
+}
+
+
+.business-section__header {
+  align-self: start;
+}
+
+
+.business-section__header h2 {
+  margin: 5px 0 0;
+
+  color:
+    var(--color-text);
+
+  font-size:
+    clamp(1.25rem, 3vw, 1.8rem);
+
+  line-height: 1;
+
+  font-weight:
+    var(--font-weight-black);
+}
+
+
+.business-section__header > p:last-child {
+  margin: 12px 0 0;
+
+  color:
+    var(--color-text-muted);
+
+  font-size: 0.8rem;
+
+  line-height: 1.55;
+}
+
+
+.business-section__content {
+  min-width: 0;
+}
+
+
+/* =========================================================
+   FORMULARIOS
+   ========================================================= */
+
+.business-form-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 20px;
+}
+
+
+.business-field {
+  min-width: 0;
+
+  display: grid;
+
+  align-content: start;
+
+  gap: 7px;
+}
+
+
+.business-field--wide {
+  grid-column:
+    1 / -1;
+}
+
+
+.business-field__label {
+  color:
+    var(--color-text);
+
+  font-size: 0.65rem;
+
+  font-weight:
+    var(--font-weight-black);
+
+  letter-spacing: 0.07em;
+}
+
+
+.business-field input,
+.business-field select {
+  width: 100%;
+
+  min-width: 0;
+
+  min-height: 44px;
+
+  padding: 10px 12px;
+
+  border:
+    1px solid
+    var(--color-border-soft);
+
+  border-radius:
+    var(--radius-sm);
+
+  background:
+    var(--color-surface-muted);
+
+  color:
+    var(--color-text);
+
+  font: inherit;
+
+  outline: none;
+
+  transition:
+    border-color 120ms ease;
+}
+
+
+.business-field select {
+  cursor: pointer;
+}
+
+
+.business-field input:focus,
+.business-field select:focus {
+  border-color:
+    var(--color-orange);
+}
+
+
+.business-field input:disabled,
+.business-field select:disabled {
+  cursor:
+    not-allowed;
+
+  opacity: 0.6;
+}
+
+
+.business-field small,
+.business-logo small {
+  color:
+    var(--color-text-muted);
+
+  font-size: 0.69rem;
+
+  line-height: 1.45;
+}
+
+
+/* =========================================================
+   IDENTIFICADOR BLOQUEADO
+   ========================================================= */
+
+.business-readonly {
+  min-height: 44px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content:
+    space-between;
+
+  gap: 12px;
+
+  padding:
+    10px 12px;
+
+  border:
+    1px solid
+    var(--color-border-soft);
+
+  border-radius:
+    var(--radius-sm);
+
+  background:
+    var(--color-surface-muted);
+}
+
+
+.business-readonly strong {
+  overflow: hidden;
+
+  color:
+    var(--color-text);
+
+  font-size: 0.83rem;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+
+.business-readonly span {
+  flex: 0 0 auto;
+
+  color:
+    var(--color-text-muted);
+
+  font-size: 0.58rem;
+
+  font-weight:
+    var(--font-weight-black);
+
+  letter-spacing: 0.08em;
+}
+
+
+/* =========================================================
+   IDENTIDAD
+   ========================================================= */
+
+.business-identity-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(200px, 0.8fr)
+    minmax(240px, 1.2fr);
+
+  gap: 24px;
+}
+
+
+.business-identity__color {
+  display: grid;
+
+  align-content: start;
+
+  gap: 18px;
+}
+
+
+/* =========================================================
+   LOGO
+   ========================================================= */
+
+.business-logo {
+  min-width: 0;
+
+  display: grid;
+
+  align-content: start;
+
+  gap: 9px;
+}
+
+
+.business-logo__preview {
+  width: 100%;
+
+  min-height: 190px;
+
+  display: grid;
+
+  place-items: center;
+
+  overflow: hidden;
+
+  padding: 18px;
+
+  border:
+    1px solid
+    var(--color-border-soft);
+
+  border-radius:
+    var(--radius-sm);
+
+  background:
+    var(--color-surface-muted);
+}
+
+
+.business-logo__preview img {
+  display: block;
+
+  width: 100%;
+
+  max-width: 240px;
+
+  height: 150px;
+
+  object-fit: contain;
+}
+
+
+.business-logo__empty {
+  display: grid;
+
+  place-items: center;
+
+  gap: 8px;
+}
+
+
+.business-logo__empty strong {
+  display: grid;
+
+  place-items: center;
+
+  width: 82px;
+
+  height: 82px;
+
+  border:
+    2px solid
+    var(--color-orange);
+
+  border-radius: 50%;
+
+  color:
+    var(--color-text);
+
+  font-size: 1.55rem;
+
+  font-weight:
+    var(--font-weight-black);
+}
+
+
+.business-logo__empty span {
+  color:
+    var(--color-text-muted);
+
+  font-size: 0.61rem;
+
+  font-weight:
+    var(--font-weight-black);
+
+  letter-spacing: 0.08em;
+}
+
+
+.business-logo__actions {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+}
+
+
+.business-logo__upload,
+.business-logo__remove {
+  min-height: 38px;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding:
+    8px 12px;
+
+  border-radius:
+    var(--radius-sm);
+
+  font: inherit;
+
+  font-size: 0.63rem;
+
+  font-weight:
+    var(--font-weight-black);
+
+  letter-spacing: 0.06em;
+
+  cursor: pointer;
+}
+
+
+.business-logo__upload {
+  border:
+    1px solid
+    var(--color-green);
+
+  background:
+    var(--color-green);
+
+  color:
+    var(--color-white);
+}
+
+
+.business-logo__upload input {
+  position: absolute;
+
+  width: 1px;
+
+  height: 1px;
+
+  overflow: hidden;
+
+  opacity: 0;
+
+  pointer-events: none;
+}
+
+
+.business-logo__upload--disabled {
+  pointer-events: none;
+
+  opacity: 0.55;
+}
+
+
+.business-logo__remove {
+  border:
+    1px solid
+    var(--color-crimson);
+
+  background:
+    transparent;
+
+  color:
+    var(--color-crimson);
+}
+
+
+.business-logo__remove:hover {
+  background:
+    var(--color-crimson);
+
+  color:
+    var(--color-white);
+}
+
+
+/* =========================================================
+   COLOR
+   ========================================================= */
+
+.business-color-field {
+  display: grid;
+
+  grid-template-columns:
+    54px
+    minmax(0, 1fr);
+
+  gap: 8px;
+}
+
+
+.business-color-field input[type="color"] {
+  width: 54px;
+
+  padding: 5px;
+
+  cursor: pointer;
+}
+
+
+.business-brand-preview {
+  display: grid;
+
+  align-content: start;
+
+  gap: 8px;
+
+  padding: 12px;
+
+  border:
+    1px solid
+    var(--color-border-soft);
+
+  border-radius:
+    var(--radius-sm);
+
+  background:
+    var(--color-surface-muted);
+}
+
+
+.business-brand-preview > span {
+  color:
+    var(--color-text-muted);
+
+  font-size: 0.62rem;
+
+  font-weight:
+    var(--font-weight-black);
+
+  letter-spacing: 0.07em;
+}
+
+
+.business-brand-preview__color {
+  width: 100%;
+
+  height: 54px;
+
+  border:
+    1px solid
+    var(--color-border-soft);
+
+  border-radius:
+    var(--radius-sm);
+}
+
+
+.business-brand-preview strong {
+  color:
+    var(--color-text);
+
+  font-size: 0.75rem;
+}
+
+
+/* =========================================================
+   INPUT CON UNIDAD
+   ========================================================= */
+
+.business-input-unit {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto;
+}
+
+
+.business-input-unit input {
+  border-top-right-radius: 0;
+
+  border-bottom-right-radius: 0;
+}
+
+
+.business-input-unit span {
+  display: grid;
+
+  place-items: center;
+
+  min-width: 62px;
+
+  padding: 0 10px;
+
+  border:
+    1px solid
+    var(--color-border-soft);
+
+  border-left: 0;
+
+  border-radius:
+    0
+    var(--radius-sm)
+    var(--radius-sm)
+    0;
+
+  background:
+    var(--color-surface);
+
+  color:
+    var(--color-text-muted);
+
+  font-size: 0.62rem;
+
+  font-weight:
+    var(--font-weight-black);
+
+  letter-spacing: 0.06em;
+}
+
+
+/* =========================================================
+   ESTADOS
+   ========================================================= */
+
+.business-state {
+  min-height: 240px;
+
+  display: grid;
+
+  place-content: center;
+
+  gap: 8px;
+
+  padding: 26px;
+
+  border:
+    1px solid
+    var(--color-border-soft);
+
+  border-top:
+    4px solid
+    var(--color-orange);
+
+  border-radius:
+    var(--radius-sm);
+
+  background:
+    var(--color-surface);
+
+  text-align: center;
+}
+
+
+.business-state strong {
+  color:
+    var(--color-text);
+
+  font-weight:
+    var(--font-weight-black);
+}
+
+
+.business-state p {
+  max-width: 520px;
+
+  margin: 0;
+
+  color:
+    var(--color-text-muted);
+
+  line-height: 1.5;
+}
+
+
+.business-state--error {
+  border-top-color:
+    var(--color-crimson);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (
+  max-width: 820px
+) {
+  .business-section {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .business-form-grid,
+  .business-identity-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .business-field--wide {
+    grid-column:
+      auto;
+  }
+
+
+  .business-page__actions {
+    width: 100%;
+  }
+
+
+  .business-page__actions button,
+  .business-page__footer button {
+    flex:
+      1 1 160px;
+  }
+}

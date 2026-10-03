@@ -32,7 +32,10 @@ function cacheProgress(
   data,
 ) {
   const cached =
-    readLoyaltySnapshot(code);
+    readLoyaltySnapshot(
+      code,
+    );
+
 
   saveLoyaltySnapshot(
     code,
@@ -59,11 +62,6 @@ function cacheProgress(
         data.reward_earned ??
         cached?.rewardEarned ??
         false,
-
-      rewardName:
-        data.business
-          ?.reward_name ??
-        cached?.rewardName,
     },
   );
 }
@@ -74,35 +72,55 @@ export default function TagPage() {
     code,
   } = useParams();
 
+
   const navigate =
     useNavigate();
+
 
   const [
     state,
     setState,
   ] = useState({
-    status: "loading",
+    status:
+      "loading",
   });
+
 
   const [
     form,
     setForm,
   ] = useState({
-    name: "",
-    whatsapp: "",
-    birthday: "",
-    consent: false,
+    name:
+      "",
+
+    cedula:
+      "",
+
+    whatsapp:
+      "",
+
+    birthday:
+      "",
+
+    consent:
+      false,
   });
+
 
   const [
     submitting,
     setSubmitting,
-  ] = useState(false);
+  ] = useState(
+    false,
+  );
+
 
   const [
     error,
     setError,
-  ] = useState("");
+  ] = useState(
+    "",
+  );
 
 
   // =========================================================
@@ -117,10 +135,12 @@ export default function TagPage() {
       data,
     );
 
+
     navigate(
       `/card/${code}`,
       {
-        replace: true,
+        replace:
+          true,
       },
     );
   }
@@ -131,20 +151,27 @@ export default function TagPage() {
   // =========================================================
 
   useEffect(() => {
-    let cancelled = false;
+    let cancelled =
+      false;
+
 
     async function start() {
       try {
         const data =
           await registerVisit({
             code,
+
             device_token:
               getDeviceToken(),
           });
 
-        if (cancelled) {
+
+        if (
+          cancelled
+        ) {
           return;
         }
+
 
         if (
           data.status ===
@@ -157,33 +184,50 @@ export default function TagPage() {
           return;
         }
 
-        // Si la visita se registró correctamente,
-        // el usuario no necesita ver una pantalla intermedia.
+
         if (
           data.status ===
           "registered_ok"
         ) {
-          goToCard(data);
+          goToCard(
+            data,
+          );
 
           return;
         }
 
-        // Si ya había registrado recientemente,
-        // tampoco necesita quedarse en /t/:code.
+
         if (
           data.status ===
           "too_soon"
         ) {
-          goToCard(data);
+          goToCard(
+            data,
+          );
 
           return;
         }
 
-        setState(data);
-      } catch {
-        if (!cancelled) {
+
+        setState(
+          data,
+        );
+      } catch (
+        requestError
+      ) {
+        console.error(
+          "visit:",
+          requestError,
+        );
+
+
+        if (
+          !cancelled
+        ) {
           setState({
-            status: "error",
+            status:
+              "error",
+
             message:
               "No hay conexión. Intenta de nuevo.",
           });
@@ -191,10 +235,13 @@ export default function TagPage() {
       }
     }
 
+
     start();
 
+
     return () => {
-      cancelled = true;
+      cancelled =
+        true;
     };
   }, [
     code,
@@ -203,7 +250,7 @@ export default function TagPage() {
 
 
   // =========================================================
-  // REGISTRO DE NUEVO CLIENTE
+  // REGISTRO DE CLIENTE
   // =========================================================
 
   async function handleSubmit(
@@ -211,10 +258,31 @@ export default function TagPage() {
   ) {
     event.preventDefault();
 
-    setError("");
-    setSubmitting(true);
+
+    setError(
+      "",
+    );
+
+    setSubmitting(
+      true,
+    );
+
 
     try {
+      const registration = {
+        ...form,
+
+        name:
+          form.name.trim(),
+
+        cedula:
+          form.cedula.trim(),
+
+        whatsapp:
+          form.whatsapp.trim(),
+      };
+
+
       const data =
         await registerVisit({
           code,
@@ -222,33 +290,36 @@ export default function TagPage() {
           device_token:
             getDeviceToken(),
 
-          registration:
-            form,
+          registration,
         });
+
 
       if (
         data.status ===
         "error"
       ) {
         setError(
-          data.message,
+          data.message ||
+            "No pudimos registrarte.",
         );
 
         return;
       }
 
-      // Después de registrarse y recibir su primer sello,
-      // enviamos directamente a la tarjeta.
+
       if (
         data.status ===
           "registered_ok" ||
         data.status ===
           "too_soon"
       ) {
-        goToCard(data);
+        goToCard(
+          data,
+        );
 
         return;
       }
+
 
       if (
         data.status ===
@@ -261,13 +332,26 @@ export default function TagPage() {
         return;
       }
 
-      setState(data);
-    } catch {
+
+      setState(
+        data,
+      );
+    } catch (
+      requestError
+    ) {
+      console.error(
+        "registration:",
+        requestError,
+      );
+
+
       setError(
         "No hay conexión. Intenta de nuevo.",
       );
     } finally {
-      setSubmitting(false);
+      setSubmitting(
+        false,
+      );
     }
   }
 
@@ -278,18 +362,23 @@ export default function TagPage() {
 
   return (
     <main className="loyalty-page">
+
       <div className="loyalty-shell">
+
         <BrandHeader
           business={
             state.business
           }
         />
 
+
         <section className="loyalty-content">
+
           {state.status ===
             "loading" && (
             <LoadingState />
           )}
+
 
           {state.status ===
             "not_found" && (
@@ -298,6 +387,7 @@ export default function TagPage() {
               text="Este código no está activo. Pídele al equipo que lo revise."
             />
           )}
+
 
           {state.status ===
             "error" && (
@@ -310,11 +400,16 @@ export default function TagPage() {
             />
           )}
 
+
           {state.status ===
             "needs_registration" && (
             <Registration
-              state={state}
-              form={form}
+              state={
+                state
+              }
+              form={
+                form
+              }
               setForm={
                 setForm
               }
@@ -324,40 +419,57 @@ export default function TagPage() {
               submitting={
                 submitting
               }
-              error={error}
+              error={
+                error
+              }
             />
           )}
+
         </section>
+
       </div>
+
     </main>
   );
 }
 
 
+// ===========================================================
+// CARGANDO
+// ===========================================================
+
 function LoadingState() {
   return (
     <div className="status-box">
+
       <div
         className="loading-mark"
         aria-hidden="true"
       />
 
+
       <p className="eyebrow">
         Vuelvo
       </p>
+
 
       <h1 className="display-title">
         Registrando tu visita
       </h1>
 
+
       <p className="body-copy">
-        En un momento verás
-        tu tarjeta.
+        En un momento verás tu tarjeta.
       </p>
+
     </div>
   );
 }
 
+
+// ===========================================================
+// ESTADO SIMPLE
+// ===========================================================
 
 function SimpleState({
   title,
@@ -366,13 +478,16 @@ function SimpleState({
 }) {
   return (
     <div className="status-box">
+
       <p className="eyebrow">
         Vuelvo
       </p>
 
+
       <h1 className="display-title">
         {title}
       </h1>
+
 
       <p
         className={`body-copy${
@@ -383,10 +498,15 @@ function SimpleState({
       >
         {text}
       </p>
+
     </div>
   );
 }
 
+
+// ===========================================================
+// REGISTRO
+// ===========================================================
 
 function Registration({
   state,
@@ -398,30 +518,34 @@ function Registration({
 }) {
   return (
     <>
+
       <p className="eyebrow">
         Tu tarjeta digital
       </p>
+
 
       <h1 className="display-title">
         Empieza a sumar sellos
       </h1>
 
+
       <p className="body-copy">
         Completa{" "}
-        {
-          state.business
-            ?.stamps_required
-        }{" "}
-        sellos y recibe{" "}
-        {
-          state.business
-            ?.reward_name
-        }
-        .
+        <strong>
+          {
+            state.business
+              ?.stamps_required
+          }
+        </strong>{" "}
+        sellos y desbloquea las recompensas
+        disponibles de este negocio.
       </p>
 
+
       <RegistrationForm
-        form={form}
+        form={
+          form
+        }
         setForm={
           setForm
         }
@@ -434,8 +558,11 @@ function Registration({
         submitting={
           submitting
         }
-        error={error}
+        error={
+          error
+        }
       />
+
     </>
   );
 }

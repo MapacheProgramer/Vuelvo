@@ -8,22 +8,23 @@ import TagPage from "../pages/public/TagPage.jsx";
 import CardPage from "../pages/public/CardPage.jsx";
 
 import LoginPage from "../pages/auth/LoginPage.jsx";
+import InvitePage from "../pages/auth/InvitePage.jsx";
 
 import DashboardPage from "../pages/dashboard/DashboardPage.jsx";
 import CustomersPage from "../pages/dashboard/CustomersPage.jsx";
+import CustomerDetailPage from "../pages/dashboard/CustomerDetailPage.jsx";
 import RewardsPage from "../pages/dashboard/RewardsPage.jsx";
 import CatalogPage from "../pages/dashboard/CatalogPage.jsx";
+import TeamPage from "../pages/dashboard/TeamPage.jsx";
+import BusinessPage from "../pages/dashboard/BusinessPage.jsx";
 
 import ProtectedRoute from "../features/auth/components/ProtectedRoute.jsx";
+import OwnerOnlyRoute from "../features/auth/components/OwnerOnlyRoute.jsx";
 
 
 export default function AppRouter() {
   return (
     <Routes>
-
-      {/* =====================================================
-          INICIO
-          ===================================================== */}
 
       <Route
         path="/"
@@ -36,10 +37,6 @@ export default function AppRouter() {
       />
 
 
-      {/* =====================================================
-          AUTENTICACIÓN
-          ===================================================== */}
-
       <Route
         path="/login"
         element={
@@ -48,9 +45,13 @@ export default function AppRouter() {
       />
 
 
-      {/* =====================================================
-          RUTAS PÚBLICAS
-          ===================================================== */}
+      <Route
+        path="/invite"
+        element={
+          <InvitePage />
+        }
+      />
+
 
       <Route
         path="/t/:code"
@@ -68,10 +69,6 @@ export default function AppRouter() {
       />
 
 
-      {/* =====================================================
-          DASHBOARD
-          ===================================================== */}
-
       <Route
         path="/dashboard"
         element={
@@ -81,10 +78,6 @@ export default function AppRouter() {
         }
       />
 
-
-      {/* =====================================================
-          CLIENTES
-          ===================================================== */}
 
       <Route
         path="/dashboard/clientes"
@@ -96,9 +89,15 @@ export default function AppRouter() {
       />
 
 
-      {/* =====================================================
-          RECOMPENSAS
-          ===================================================== */}
+      <Route
+        path="/dashboard/clientes/:customerId"
+        element={
+          <ProtectedRoute>
+            <CustomerDetailPage />
+          </ProtectedRoute>
+        }
+      />
+
 
       <Route
         path="/dashboard/recompensas"
@@ -110,10 +109,6 @@ export default function AppRouter() {
       />
 
 
-      {/* =====================================================
-          CATÁLOGO
-          ===================================================== */}
-
       <Route
         path="/dashboard/catalogo"
         element={
@@ -124,9 +119,25 @@ export default function AppRouter() {
       />
 
 
-      {/* =====================================================
-          RUTA NO ENCONTRADA
-          ===================================================== */}
+      <Route
+        path="/dashboard/equipo"
+        element={
+          <ProtectedRoute>
+            <TeamPage />
+          </ProtectedRoute>
+        }
+      />
+
+
+      <Route
+        path="/dashboard/negocio"
+        element={
+          <OwnerOnlyRoute>
+            <BusinessPage />
+          </OwnerOnlyRoute>
+        }
+      />
+
 
       <Route
         path="*"
