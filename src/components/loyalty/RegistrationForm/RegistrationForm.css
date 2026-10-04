@@ -54,8 +54,16 @@
   font-size: 0.875rem;
   line-height: 1.4;
 }
+
 .form-field input[type="date"] {
+  color: #111111;
+  -webkit-text-fill-color: #111111;
   color-scheme: light;
+}
+
+.form-field input[type="date"]::-webkit-datetime-edit {
+  color: #111111;
+  -webkit-text-fill-color: #111111;
 }
 
 .form-field input[type="date"]::-webkit-calendar-picker-indicator {
