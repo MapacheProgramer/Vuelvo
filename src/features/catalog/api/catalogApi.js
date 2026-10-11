@@ -199,3 +199,71 @@ export async function updateReward({
 
   return data;
 }
+
+
+/* =========================================================
+   ELIMINAR RECOMPENSA
+   ========================================================= */
+
+export async function deleteReward({
+  businessId,
+  rewardId,
+}) {
+  if (!businessId) {
+    throw new Error(
+      "No se encontró el negocio.",
+    );
+  }
+
+  if (!rewardId) {
+    throw new Error(
+      "No se encontró la recompensa.",
+    );
+  }
+
+  const {
+    data,
+    error,
+  } = await supabase
+    .from("reward_catalog")
+    .delete()
+    .eq(
+      "id",
+      rewardId,
+    )
+    .eq(
+      "business_id",
+      businessId,
+    )
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    console.error(
+      "deleteReward:",
+      error,
+    );
+
+    if (
+      error.code ===
+      "23503"
+    ) {
+      throw new Error(
+        "Esta recompensa ya fue seleccionada por un cliente. Desactívala en lugar de eliminarla.",
+      );
+    }
+
+    throw new Error(
+      error.message ||
+        "No pudimos eliminar la recompensa.",
+    );
+  }
+
+  if (!data) {
+    throw new Error(
+      "No se encontró la recompensa o no tienes permiso para eliminarla.",
+    );
+  }
+
+  return true;
+}

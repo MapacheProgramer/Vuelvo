@@ -12,6 +12,7 @@ import {
 
 import {
   createReward,
+  deleteReward,
   getRewardCatalog,
   updateReward,
 } from "../../features/catalog/api/catalogApi.js";
@@ -135,6 +136,28 @@ export default function CatalogPage() {
   const [
     editError,
     setEditError,
+  ] = useState("");
+
+
+  // =========================================================
+  // ELIMINAR
+  // =========================================================
+
+  const [
+    deletingReward,
+    setDeletingReward,
+  ] = useState(null);
+
+
+  const [
+    deleting,
+    setDeleting,
+  ] = useState(false);
+
+
+  const [
+    deleteError,
+    setDeleteError,
   ] = useState("");
 
 
@@ -604,6 +627,142 @@ export default function CatalogPage() {
 
 
   // =========================================================
+  // ELIMINAR — ABRIR
+  // =========================================================
+
+  function handleOpenDelete(
+    reward,
+  ) {
+    if (
+      !isOwner
+    ) {
+      return;
+    }
+
+
+    setMessage(
+      "",
+    );
+
+    setDeleteError(
+      "",
+    );
+
+
+    setDeletingReward(
+      reward,
+    );
+  }
+
+
+  // =========================================================
+  // ELIMINAR — CERRAR
+  // =========================================================
+
+  function handleCloseDelete() {
+    if (
+      deleting
+    ) {
+      return;
+    }
+
+
+    setDeletingReward(
+      null,
+    );
+
+    setDeleteError(
+      "",
+    );
+  }
+
+
+  // =========================================================
+  // ELIMINAR — CONFIRMAR
+  // =========================================================
+
+  async function handleDeleteReward() {
+    if (
+      !isOwner
+    ) {
+      setDeleteError(
+        "No tienes permisos para eliminar recompensas.",
+      );
+
+      return;
+    }
+
+
+    if (
+      !deletingReward
+    ) {
+      return;
+    }
+
+
+    setDeleteError(
+      "",
+    );
+
+
+    try {
+      setDeleting(
+        true,
+      );
+
+
+      await deleteReward({
+        businessId,
+
+        rewardId:
+          deletingReward.id,
+      });
+
+
+      const deletedName =
+        deletingReward.name;
+
+
+      setRewards(
+        (current) =>
+          current.filter(
+            (reward) =>
+              reward.id !==
+              deletingReward.id,
+          ),
+      );
+
+
+      setDeletingReward(
+        null,
+      );
+
+
+      setMessage(
+        `"${deletedName}" fue eliminada del catálogo correctamente.`,
+      );
+    } catch (
+      error
+    ) {
+      console.error(
+        "delete reward:",
+        error,
+      );
+
+
+      setDeleteError(
+        error?.message ||
+          "No pudimos eliminar la recompensa.",
+      );
+    } finally {
+      setDeleting(
+        false,
+      );
+    }
+  }
+
+
+  // =========================================================
   // UI
   // =========================================================
 
@@ -711,7 +870,7 @@ export default function CatalogPage() {
           {!isOwner && (
             <div className="catalog-page__message">
               Tienes acceso de consulta. Solo el propietario puede
-              crear o modificar recompensas.
+              crear, modificar o eliminar recompensas.
             </div>
           )}
 
@@ -832,6 +991,9 @@ export default function CatalogPage() {
                       onEdit={
                         handleOpenEdit
                       }
+                      onDelete={
+                        handleOpenDelete
+                      }
                     />
                   ),
                 )}
@@ -931,6 +1093,61 @@ export default function CatalogPage() {
         </ConfirmModal>
       )}
 
+
+      {/* =====================================================
+          MODAL ELIMINAR
+          ===================================================== */}
+
+      {isOwner && (
+        <ConfirmModal
+          open={
+            Boolean(
+              deletingReward,
+            )
+          }
+          eyebrow="Catálogo"
+          title="Eliminar recompensa"
+          confirmText="Eliminar recompensa"
+          cancelText="Cancelar"
+          loading={
+            deleting
+          }
+          onClose={
+            handleCloseDelete
+          }
+          onConfirm={
+            handleDeleteReward
+          }
+        >
+
+          <div className="catalog-form">
+
+            <p>
+              ¿Seguro que quieres eliminar{" "}
+              <strong>
+                {deletingReward?.name}
+              </strong>
+              ?
+            </p>
+
+
+            <p>
+              Esta acción solo será posible si ningún cliente
+              ha seleccionado esta recompensa.
+            </p>
+
+
+            {deleteError && (
+              <div className="catalog-form__error">
+                {deleteError}
+              </div>
+            )}
+
+          </div>
+
+        </ConfirmModal>
+      )}
+
     </DashboardLayout>
   );
 }
@@ -944,6 +1161,7 @@ function RewardCard({
   reward,
   canEdit,
   onEdit,
+  onDelete,
 }) {
   const isActive =
     Boolean(
@@ -992,6 +1210,21 @@ function RewardCard({
             }
           >
             EDITAR
+          </button>
+        )}
+
+
+        {canEdit && (
+          <button
+            type="button"
+            className="catalog-reward__edit catalog-reward__delete"
+            onClick={() =>
+              onDelete(
+                reward,
+              )
+            }
+          >
+            ELIMINAR
           </button>
         )}
 
