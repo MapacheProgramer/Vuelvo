@@ -1,11 +1,25 @@
 import "./StampCard.css";
 
+function getContrastColor(hexColor) {
+  const cleanHex = hexColor.replace("#", "");
+
+  const red = parseInt(cleanHex.slice(0, 2), 16);
+  const green = parseInt(cleanHex.slice(2, 4), 16);
+  const blue = parseInt(cleanHex.slice(4, 6), 16);
+
+  const luminance =
+    (0.299 * red + 0.587 * green + 0.114 * blue) / 255;
+
+  return luminance > 0.62 ? "#000000" : "#ffffff";
+}
+
 export default function StampCard({
   stamps = 0,
   required = 8,
   pendingVisit = false,
   rewardAvailable = false,
   rewardNeedsSelection = false,
+  brandColor = "#f05a28",
 }) {
   const safeRequired = Number(required) > 0 ? Number(required) : 8;
   const safeStamps = Math.max(0, Math.min(Number(stamps) || 0, safeRequired));
@@ -13,6 +27,15 @@ export default function StampCard({
   const pendingStampNumber =
     pendingVisit && safeStamps < safeRequired ? safeStamps + 1 : null;
   const stampItems = Array.from({ length: safeRequired }, (_, index) => index + 1);
+
+  const safeBrandColor =
+    typeof brandColor === "string" &&
+    /^#[0-9a-fA-F]{6}$/.test(brandColor.trim())
+      ? brandColor.trim()
+      : "#f05a28";
+
+  const brandContrast =
+    getContrastColor(safeBrandColor);
 
   function getRewardTitle() {
     if (rewardAvailable && rewardNeedsSelection) {
@@ -41,7 +64,13 @@ export default function StampCard({
   }
 
   return (
-    <section className="stamp-card">
+    <section
+      className="stamp-card"
+      style={{
+        "--stamp-brand-color": safeBrandColor,
+        "--stamp-brand-contrast": brandContrast,
+      }}
+    >
       <div className="stamp-card__header">
         <div className="stamp-card__count">
           {safeStamps} / {safeRequired}

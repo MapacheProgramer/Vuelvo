@@ -258,6 +258,13 @@ export default function CardPage() {
 
   const data = state.data;
 
+  const businessBrandColor =
+    data?.business?.brand_color || "#f05a28";
+
+  const businessBrandStyle = {
+    "--business-brand-color": businessBrandColor,
+  };
+
   // =========================================================
   // NO REGISTRADO
   // =========================================================
@@ -266,7 +273,10 @@ export default function CardPage() {
     !data
   ) {
     return (
-      <main className="loyalty-page">
+      <main
+        className="loyalty-page"
+        style={businessBrandStyle}
+      >
         <div className="loyalty-shell">
           <BrandHeader
             business={data?.business}
@@ -363,7 +373,10 @@ export default function CardPage() {
   // RENDER
   // =========================================================
   return (
-    <main className="loyalty-page">
+    <main
+      className="loyalty-page"
+      style={businessBrandStyle}
+    >
       <div className="loyalty-shell">
         <BrandHeader
           business={data.business}
@@ -398,6 +411,9 @@ export default function CardPage() {
             )}
             rewardNeedsSelection={
               hasUnselectedReward
+            }
+            brandColor={
+              data.business?.brand_color
             }
           />
 

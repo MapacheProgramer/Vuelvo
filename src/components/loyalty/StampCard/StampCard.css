@@ -1,7 +1,7 @@
 /* src/components/loyalty/StampCard/StampCard.css */
 
 .stamp-card {
-  border: 1px solid #f05a28;
+  border: 1px solid var(--stamp-brand-color, #f05a28);
   border-radius: 18px;
   padding: 20px 18px;
   background: rgba(255, 255, 255, 0.02);
@@ -52,14 +52,10 @@
 }
 
 .stamp-card__stamp--active {
-  color: #ffffff;
+  color: var(--stamp-brand-contrast, #ffffff);
   border-style: solid;
-  border-color: rgba(240, 90, 40, 0.9);
-  background: linear-gradient(
-    180deg,
-    rgba(23, 108, 67, 0.95) 0%,
-    rgba(18, 86, 54, 0.95) 100%
-  );
+  border-color: var(--stamp-brand-color, #f05a28);
+  background: var(--stamp-brand-color, #f05a28);
 }
 
 .stamp-card__stamp--pending {
@@ -115,8 +111,8 @@
 .stamp-card__available {
   margin-top: 18px;
   border-radius: 14px;
-  border: 1px solid rgba(240, 90, 40, 0.55);
-  background: rgba(18, 86, 54, 0.92);
+  border: 1px solid var(--stamp-brand-color, #f05a28);
+  background: var(--stamp-brand-color, #f05a28);
   padding: 16px;
   box-shadow: none;
 }
@@ -127,7 +123,7 @@
   font-size: 0.82rem;
   font-weight: 900;
   letter-spacing: 0.08em;
-  color: #f4f4f4;
+  color: var(--stamp-brand-contrast, #ffffff);
 }
 
 .stamp-card__available-name {
@@ -136,7 +132,7 @@
   font-size: 1.05rem;
   line-height: 1.15;
   font-weight: 900;
-  color: #ffffff;
+  color: var(--stamp-brand-contrast, #ffffff);
   text-transform: uppercase;
 }
 
@@ -145,7 +141,7 @@
   margin: 0;
   font-size: 0.95rem;
   line-height: 1.45;
-  color: rgba(255, 255, 255, 0.88);
+  color: var(--stamp-brand-contrast, #ffffff);
 }
 
 /* Modo claro */
@@ -167,13 +163,9 @@
 }
 
 [data-theme="light"] .stamp-card__stamp--active {
-  color: #ffffff;
-  border-color: rgba(240, 90, 40, 0.9);
-  background: linear-gradient(
-    180deg,
-    rgba(23, 108, 67, 0.95) 0%,
-    rgba(18, 86, 54, 0.95) 100%
-  );
+  color: var(--stamp-brand-contrast, #ffffff);
+  border-color: var(--stamp-brand-color, #f05a28);
+  background: var(--stamp-brand-color, #f05a28);
 }
 
 [data-theme="light"] .stamp-card__stamp--pending {
@@ -202,23 +194,17 @@
 }
 
 [data-theme="light"] .stamp-card__available {
-  background: rgba(18, 86, 54, 0.92);
-  border-color: rgba(240, 90, 40, 0.55);
+  background: var(--stamp-brand-color, #f05a28);
+  border-color: var(--stamp-brand-color, #f05a28);
   box-shadow: none;
 }
 
 [data-theme="light"] .stamp-card__available-label,
-[data-theme="light"] .stamp-card__available-title {
-  color: #f4f4f4;
-}
-
-[data-theme="light"] .stamp-card__available-name {
-  color: #ffffff;
-}
-
+[data-theme="light"] .stamp-card__available-title,
+[data-theme="light"] .stamp-card__available-name,
 [data-theme="light"] .stamp-card__available-copy,
 [data-theme="light"] .stamp-card__available-note {
-  color: rgba(255, 255, 255, 0.88);
+  color: var(--stamp-brand-contrast, #ffffff);
 }
 
 /* Responsive */

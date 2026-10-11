@@ -30,20 +30,17 @@
 }
 
 .brand-logo {
-  width: 40px;
-  height: 40px;
+  width: 100px;
+  height: 100px;
 
   flex-shrink: 0;
 
-  object-fit: cover;
+  object-fit: contain;
 
-  border: 1px solid
-    var(
-      --header-logo-border,
-      rgba(255, 255, 255, 0.35)
-    );
+  border: none;
+  border-radius: 0;
 
-  border-radius: var(--radius-sm);
+  background: transparent;
 }
 
 .brand-name {
@@ -73,10 +70,12 @@
       var(--space-4);
   }
 
+@media (max-width: 520px) {
   .brand-logo {
-    width: 36px;
-    height: 36px;
+    width: 62px;
+    height: 62px;
   }
+}
 
   .brand-name {
     font-size: 1.05rem;
