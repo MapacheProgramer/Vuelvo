@@ -4,14 +4,13 @@ import {
   useState,
 } from "react";
 
-import {
-  useAuth,
-} from "../../features/auth/hooks/useAuth.js";
-
+import { useAuth } from "../../features/auth/hooks/useAuth.js";
 import {
   getDashboardData,
   getPendingRewards,
+  getPendingVisitRequests,
   redeemReward,
+  reviewVisitRequest,
 } from "../../features/dashboard/api/dashboardApi.js";
 
 import DashboardLayout from "../../components/layout/DashboardLayout/DashboardLayout.jsx";
@@ -27,98 +26,67 @@ export default function DashboardPage() {
     role,
   } = useAuth();
 
-  const [data, setData] =
-    useState(null);
-
-  const [
-    pendingRewards,
-    setPendingRewards,
-  ] = useState([]);
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [error, setError] =
-    useState("");
-
-  const [
-    redeemingRewardId,
-    setRedeemingRewardId,
-  ] = useState(null);
-
-  const [
-    rewardMessage,
-    setRewardMessage,
-  ] = useState("");
-
-  const [
-    rewardToRedeem,
-    setRewardToRedeem,
-  ] = useState(null);
+  const [data, setData] = useState(null);
+  const [pendingRewards, setPendingRewards] = useState([]);
+  const [pendingVisits, setPendingVisits] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [redeemingRewardId, setRedeemingRewardId] = useState(null);
+  const [rewardMessage, setRewardMessage] = useState("");
+  const [rewardToRedeem, setRewardToRedeem] = useState(null);
+  const [reviewingVisitId, setReviewingVisitId] = useState(null);
+  const [visitMessage, setVisitMessage] = useState("");
 
   // =========================================================
   // CARGAR DASHBOARD
   // =========================================================
+  const loadDashboard = useCallback(
+    async ({
+      showLoading = false,
+    } = {}) => {
+      if (!businessId) {
+        return;
+      }
 
-  const loadDashboard =
-    useCallback(
-      async ({
-        showLoading = false,
-      } = {}) => {
-        if (!businessId) {
-          return;
-        }
+      if (showLoading) {
+        setLoading(true);
+      }
 
+      setError("");
+
+      try {
+        const [
+          dashboardResult,
+          pendingRewardsResult,
+          pendingVisitsResult,
+        ] = await Promise.all([
+          getDashboardData(businessId),
+          getPendingRewards(businessId),
+          getPendingVisitRequests(businessId),
+        ]);
+
+        setData(dashboardResult);
+        setPendingRewards(pendingRewardsResult);
+        setPendingVisits(pendingVisitsResult);
+      } catch (loadError) {
+        console.error("dashboard:", loadError);
+
+        setError(
+          loadError?.message ||
+            "No pudimos cargar el dashboard.",
+        );
+      } finally {
         if (showLoading) {
-          setLoading(true);
+          setLoading(false);
         }
-
-        setError("");
-
-        try {
-          const [
-            dashboardResult,
-            pendingRewardsResult,
-          ] = await Promise.all([
-            getDashboardData(
-              businessId,
-            ),
-
-            getPendingRewards(
-              businessId,
-            ),
-          ]);
-
-          setData(
-            dashboardResult,
-          );
-
-          setPendingRewards(
-            pendingRewardsResult,
-          );
-        } catch (error) {
-          console.error(
-            "dashboard:",
-            error,
-          );
-
-          setError(
-            error?.message ||
-              "No pudimos cargar el dashboard.",
-          );
-        } finally {
-          if (showLoading) {
-            setLoading(false);
-          }
-        }
-      },
-      [businessId],
-    );
+      }
+    },
+    [businessId],
+  );
 
   // =========================================================
   // PRIMERA CARGA
   // =========================================================
-
   useEffect(() => {
     if (!businessId) {
       return;
@@ -133,9 +101,154 @@ export default function DashboardPage() {
   ]);
 
   // =========================================================
+  // ACTUALIZAR SOLICITUDES AUTOMÁTICAMENTE
+  // =========================================================
+  useEffect(() => {
+    if (!businessId) {
+      return undefined;
+    }
+
+    let active = true;
+    let refreshing = false;
+
+    async function refreshPendingVisits() {
+      if (
+        !active ||
+        refreshing ||
+        document.visibilityState !== "visible"
+      ) {
+        return;
+      }
+
+      refreshing = true;
+
+      try {
+        const requests =
+          await getPendingVisitRequests(
+            businessId,
+          );
+
+        if (active) {
+          setPendingVisits(
+            requests,
+          );
+        }
+      } catch (refreshError) {
+        console.error(
+          "refresh pending visits:",
+          refreshError,
+        );
+      } finally {
+        refreshing = false;
+      }
+    }
+
+    const intervalId =
+      window.setInterval(
+        refreshPendingVisits,
+        4000,
+      );
+
+    function handleVisibilityChange() {
+      if (
+        document.visibilityState ===
+        "visible"
+      ) {
+        refreshPendingVisits();
+      }
+    }
+
+    function handleFocus() {
+      refreshPendingVisits();
+    }
+
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibilityChange,
+    );
+
+    window.addEventListener(
+      "focus",
+      handleFocus,
+    );
+
+    return () => {
+      active = false;
+
+      window.clearInterval(
+        intervalId,
+      );
+
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibilityChange,
+      );
+
+      window.removeEventListener(
+        "focus",
+        handleFocus,
+      );
+    };
+  }, [
+    businessId,
+  ]);
+
+  // =========================================================
+  // APROBAR / RECHAZAR SOLICITUD DE SELLO
+  // =========================================================
+  async function handleReviewVisit(
+    request,
+    action,
+  ) {
+    if (!request?.request_id) {
+      return;
+    }
+
+    try {
+      setReviewingVisitId(
+        request.request_id,
+      );
+
+      setVisitMessage("");
+
+      await reviewVisitRequest(
+        request.request_id,
+        action,
+      );
+
+      setVisitMessage(
+        action === "approve"
+          ? `El sello de ${
+              request.customer_name ||
+              "el cliente"
+            } fue aprobado correctamente.`
+          : `La solicitud de ${
+              request.customer_name ||
+              "el cliente"
+            } fue rechazada.`,
+      );
+
+      await loadDashboard();
+    } catch (reviewError) {
+      console.error(
+        "review visit request:",
+        reviewError,
+      );
+
+      setVisitMessage(
+        reviewError?.message ||
+          "No pudimos revisar la solicitud.",
+      );
+    } finally {
+      setReviewingVisitId(
+        null,
+      );
+    }
+  }
+
+  // =========================================================
   // ABRIR MODAL DE CANJE
   // =========================================================
-
   function handleRequestRedeem(
     reward,
   ) {
@@ -150,7 +263,6 @@ export default function DashboardPage() {
     }
 
     setRewardMessage("");
-
     setRewardToRedeem(
       reward,
     );
@@ -159,9 +271,10 @@ export default function DashboardPage() {
   // =========================================================
   // CERRAR MODAL
   // =========================================================
-
   function handleCloseRedeemModal() {
-    if (redeemingRewardId) {
+    if (
+      redeemingRewardId
+    ) {
       return;
     }
 
@@ -173,7 +286,6 @@ export default function DashboardPage() {
   // =========================================================
   // CONFIRMAR CANJE
   // =========================================================
-
   async function handleConfirmRedeem() {
     if (
       !rewardToRedeem
@@ -207,14 +319,14 @@ export default function DashboardPage() {
       );
 
       await loadDashboard();
-    } catch (error) {
+    } catch (redeemError) {
       console.error(
         "redeem reward:",
-        error,
+        redeemError,
       );
 
       setRewardMessage(
-        error?.message ||
+        redeemError?.message ||
           "No pudimos canjear la recompensa.",
       );
     } finally {
@@ -227,7 +339,6 @@ export default function DashboardPage() {
   // =========================================================
   // LOADING
   // =========================================================
-
   if (loading) {
     return (
       <DashboardLayout>
@@ -247,8 +358,10 @@ export default function DashboardPage() {
   // =========================================================
   // ERROR
   // =========================================================
-
-  if (error || !data) {
+  if (
+    error ||
+    !data
+  ) {
     return (
       <DashboardLayout>
         <div className="dashboard-state">
@@ -257,8 +370,7 @@ export default function DashboardPage() {
           </p>
 
           <h1>
-            NO PUDIMOS CARGAR
-            EL PANEL
+            NO PUDIMOS CARGAR EL PANEL
           </h1>
 
           <p>
@@ -288,8 +400,7 @@ export default function DashboardPage() {
           </h1>
 
           <p className="dashboard-intro">
-            Resumen de actividad,
-            clientes y recompensas.
+            Resumen de actividad, clientes y recompensas.
           </p>
         </div>
 
@@ -323,6 +434,17 @@ export default function DashboardPage() {
 
         <StatCard
           value={
+            pendingVisits.length
+          }
+          label="Solicitudes de sello"
+          emphasis={
+            pendingVisits.length >
+            0
+          }
+        />
+
+        <StatCard
+          value={
             stats.pendingRewards
           }
           label="Recompensas pendientes"
@@ -331,6 +453,154 @@ export default function DashboardPage() {
             0
           }
         />
+      </section>
+
+      <section className="dashboard-section">
+        <div className="dashboard-section__heading">
+          <div>
+            <p className="eyebrow">
+              FIDELIZACIÓN
+            </p>
+
+            <h2>
+              SOLICITUDES DE SELLO
+            </h2>
+          </div>
+
+          <span className="dashboard-section__count">
+            {
+              pendingVisits.length
+            }{" "}
+            {pendingVisits.length ===
+            1
+              ? "PENDIENTE"
+              : "PENDIENTES"}
+          </span>
+        </div>
+
+        {visitMessage && (
+          <div className="reward-dashboard-message">
+            {
+              visitMessage
+            }
+          </div>
+        )}
+
+        {pendingVisits.length ===
+        0 ? (
+          <div className="dashboard-empty">
+            <strong>
+              NO HAY SOLICITUDES PENDIENTES
+            </strong>
+
+            <p>
+              Cuando un cliente solicite un sello,
+              aparecerá aquí para que el equipo lo revise.
+            </p>
+          </div>
+        ) : (
+          <div className="dashboard-rewards">
+            {pendingVisits.map(
+              (request) => {
+                const isReviewing =
+                  reviewingVisitId ===
+                  request.request_id;
+
+                return (
+                  <article
+                    className="dashboard-reward visit-request-card"
+                    key={
+                      request.request_id
+                    }
+                  >
+                    <div className="visit-request-card__content">
+                      <div className="dashboard-reward__customer">
+                        <span className="customer-avatar">
+                          {request.customer_name
+                            ?.charAt(0)
+                            .toUpperCase() ||
+                            "?"}
+                        </span>
+
+                        <div>
+                          <span className="dashboard-reward__label">
+                            CLIENTE
+                          </span>
+
+                          <strong className="dashboard-reward__customer-name">
+                            {request.customer_name ||
+                              "Cliente"}
+                          </strong>
+
+                          <span className="dashboard-reward__phone">
+                            {request.customer_whatsapp ||
+                              "Sin WhatsApp"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="visit-request-card__date">
+                        <span>
+                          SOLICITADA
+                        </span>
+
+                        <strong>
+                          {new Date(
+                            request.requested_at,
+                          ).toLocaleString(
+                            "es-CO",
+                          )}
+                        </strong>
+                      </div>
+                    </div>
+
+                    <div className="visit-request__actions">
+                      <button
+                        type="button"
+                        className="visit-request__button visit-request__button--reject"
+                        disabled={
+                          Boolean(
+                            reviewingVisitId,
+                          )
+                        }
+                        onClick={() =>
+                          handleReviewVisit(
+                            request,
+                            "reject",
+                          )
+                        }
+                      >
+                        {isReviewing
+                          ? "PROCESANDO..."
+                          : "RECHAZAR"}
+                      </button>
+
+                      <button
+                        type="button"
+                        className="visit-request__button visit-request__button--approve"
+                        disabled={
+                          Boolean(
+                            reviewingVisitId,
+                          )
+                        }
+                        onClick={() =>
+                          handleReviewVisit(
+                            request,
+                            "approve",
+                          )
+                        }
+                      >
+                        {isReviewing
+                          ? "PROCESANDO..."
+                          : "APROBAR"}
+                      </button>
+                    </div>
+                  </article>
+                );
+              },
+            )}
+          </div>
+        )}
       </section>
 
       <section className="dashboard-section">
@@ -358,7 +628,9 @@ export default function DashboardPage() {
 
         {rewardMessage && (
           <div className="reward-dashboard-message">
-            {rewardMessage}
+            {
+              rewardMessage
+            }
           </div>
         )}
 
@@ -366,15 +638,12 @@ export default function DashboardPage() {
         0 ? (
           <div className="dashboard-empty">
             <strong>
-              NO HAY RECOMPENSAS
-              PENDIENTES
+              NO HAY RECOMPENSAS PENDIENTES
             </strong>
 
             <p>
-              Cuando un cliente
-              complete una tarjeta,
-              su recompensa aparecerá
-              aquí.
+              Cuando un cliente complete una tarjeta,
+              su recompensa aparecerá aquí.
             </p>
           </div>
         ) : (
@@ -452,16 +721,12 @@ export default function DashboardPage() {
                             </span>
 
                             <strong className="dashboard-reward__waiting">
-                              ESPERANDO
-                              SELECCIÓN
+                              ESPERANDO SELECCIÓN
                             </strong>
 
                             <p className="dashboard-reward__description">
-                              El cliente
-                              todavía no ha
-                              elegido qué
-                              recompensa
-                              quiere reclamar.
+                              El cliente todavía no ha elegido
+                              qué recompensa quiere reclamar.
                             </p>
                           </>
                         )}
@@ -540,14 +805,12 @@ export default function DashboardPage() {
         0 ? (
           <div className="dashboard-empty">
             <strong>
-              TODAVÍA NO HAY
-              CLIENTES
+              TODAVÍA NO HAY CLIENTES
             </strong>
 
             <p>
-              Los clientes aparecerán
-              aquí después de
-              registrarse.
+              Los clientes aparecerán aquí después
+              de registrarse.
             </p>
           </div>
         ) : (
@@ -626,8 +889,7 @@ export default function DashboardPage() {
         {rewardToRedeem && (
           <div className="redeem-confirmation">
             <p>
-              Vas a marcar como
-              canjeada la recompensa de{" "}
+              Vas a marcar como canjeada la recompensa de{" "}
               <strong>
                 {rewardToRedeem
                   .customer?.name ||
@@ -642,36 +904,29 @@ export default function DashboardPage() {
               </span>
 
               <strong>
-                {
-                  rewardToRedeem
-                    .selected_reward
-                    ?.name
-                }
+                {rewardToRedeem
+                  .selected_reward
+                  ?.name}
               </strong>
 
               {rewardToRedeem
                 .selected_reward
                 ?.description && (
                 <small>
-                  {
-                    rewardToRedeem
-                      .selected_reward
-                      .description
-                  }
+                  {rewardToRedeem
+                    .selected_reward
+                    .description}
                 </small>
               )}
             </div>
 
             <p className="redeem-confirmation__warning">
-              Una vez confirmado,
-              esta recompensa dejará
-              de aparecer como
-              pendiente.
+              Una vez confirmado, esta recompensa dejará
+              de aparecer como pendiente.
             </p>
           </div>
         )}
       </ConfirmModal>
     </DashboardLayout>
   );
-  
 }

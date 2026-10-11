@@ -1,476 +1,236 @@
-import {
-  useEffect,
-  useState,
-} from "react";
-
-import {
-  useNavigate,
-  useParams,
-} from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import BrandHeader from "../../components/layout/BrandHeader/BrandHeader";
 import RegistrationForm from "../../components/loyalty/RegistrationForm/RegistrationForm";
-
-import {
-  registerVisit,
-} from "../../features/loyalty/api/visitApi";
-
+import { registerVisit } from "../../features/loyalty/api/visitApi";
 import {
   readLoyaltySnapshot,
   saveLoyaltySnapshot,
 } from "../../features/loyalty/storage/loyaltyStorage";
-
-import {
-  getDeviceToken,
-} from "../../hooks/useDeviceToken";
+import { getDeviceToken } from "../../hooks/useDeviceToken";
 
 import "./public-pages.css";
 
+function cacheProgress(code, data) {
+  const cached = readLoyaltySnapshot(code);
 
-function cacheProgress(
-  code,
-  data,
-) {
-  const cached =
-    readLoyaltySnapshot(
-      code,
-    );
-
-
-  saveLoyaltySnapshot(
-    code,
-    {
-      business:
-        data.business ??
-        cached?.business,
-
-      customerName:
-        data.customer?.name ??
-        cached?.customerName,
-
-      stamps:
-        data.stamps ??
-        cached?.stamps,
-
-      required:
-        data.required ??
-        data.business
-          ?.stamps_required ??
-        cached?.required,
-
-      rewardEarned:
-        data.reward_earned ??
-        cached?.rewardEarned ??
-        false,
-    },
-  );
-}
-
-
-export default function TagPage() {
-  const {
-    code,
-  } = useParams();
-
-
-  const navigate =
-    useNavigate();
-
-
-  const [
-    state,
-    setState,
-  ] = useState({
-    status:
-      "loading",
-  });
-
-
-  const [
-    form,
-    setForm,
-  ] = useState({
-    name:
-      "",
-
-    cedula:
-      "",
-
-    whatsapp:
-      "",
-
-    birthday:
-      "",
-
-    consent:
+  saveLoyaltySnapshot(code, {
+    business: data.business ?? cached?.business,
+    customerName: data.customer?.name ?? cached?.customerName,
+    stamps: data.stamps ?? cached?.stamps,
+    required:
+      data.required ??
+      data.business?.stamps_required ??
+      cached?.required,
+    rewardEarned:
+      data.reward_earned ??
+      cached?.rewardEarned ??
       false,
   });
+}
 
+export default function TagPage() {
+  const { code } = useParams();
+  const navigate = useNavigate();
 
-  const [
-    submitting,
-    setSubmitting,
-  ] = useState(
-    false,
-  );
+  const [state, setState] = useState({
+    status: "loading",
+  });
 
+  const [form, setForm] = useState({
+    name: "",
+    cedula: "",
+    whatsapp: "",
+    birthday: "",
+    consent: false,
+  });
 
-  const [
-    error,
-    setError,
-  ] = useState(
-    "",
-  );
-
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   // =========================================================
   // ENVIAR AL CLIENTE A SU TARJETA
   // =========================================================
+  function goToCard(data) {
+    cacheProgress(code, data);
 
-  function goToCard(
-    data,
-  ) {
-    cacheProgress(
-      code,
-      data,
-    );
-
-
-    navigate(
-      `/card/${code}`,
-      {
-        replace:
-          true,
-      },
-    );
+    navigate(`/card/${code}`, {
+      replace: true,
+    });
   }
 
-
   // =========================================================
-  // INTENTAR REGISTRAR VISITA AL ABRIR EL QR
+  // SOLICITAR SELLO AL ABRIR EL QR
   // =========================================================
-
   useEffect(() => {
-    let cancelled =
-      false;
-
+    let cancelled = false;
 
     async function start() {
       try {
-        const data =
-          await registerVisit({
-            code,
+        const data = await registerVisit({
+          code,
+          device_token: getDeviceToken(),
+        });
 
-            device_token:
-              getDeviceToken(),
-          });
-
-
-        if (
-          cancelled
-        ) {
+        if (cancelled) {
           return;
         }
 
-
-        if (
-          data.status ===
-          "redirect"
-        ) {
-          window.location.replace(
-            data.url,
-          );
-
+        if (data.status === "redirect") {
+          window.location.replace(data.url);
           return;
         }
 
-
         if (
-          data.status ===
-          "registered_ok"
+          data.status === "pending_approval" ||
+          data.status === "registered_ok" ||
+          data.status === "too_soon"
         ) {
-          goToCard(
-            data,
-          );
-
+          goToCard(data);
           return;
         }
 
+        setState(data);
+      } catch (requestError) {
+        console.error("visit:", requestError);
 
-        if (
-          data.status ===
-          "too_soon"
-        ) {
-          goToCard(
-            data,
-          );
-
-          return;
-        }
-
-
-        setState(
-          data,
-        );
-      } catch (
-        requestError
-      ) {
-        console.error(
-          "visit:",
-          requestError,
-        );
-
-
-        if (
-          !cancelled
-        ) {
+        if (!cancelled) {
           setState({
-            status:
-              "error",
-
-            message:
-              "No hay conexión. Intenta de nuevo.",
+            status: "error",
+            message: "No hay conexión. Intenta de nuevo.",
           });
         }
       }
     }
 
-
     start();
 
-
     return () => {
-      cancelled =
-        true;
+      cancelled = true;
     };
-  }, [
-    code,
-    navigate,
-  ]);
-
+  }, [code, navigate]);
 
   // =========================================================
   // REGISTRO DE CLIENTE
   // =========================================================
-
-  async function handleSubmit(
-    event,
-  ) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
-
-    setError(
-      "",
-    );
-
-    setSubmitting(
-      true,
-    );
-
+    setError("");
+    setSubmitting(true);
 
     try {
       const registration = {
         ...form,
-
-        name:
-          form.name.trim(),
-
-        cedula:
-          form.cedula.trim(),
-
-        whatsapp:
-          form.whatsapp.trim(),
+        name: form.name.trim(),
+        cedula: form.cedula.trim(),
+        whatsapp: form.whatsapp.trim(),
       };
 
+      const data = await registerVisit({
+        code,
+        device_token: getDeviceToken(),
+        registration,
+      });
 
-      const data =
-        await registerVisit({
-          code,
-
-          device_token:
-            getDeviceToken(),
-
-          registration,
-        });
-
-
-      if (
-        data.status ===
-        "error"
-      ) {
-        setError(
-          data.message ||
-            "No pudimos registrarte.",
-        );
-
+      if (data.status === "error") {
+        setError(data.message || "No pudimos registrarte.");
         return;
       }
 
-
       if (
-        data.status ===
-          "registered_ok" ||
-        data.status ===
-          "too_soon"
+        data.status === "pending_approval" ||
+        data.status === "registered_ok" ||
+        data.status === "too_soon"
       ) {
-        goToCard(
-          data,
-        );
-
+        goToCard(data);
         return;
       }
 
-
-      if (
-        data.status ===
-        "redirect"
-      ) {
-        window.location.replace(
-          data.url,
-        );
-
+      if (data.status === "redirect") {
+        window.location.replace(data.url);
         return;
       }
 
-
-      setState(
-        data,
-      );
-    } catch (
-      requestError
-    ) {
-      console.error(
-        "registration:",
-        requestError,
-      );
-
-
-      setError(
-        "No hay conexión. Intenta de nuevo.",
-      );
+      setState(data);
+    } catch (requestError) {
+      console.error("registration:", requestError);
+      setError("No hay conexión. Intenta de nuevo.");
     } finally {
-      setSubmitting(
-        false,
-      );
+      setSubmitting(false);
     }
   }
-
 
   // =========================================================
   // UI
   // =========================================================
-
   return (
     <main className="loyalty-page">
-
       <div className="loyalty-shell">
-
-        <BrandHeader
-          business={
-            state.business
-          }
-        />
-
+        <BrandHeader business={state.business} />
 
         <section className="loyalty-content">
+          {state.status === "loading" && <LoadingState />}
 
-          {state.status ===
-            "loading" && (
-            <LoadingState />
-          )}
-
-
-          {state.status ===
-            "not_found" && (
+          {state.status === "not_found" && (
             <SimpleState
               title="Código no disponible"
               text="Este código no está activo. Pídele al equipo que lo revise."
             />
           )}
 
-
-          {state.status ===
-            "error" && (
+          {state.status === "error" && (
             <SimpleState
               title="Algo salió mal"
-              text={
-                state.message
-              }
+              text={state.message}
               error
             />
           )}
 
-
-          {state.status ===
-            "needs_registration" && (
+          {state.status === "needs_registration" && (
             <Registration
-              state={
-                state
-              }
-              form={
-                form
-              }
-              setForm={
-                setForm
-              }
-              onSubmit={
-                handleSubmit
-              }
-              submitting={
-                submitting
-              }
-              error={
-                error
-              }
+              state={state}
+              form={form}
+              setForm={setForm}
+              onSubmit={handleSubmit}
+              submitting={submitting}
+              error={error}
             />
           )}
-
         </section>
-
       </div>
-
     </main>
   );
 }
 
-
 // ===========================================================
 // CARGANDO
 // ===========================================================
-
 function LoadingState() {
   return (
     <div className="status-box">
-
       <div
         className="loading-mark"
         aria-hidden="true"
       />
 
-
-      <p className="eyebrow">
-        Vuelvo
-      </p>
-
+      <p className="eyebrow">Vuelvo</p>
 
       <h1 className="display-title">
-        Registrando tu visita
+        Enviando tu solicitud
       </h1>
-
 
       <p className="body-copy">
         En un momento verás tu tarjeta.
       </p>
-
     </div>
   );
 }
 
-
 // ===========================================================
 // ESTADO SIMPLE
 // ===========================================================
-
 function SimpleState({
   title,
   text,
@@ -478,36 +238,26 @@ function SimpleState({
 }) {
   return (
     <div className="status-box">
-
-      <p className="eyebrow">
-        Vuelvo
-      </p>
-
+      <p className="eyebrow">Vuelvo</p>
 
       <h1 className="display-title">
         {title}
       </h1>
 
-
       <p
         className={`body-copy${
-          error
-            ? " error-text"
-            : ""
+          error ? " error-text" : ""
         }`}
       >
         {text}
       </p>
-
     </div>
   );
 }
 
-
 // ===========================================================
 // REGISTRO
 // ===========================================================
-
 function Registration({
   state,
   form,
@@ -518,51 +268,31 @@ function Registration({
 }) {
   return (
     <>
-
       <p className="eyebrow">
         Tu tarjeta digital
       </p>
-
 
       <h1 className="display-title">
         Empieza a sumar sellos
       </h1>
 
-
       <p className="body-copy">
         Completa{" "}
         <strong>
-          {
-            state.business
-              ?.stamps_required
-          }
+          {state.business?.stamps_required}
         </strong>{" "}
         sellos y desbloquea las recompensas
         disponibles de este negocio.
       </p>
 
-
       <RegistrationForm
-        form={
-          form
-        }
-        setForm={
-          setForm
-        }
-        consentText={
-          state.consent_text
-        }
-        onSubmit={
-          onSubmit
-        }
-        submitting={
-          submitting
-        }
-        error={
-          error
-        }
+        form={form}
+        setForm={setForm}
+        consentText={state.consent_text}
+        onSubmit={onSubmit}
+        submitting={submitting}
+        error={error}
       />
-
     </>
   );
 }

@@ -1104,3 +1104,92 @@
     3px solid
     var(--color-orange);
 }
+.visit-request-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.visit-request-card__content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px 20px;
+}
+
+.visit-request-card__date {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  text-align: right;
+}
+
+.visit-request-card__date span {
+  color: var(--muted, #888);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.visit-request-card__date strong {
+  color: inherit;
+  font-size: 0.9rem;
+}
+
+.visit-request__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.visit-request__button {
+  width: 100%;
+  min-height: 46px;
+  border-radius: 5px;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.visit-request__button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.visit-request__button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.visit-request__button--reject {
+  border: 1px solid #ff5a1f;
+  background: transparent;
+  color: #ff6a2b;
+}
+
+.visit-request__button--approve {
+  border: 1px solid #166534;
+  background: #124d2d;
+  color: #fff;
+}
+
+@media (max-width: 700px) {
+  .visit-request-card__content {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .visit-request-card__date {
+    text-align: left;
+  }
+
+  .visit-request__actions {
+    grid-template-columns: 1fr;
+  }
+}
