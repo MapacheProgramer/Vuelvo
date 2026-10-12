@@ -362,75 +362,134 @@ Deno.serve(
     }
 
 
-    // =======================================================
-    // VERIFICAR OWNER
-    // =======================================================
+// =======================================================
+// VERIFICAR OWNER O PLATFORM ADMIN
+// =======================================================
 
-    const {
-      data:
-        ownerMembership,
+const {
+  data:
+    ownerMembership,
 
-      error:
-        ownerError,
-    } =
-      await supabase
-        .from(
-          "business_members",
-        )
-        .select(
-          "business_id, user_id, role",
-        )
-        .eq(
-          "business_id",
-          businessId,
-        )
-        .eq(
-          "user_id",
-          currentUser.id,
-        )
-        .maybeSingle();
-
-
-    if (
-      ownerError
-    ) {
-      console.error(
-        "owner membership:",
-        ownerError.message,
-      );
+  error:
+    ownerError,
+} =
+  await supabase
+    .from(
+      "business_members",
+    )
+    .select(
+      "business_id, user_id, role",
+    )
+    .eq(
+      "business_id",
+      businessId,
+    )
+    .eq(
+      "user_id",
+      currentUser.id,
+    )
+    .maybeSingle();
 
 
-      return json(
-        {
-          status:
-            "error",
-
-          message:
-            "No pudimos validar tus permisos.",
-        },
-        500,
-      );
-    }
+if (
+  ownerError
+) {
+  console.error(
+    "owner membership:",
+    ownerError.message,
+  );
 
 
-    if (
-      !ownerMembership ||
-      ownerMembership.role !==
-        "owner"
-    ) {
-      return json(
-        {
-          status:
-            "error",
+  return json(
+    {
+      status:
+        "error",
 
-          message:
-            "Solo el propietario puede eliminar miembros.",
-        },
-        403,
-      );
-    }
+      message:
+        "No pudimos validar tus permisos.",
+    },
+    500,
+  );
+}
 
 
+const isOwner =
+  ownerMembership?.role ===
+  "owner";
+
+
+let isPlatformAdmin =
+  false;
+
+
+if (
+  !isOwner
+) {
+  const {
+    data:
+      platformAdmin,
+
+    error:
+      platformAdminError,
+  } =
+    await supabase
+      .from(
+        "platform_admins",
+      )
+      .select(
+        "user_id",
+      )
+      .eq(
+        "user_id",
+        currentUser.id,
+      )
+      .maybeSingle();
+
+
+  if (
+    platformAdminError
+  ) {
+    console.error(
+      "platform admin:",
+      platformAdminError.message,
+    );
+
+
+    return json(
+      {
+        status:
+          "error",
+
+        message:
+          "No pudimos validar tus permisos.",
+      },
+      500,
+    );
+  }
+
+
+  isPlatformAdmin =
+    Boolean(
+      platformAdmin,
+    );
+}
+
+
+if (
+  !isOwner &&
+  !isPlatformAdmin
+) {
+  return json(
+    {
+      status:
+        "error",
+
+      message:
+        "No tienes permiso para eliminar miembros.",
+    },
+    403,
+  );
+}
     // =======================================================
     // BUSCAR MIEMBRO
     // =======================================================

@@ -12,6 +12,11 @@ import {
   getAdminBusinessDetail,
 } from "../../features/admin/api/adminApi.js";
 
+import {
+  addBusinessTeamMember,
+  removeBusinessTeamMember,
+} from "../../features/team/api/teamApi.js";
+
 
 export default function AdminBusinessDetailPage() {
   const {
@@ -31,6 +36,31 @@ export default function AdminBusinessDetailPage() {
   const [
     error,
     setError,
+  ] = useState("");
+
+  const [
+    memberName,
+    setMemberName,
+  ] = useState("");
+
+  const [
+    memberEmail,
+    setMemberEmail,
+  ] = useState("");
+
+  const [
+    teamBusy,
+    setTeamBusy,
+  ] = useState("");
+
+  const [
+    teamError,
+    setTeamError,
+  ] = useState("");
+
+  const [
+    teamSuccess,
+    setTeamSuccess,
   ] = useState("");
 
 
@@ -73,6 +103,119 @@ export default function AdminBusinessDetailPage() {
   }, [
     businessId,
   ]);
+
+
+  async function refreshBusiness() {
+    const result =
+      await getAdminBusinessDetail(
+        businessId,
+      );
+
+    setData(result);
+  }
+
+
+  async function handleAddMember(
+    event,
+  ) {
+    event.preventDefault();
+
+    if (teamBusy) {
+      return;
+    }
+
+    setTeamError("");
+    setTeamSuccess("");
+    setTeamBusy("add");
+
+    try {
+      await addBusinessTeamMember({
+        businessId,
+        displayName:
+          memberName,
+        email:
+          memberEmail,
+      });
+
+      await refreshBusiness();
+
+      setMemberName("");
+      setMemberEmail("");
+
+      setTeamSuccess(
+        "Invitación enviada correctamente.",
+      );
+    } catch (addError) {
+      console.error(
+        "admin add team member:",
+        addError,
+      );
+
+      setTeamError(
+        addError?.message ||
+        "No pudimos agregar el miembro.",
+      );
+    } finally {
+      setTeamBusy("");
+    }
+  }
+
+
+  async function handleRemoveMember(
+    member,
+  ) {
+    if (
+      teamBusy ||
+      member.role ===
+        "owner"
+    ) {
+      return;
+    }
+
+    const confirmed =
+      window.confirm(
+        `¿Eliminar a ${
+          member.display_name ||
+          "este miembro"
+        } del negocio?`,
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setTeamError("");
+    setTeamSuccess("");
+    setTeamBusy(
+      member.user_id,
+    );
+
+    try {
+      await removeBusinessTeamMember({
+        businessId,
+        userId:
+          member.user_id,
+      });
+
+      await refreshBusiness();
+
+      setTeamSuccess(
+        "Miembro eliminado correctamente.",
+      );
+    } catch (removeError) {
+      console.error(
+        "admin remove team member:",
+        removeError,
+      );
+
+      setTeamError(
+        removeError?.message ||
+        "No pudimos eliminar el miembro.",
+      );
+    } finally {
+      setTeamBusy("");
+    }
+  }
 
 
   if (loading) {
@@ -239,45 +382,46 @@ export default function AdminBusinessDetailPage() {
               {business.type}
             </p>
           </div>
+
           <Link
             to={`/admin/negocios/${business.id}/editar`}
             style={{
-                display:
+              display:
                 "inline-flex",
 
-                alignItems:
+              alignItems:
                 "center",
 
-                justifyContent:
+              justifyContent:
                 "center",
 
-                minHeight:
+              minHeight:
                 "44px",
 
-                padding:
+              padding:
                 "0 18px",
 
-                marginLeft:
+              marginLeft:
                 "auto",
 
-                borderRadius:
+              borderRadius:
                 "8px",
 
-                background:
+              background:
                 "var(--color-accent, #f05a28)",
 
-                color:
+              color:
                 "#ffffff",
 
-                textDecoration:
+              textDecoration:
                 "none",
 
-                fontWeight:
+              fontWeight:
                 900,
             }}
-            >
+          >
             EDITAR NEGOCIO
-            </Link>
+          </Link>
         </div>
 
 
@@ -381,64 +525,306 @@ export default function AdminBusinessDetailPage() {
 
 
         <section style={cardStyle}>
-          <h2 style={sectionTitleStyle}>
-            Equipo
-          </h2>
+          <div
+            style={{
+              display:
+                "flex",
 
-          {members.length ===
-            0 && (
-            <p
+              justifyContent:
+                "space-between",
+
+              alignItems:
+                "center",
+
+              gap:
+                "16px",
+
+              flexWrap:
+                "wrap",
+
+              marginBottom:
+                "18px",
+            }}
+          >
+            <div>
+              <h2
+                style={{
+                  ...sectionTitleStyle,
+                  marginBottom:
+                    "5px",
+                }}
+              >
+                Equipo
+              </h2>
+
+              <p
+                style={{
+                  margin:
+                    0,
+
+                  opacity:
+                    0.65,
+                }}
+              >
+                Administra los miembros del negocio.
+              </p>
+            </div>
+          </div>
+
+
+          <form
+            onSubmit={
+              handleAddMember
+            }
+            style={teamFormStyle}
+          >
+            <label style={fieldStyle}>
+              <span style={fieldLabelStyle}>
+                NOMBRE
+              </span>
+
+              <input
+                type="text"
+                value={
+                  memberName
+                }
+                placeholder="Nombre del miembro"
+                maxLength={60}
+                disabled={
+                  Boolean(
+                    teamBusy,
+                  )
+                }
+                onChange={(
+                  event,
+                ) =>
+                  setMemberName(
+                    event.target.value,
+                  )
+                }
+                required
+                style={inputStyle}
+              />
+            </label>
+
+            <label style={fieldStyle}>
+              <span style={fieldLabelStyle}>
+                CORREO
+              </span>
+
+              <input
+                type="email"
+                value={
+                  memberEmail
+                }
+                placeholder="correo@ejemplo.com"
+                disabled={
+                  Boolean(
+                    teamBusy,
+                  )
+                }
+                onChange={(
+                  event,
+                ) =>
+                  setMemberEmail(
+                    event.target.value,
+                  )
+                }
+                required
+                style={inputStyle}
+              />
+            </label>
+
+            <button
+              type="submit"
+              disabled={
+                Boolean(
+                  teamBusy,
+                )
+              }
               style={{
+                ...primaryButtonStyle,
+
                 opacity:
-                  0.7,
+                  teamBusy
+                    ? 0.6
+                    : 1,
               }}
             >
-              No hay miembros registrados.
+              {teamBusy === "add"
+                ? "ENVIANDO..."
+                : "AGREGAR MIEMBRO"}
+            </button>
+          </form>
+
+
+          {teamSuccess && (
+            <p
+              style={{
+                margin:
+                  "16px 0 0",
+
+                color:
+                  "#9be9a8",
+
+                fontWeight:
+                  700,
+              }}
+            >
+              {teamSuccess}
             </p>
           )}
 
-          {members.map(
-            (
-              member,
-            ) => (
-              <article
-                key={
-                  member.user_id
-                }
-                style={{
-                  padding:
-                    "14px 0",
 
-                  borderBottom:
-                    "1px solid rgba(255,255,255,0.1)",
+          {teamError && (
+            <p
+              style={{
+                margin:
+                  "16px 0 0",
+
+                color:
+                  "#ffb4ab",
+
+                fontWeight:
+                  700,
+              }}
+            >
+              {teamError}
+            </p>
+          )}
+
+
+          <div
+            style={{
+              marginTop:
+                "22px",
+            }}
+          >
+            {members.length ===
+              0 && (
+              <p
+                style={{
+                  opacity:
+                    0.7,
                 }}
               >
-                <strong>
-                  {member.display_name ||
-                    "Sin nombre"}
-                </strong>
+                No hay miembros registrados.
+              </p>
+            )}
 
-                <p
+
+            {members.map(
+              (
+                member,
+              ) => (
+                <article
+                  key={
+                    member.user_id
+                  }
                   style={{
-                    margin:
-                      "5px 0 0",
+                    display:
+                      "flex",
 
-                    opacity:
-                      0.7,
+                    alignItems:
+                      "center",
+
+                    justifyContent:
+                      "space-between",
+
+                    gap:
+                      "16px",
+
+                    padding:
+                      "14px 0",
+
+                    borderBottom:
+                      "1px solid rgba(255,255,255,0.1)",
+
+                    flexWrap:
+                      "wrap",
                   }}
                 >
+                  <div>
+                    <strong>
+                      {member.display_name ||
+                        "Sin nombre"}
+                    </strong>
+
+                    <p
+                      style={{
+                        margin:
+                          "5px 0 0",
+
+                        opacity:
+                          0.7,
+                      }}
+                    >
+                      {member.role ===
+                      "owner"
+                        ? "Propietario"
+                        : "Staff"}
+
+                      {" · "}
+
+                      {member.onboarding_completed
+                        ? "Activo"
+                        : "Onboarding pendiente"}
+                    </p>
+                  </div>
+
+
                   {member.role ===
-                  "owner"
-                    ? "Propietario"
-                    : "Staff"}
-                  {" · "}
-                  {member.onboarding_completed
-                    ? "Activo"
-                    : "Onboarding pendiente"}
-                </p>
-              </article>
-            ),
-          )}
+                    "staff" && (
+                    <button
+                      type="button"
+                      disabled={
+                        Boolean(
+                          teamBusy,
+                        )
+                      }
+                      onClick={() =>
+                        handleRemoveMember(
+                          member,
+                        )
+                      }
+                      style={{
+                        ...dangerButtonStyle,
+
+                        opacity:
+                          teamBusy
+                            ? 0.6
+                            : 1,
+                      }}
+                    >
+                      {teamBusy ===
+                      member.user_id
+                        ? "ELIMINANDO..."
+                        : "ELIMINAR"}
+                    </button>
+                  )}
+
+
+                  {member.role ===
+                    "owner" && (
+                    <span
+                      style={{
+                        opacity:
+                          0.55,
+
+                        fontSize:
+                          "0.85rem",
+
+                        fontWeight:
+                          800,
+                      }}
+                    >
+                      PROTEGIDO
+                    </span>
+                  )}
+                </article>
+              ),
+            )}
+          </div>
         </section>
       </div>
     </main>
@@ -560,4 +946,124 @@ const sectionTitleStyle = {
 
   fontSize:
     "1.35rem",
+};
+
+
+const teamFormStyle = {
+  display:
+    "grid",
+
+  gridTemplateColumns:
+    "repeat(auto-fit, minmax(220px, 1fr))",
+
+  gap:
+    "14px",
+
+  alignItems:
+    "end",
+};
+
+
+const fieldStyle = {
+  display:
+    "grid",
+
+  gap:
+    "7px",
+};
+
+
+const fieldLabelStyle = {
+  fontSize:
+    "0.78rem",
+
+  fontWeight:
+    900,
+
+  letterSpacing:
+    "0.08em",
+
+  opacity:
+    0.7,
+};
+
+
+const inputStyle = {
+  width:
+    "100%",
+
+  minHeight:
+    "44px",
+
+  padding:
+    "0 12px",
+
+  boxSizing:
+    "border-box",
+
+  border:
+    "1px solid rgba(255,255,255,0.16)",
+
+  borderRadius:
+    "8px",
+
+  background:
+    "rgba(255,255,255,0.05)",
+
+  color:
+    "inherit",
+};
+
+
+const primaryButtonStyle = {
+  minHeight:
+    "44px",
+
+  padding:
+    "0 18px",
+
+  border:
+    0,
+
+  borderRadius:
+    "8px",
+
+  background:
+    "var(--color-accent, #f05a28)",
+
+  color:
+    "#ffffff",
+
+  fontWeight:
+    900,
+
+  cursor:
+    "pointer",
+};
+
+
+const dangerButtonStyle = {
+  minHeight:
+    "38px",
+
+  padding:
+    "0 14px",
+
+  border:
+    "1px solid rgba(255,120,120,0.45)",
+
+  borderRadius:
+    "8px",
+
+  background:
+    "rgba(255,80,80,0.08)",
+
+  color:
+    "#ffb4ab",
+
+  fontWeight:
+    900,
+
+  cursor:
+    "pointer",
 };
