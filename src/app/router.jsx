@@ -18,8 +18,13 @@ import CatalogPage from "../pages/dashboard/CatalogPage.jsx";
 import TeamPage from "../pages/dashboard/TeamPage.jsx";
 import BusinessPage from "../pages/dashboard/BusinessPage.jsx";
 
+import AdminPage from "../pages/admin/AdminPage.jsx";
+import AdminBusinessesPage from "../pages/admin/AdminBusinessesPage.jsx";
+import AdminCreateBusinessPage from "../pages/admin/AdminCreateBusinessPage.jsx";
+
 import ProtectedRoute from "../features/auth/components/ProtectedRoute.jsx";
 import OwnerOnlyRoute from "../features/auth/components/OwnerOnlyRoute.jsx";
+import PlatformAdminRoute from "../features/auth/components/PlatformAdminRoute.jsx";
 
 
 export default function AppRouter() {
@@ -135,6 +140,36 @@ export default function AppRouter() {
           <OwnerOnlyRoute>
             <BusinessPage />
           </OwnerOnlyRoute>
+        }
+      />
+
+
+      <Route
+        path="/admin"
+        element={
+          <PlatformAdminRoute>
+            <AdminPage />
+          </PlatformAdminRoute>
+        }
+      />
+
+
+      <Route
+        path="/admin/negocios"
+        element={
+          <PlatformAdminRoute>
+            <AdminBusinessesPage />
+          </PlatformAdminRoute>
+        }
+      />
+
+
+      <Route
+        path="/admin/negocios/nuevo"
+        element={
+          <PlatformAdminRoute>
+            <AdminCreateBusinessPage />
+          </PlatformAdminRoute>
         }
       />
 

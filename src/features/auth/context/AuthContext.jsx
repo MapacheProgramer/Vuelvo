@@ -33,6 +33,11 @@ export function AuthProvider({
   ] = useState(null);
 
   const [
+    isPlatformAdmin,
+    setIsPlatformAdmin,
+  ] = useState(false);
+
+  const [
     loading,
     setLoading,
   ] = useState(true);
@@ -100,6 +105,61 @@ export function AuthProvider({
     return (
       data ?? null
     );
+  }
+
+
+  // =========================================================
+  // CARGAR ADMINISTRADOR GLOBAL
+  // =========================================================
+
+  async function loadPlatformAdmin(
+    currentUser,
+  ) {
+    if (!currentUser) {
+      setIsPlatformAdmin(
+        false,
+      );
+
+      return false;
+    }
+
+
+    const {
+      data,
+      error,
+    } =
+      await supabase.rpc(
+        "is_platform_admin",
+      );
+
+
+    if (error) {
+      console.error(
+        "Error verificando platform_admin:",
+        error,
+      );
+
+
+      setIsPlatformAdmin(
+        false,
+      );
+
+      return false;
+    }
+
+
+    const platformAdmin =
+      Boolean(
+        data,
+      );
+
+
+    setIsPlatformAdmin(
+      platformAdmin,
+    );
+
+
+    return platformAdmin;
   }
 
 
@@ -174,12 +234,22 @@ export function AuthProvider({
       if (
         currentUser
       ) {
-        await loadMembership(
-          currentUser,
-        );
+        await Promise.all([
+          loadMembership(
+            currentUser,
+          ),
+
+          loadPlatformAdmin(
+            currentUser,
+          ),
+        ]);
       } else {
         setMembership(
           null,
+        );
+
+        setIsPlatformAdmin(
+          false,
         );
       }
 
@@ -235,12 +305,22 @@ export function AuthProvider({
             if (
               currentUser
             ) {
-              await loadMembership(
-                currentUser,
-              );
+              await Promise.all([
+                loadMembership(
+                  currentUser,
+                ),
+
+                loadPlatformAdmin(
+                  currentUser,
+                ),
+              ]);
             } else {
               setMembership(
                 null,
+              );
+
+              setIsPlatformAdmin(
+                false,
               );
             }
 
@@ -291,19 +371,31 @@ export function AuthProvider({
     }
 
 
-    const member =
-      await loadMembership(
-        data.user,
-      );
+    const [
+      member,
+      platformAdmin,
+    ] =
+      await Promise.all([
+        loadMembership(
+          data.user,
+        ),
+
+        loadPlatformAdmin(
+          data.user,
+        ),
+      ]);
 
 
-    if (!member) {
+    if (
+      !member &&
+      !platformAdmin
+    ) {
       await supabase.auth
         .signOut();
 
 
       throw new Error(
-        "Tu cuenta no está asociada a ningún negocio.",
+        "Tu cuenta no está asociada a ningún negocio ni tiene acceso de administrador.",
       );
     }
 
@@ -314,6 +406,9 @@ export function AuthProvider({
 
       membership:
         member,
+
+      isPlatformAdmin:
+        platformAdmin,
     };
   }
 
@@ -347,6 +442,11 @@ export function AuthProvider({
 
     setMembership(
       null,
+    );
+
+
+    setIsPlatformAdmin(
+      false,
     );
   }
 
@@ -393,7 +493,10 @@ export function AuthProvider({
   const isAuthenticated =
     Boolean(
       user &&
-      membership,
+      (
+        membership ||
+        isPlatformAdmin
+      ),
     );
 
 
@@ -413,6 +516,8 @@ export function AuthProvider({
         loading,
 
         isAuthenticated,
+
+        isPlatformAdmin,
 
         role,
 
@@ -438,6 +543,7 @@ export function AuthProvider({
         membership,
         loading,
         isAuthenticated,
+        isPlatformAdmin,
         role,
         isOwner,
         isStaff,
