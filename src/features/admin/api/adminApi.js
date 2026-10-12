@@ -112,3 +112,91 @@ export async function createAdminBusiness({
 
   return data;
 }
+export async function getAdminBusinessDetail(
+  businessId,
+) {
+  const {
+    data:
+      business,
+
+    error:
+      businessError,
+  } =
+    await supabase
+      .from(
+        "businesses",
+      )
+      .select(
+        `
+        id,
+        name,
+        slug,
+        type,
+        logo_url,
+        brand_color,
+        google_review_url,
+        settings,
+        created_at
+        `,
+      )
+      .eq(
+        "id",
+        businessId,
+      )
+      .single();
+
+
+  if (
+    businessError
+  ) {
+    throw businessError;
+  }
+
+
+  const {
+    data:
+      members,
+
+    error:
+      membersError,
+  } =
+    await supabase
+      .from(
+        "business_members",
+      )
+      .select(
+        `
+        user_id,
+        role,
+        display_name,
+        onboarding_completed,
+        created_at
+        `,
+      )
+      .eq(
+        "business_id",
+        businessId,
+      )
+      .order(
+        "created_at",
+        {
+          ascending:
+            true,
+        },
+      );
+
+
+  if (
+    membersError
+  ) {
+    throw membersError;
+  }
+
+
+  return {
+    business,
+
+    members:
+      members ?? [],
+  };
+}

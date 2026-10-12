@@ -21,6 +21,8 @@ import BusinessPage from "../pages/dashboard/BusinessPage.jsx";
 import AdminPage from "../pages/admin/AdminPage.jsx";
 import AdminBusinessesPage from "../pages/admin/AdminBusinessesPage.jsx";
 import AdminCreateBusinessPage from "../pages/admin/AdminCreateBusinessPage.jsx";
+import AdminBusinessDetailPage from "../pages/admin/AdminBusinessDetailPage.jsx";
+import AdminEditBusinessPage from "../pages/admin/AdminEditBusinessPage.jsx";
 
 import ProtectedRoute from "../features/auth/components/ProtectedRoute.jsx";
 import OwnerOnlyRoute from "../features/auth/components/OwnerOnlyRoute.jsx";
@@ -169,6 +171,26 @@ export default function AppRouter() {
         element={
           <PlatformAdminRoute>
             <AdminCreateBusinessPage />
+          </PlatformAdminRoute>
+        }
+      />
+
+
+      <Route
+        path="/admin/negocios/:businessId"
+        element={
+          <PlatformAdminRoute>
+            <AdminBusinessDetailPage />
+          </PlatformAdminRoute>
+        }
+      />
+
+
+      <Route
+        path="/admin/negocios/:businessId/editar"
+        element={
+          <PlatformAdminRoute>
+            <AdminEditBusinessPage />
           </PlatformAdminRoute>
         }
       />

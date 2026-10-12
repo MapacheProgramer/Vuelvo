@@ -298,6 +298,26 @@ export default function AdminBusinessesPage() {
                         {business.brand_color || "#7c3aed"}
                       </span>
                     </div>
+
+                    <Link
+                      to={`/admin/negocios/${business.id}`}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginTop: "18px",
+                        minHeight: "40px",
+                        padding: "0 16px",
+                        borderRadius: "8px",
+                        border:
+                          "1px solid rgba(255,255,255,0.18)",
+                        color: "inherit",
+                        textDecoration: "none",
+                        fontWeight: 800,
+                      }}
+                    >
+                      VER NEGOCIO
+                    </Link>
                   </article>
                 ),
               )}
