@@ -1,4 +1,8 @@
 import {
+  useState,
+} from "react";
+
+import {
   Button,
 } from "../../ui/Button/Button";
 
@@ -13,6 +17,37 @@ export default function RegistrationForm({
   submitting,
   error,
 }) {
+  const [
+    fieldErrors,
+    setFieldErrors,
+  ] = useState({});
+
+
+  // =========================================================
+  // LIMPIAR ERROR DE UN CAMPO
+  // =========================================================
+
+  function clearFieldError(
+    field,
+  ) {
+    setFieldErrors(
+      (current) => {
+        if (!current[field]) {
+          return current;
+        }
+
+        const next = {
+          ...current,
+        };
+
+        delete next[field];
+
+        return next;
+      },
+    );
+  }
+
+
   // =========================================================
   // ACTUALIZAR CAMPO NORMAL
   // =========================================================
@@ -27,6 +62,11 @@ export default function RegistrationForm({
       [field]:
         value,
     });
+
+
+    clearFieldError(
+      field,
+    );
   }
 
 
@@ -59,19 +99,166 @@ export default function RegistrationForm({
   }
 
 
+  // =========================================================
+  // VALIDAR WHATSAPP
+  // =========================================================
+
+  function isValidWhatsapp(
+    raw,
+  ) {
+    const digits =
+      raw.replace(
+        /\D/g,
+        "",
+      );
+
+
+    if (
+      digits.length === 10 &&
+      digits.startsWith(
+        "3",
+      )
+    ) {
+      return true;
+    }
+
+
+    if (
+      digits.length === 12 &&
+      digits.startsWith(
+        "57",
+      )
+    ) {
+      return true;
+    }
+
+
+    return (
+      digits.length >= 11 &&
+      digits.length <= 15
+    );
+  }
+
+
+  // =========================================================
+  // VALIDACIÓN VISUAL DEL FORMULARIO
+  // =========================================================
+
+  function validateForm() {
+    const nextErrors = {};
+
+
+    if (
+      !form.name.trim()
+    ) {
+      nextErrors.name =
+        "Escribe tu nombre completo.";
+    } else if (
+      form.name.trim().length < 2
+    ) {
+      nextErrors.name =
+        "El nombre es demasiado corto.";
+    }
+
+
+    if (
+      !form.cedula
+    ) {
+      nextErrors.cedula =
+        "Escribe tu número de cédula.";
+    } else if (
+      !/^[0-9]{5,15}$/.test(
+        form.cedula,
+      )
+    ) {
+      nextErrors.cedula =
+        "La cédula debe tener entre 5 y 15 números.";
+    }
+
+
+    if (
+      !form.whatsapp.trim()
+    ) {
+      nextErrors.whatsapp =
+        "Escribe tu número de WhatsApp.";
+    } else if (
+      !isValidWhatsapp(
+        form.whatsapp,
+      )
+    ) {
+      nextErrors.whatsapp =
+        "Escribe un número de WhatsApp válido.";
+    }
+
+
+    if (
+      !form.consent
+    ) {
+      nextErrors.consent =
+        "Debes autorizar el tratamiento de tus datos para continuar.";
+    }
+
+
+    setFieldErrors(
+      nextErrors,
+    );
+
+
+    return (
+      Object.keys(
+        nextErrors,
+      ).length === 0
+    );
+  }
+
+
+  // =========================================================
+  // ENVIAR
+  // =========================================================
+
+  function handleSubmit(
+    event,
+  ) {
+    event.preventDefault();
+
+
+    if (
+      !validateForm()
+    ) {
+      return;
+    }
+
+
+    onSubmit(
+      event,
+    );
+  }
+
+
   return (
     <form
       onSubmit={
-        onSubmit
+        handleSubmit
       }
       className="registration-form"
+      noValidate
     >
 
       {/* =====================================================
           NOMBRE
           ===================================================== */}
 
-      <label className="form-field">
+      <label
+        className={[
+          "form-field",
+
+          fieldErrors.name
+            ? "form-field--error"
+            : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
 
         Nombre completo
 
@@ -93,7 +280,19 @@ export default function RegistrationForm({
           placeholder="Tu nombre"
           maxLength={60}
           required
+          aria-invalid={
+            Boolean(
+              fieldErrors.name,
+            )
+          }
         />
+
+
+        {fieldErrors.name && (
+          <span className="form-field__error">
+            {fieldErrors.name}
+          </span>
+        )}
 
       </label>
 
@@ -102,7 +301,17 @@ export default function RegistrationForm({
           CÉDULA
           ===================================================== */}
 
-      <label className="form-field">
+      <label
+        className={[
+          "form-field",
+
+          fieldErrors.cedula
+            ? "form-field--error"
+            : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
 
         Cédula de ciudadanía
 
@@ -121,7 +330,19 @@ export default function RegistrationForm({
           maxLength={15}
           autoComplete="off"
           required
+          aria-invalid={
+            Boolean(
+              fieldErrors.cedula,
+            )
+          }
         />
+
+
+        {fieldErrors.cedula && (
+          <span className="form-field__error">
+            {fieldErrors.cedula}
+          </span>
+        )}
 
       </label>
 
@@ -130,7 +351,17 @@ export default function RegistrationForm({
           WHATSAPP
           ===================================================== */}
 
-      <label className="form-field">
+      <label
+        className={[
+          "form-field",
+
+          fieldErrors.whatsapp
+            ? "form-field--error"
+            : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
 
         WhatsApp
 
@@ -152,7 +383,19 @@ export default function RegistrationForm({
           }
           autoComplete="tel"
           required
+          aria-invalid={
+            Boolean(
+              fieldErrors.whatsapp,
+            )
+          }
         />
+
+
+        {fieldErrors.whatsapp && (
+          <span className="form-field__error">
+            {fieldErrors.whatsapp}
+          </span>
+        )}
 
       </label>
 
@@ -188,7 +431,17 @@ export default function RegistrationForm({
           CONSENTIMIENTO
           ===================================================== */}
 
-      <label className="consent-row">
+      <label
+        className={[
+          "consent-row",
+
+          fieldErrors.consent
+            ? "consent-row--error"
+            : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
 
         <input
           type="checkbox"
@@ -205,6 +458,11 @@ export default function RegistrationForm({
             )
           }
           required
+          aria-invalid={
+            Boolean(
+              fieldErrors.consent,
+            )
+          }
         />
 
 
@@ -215,12 +473,25 @@ export default function RegistrationForm({
       </label>
 
 
+      {fieldErrors.consent && (
+        <p
+          className="form-consent-error"
+          role="alert"
+        >
+          {fieldErrors.consent}
+        </p>
+      )}
+
+
       {/* =====================================================
           ERROR
           ===================================================== */}
 
       {error && (
-        <p className="error-text registration-form__error">
+        <p
+          className="error-text registration-form__error"
+          role="alert"
+        >
           {error}
         </p>
       )}

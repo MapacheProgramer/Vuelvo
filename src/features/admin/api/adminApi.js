@@ -17,6 +17,7 @@ export async function getAdminBusinesses() {
         id,
         name,
         slug,
+        active,
         type,
         logo_url,
         brand_color,
@@ -132,6 +133,7 @@ export async function getAdminBusinessDetail(
         name,
         slug,
         type,
+        active,
         logo_url,
         brand_color,
         google_review_url,
@@ -199,4 +201,70 @@ export async function getAdminBusinessDetail(
     members:
       members ?? [],
   };
+}
+// ===========================================================
+// CAMBIAR ESTADO DEL NEGOCIO
+// ===========================================================
+
+export async function updateAdminBusinessActive({
+  businessId,
+  active,
+}) {
+  if (!businessId) {
+    throw new Error(
+      "No se encontró el negocio.",
+    );
+  }
+
+  if (
+    typeof active !==
+    "boolean"
+  ) {
+    throw new Error(
+      "El estado del negocio no es válido.",
+    );
+  }
+
+  const {
+    data,
+    error,
+  } =
+    await supabase
+      .from(
+        "businesses",
+      )
+      .update({
+        active,
+      })
+      .eq(
+        "id",
+        businessId,
+      )
+      .select(`
+        id,
+        name,
+        slug,
+        type,
+        logo_url,
+        brand_color,
+        google_review_url,
+        active,
+        settings,
+        created_at
+      `)
+      .single();
+
+  if (error) {
+    console.error(
+      "update business active:",
+      error,
+    );
+
+    throw new Error(
+      error.message ||
+        "No pudimos cambiar el estado del negocio.",
+    );
+  }
+
+  return data;
 }

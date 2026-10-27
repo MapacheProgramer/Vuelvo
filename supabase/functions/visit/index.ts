@@ -392,6 +392,7 @@ Deno.serve(async (req) => {
           logo_url,
           brand_color,
           google_review_url,
+          active,
           settings
           `)
         .eq("id", tag.business_id)
@@ -412,8 +413,20 @@ Deno.serve(async (req) => {
         stamps_required: business.settings
             ?.stamps_required,
     };
+
     // -----------------------------------------------------------------
-    // 13. Acciones que no requieren cliente
+    // 13. Bloquear negocio desactivado
+    // -----------------------------------------------------------------
+    if (business.active === false) {
+        return json({
+            status: "business_inactive",
+            message: "Este negocio está temporalmente desactivado.",
+            business: brand,
+        }, 403);
+    }
+
+    // -----------------------------------------------------------------
+    // 15. Acciones que no requieren cliente
     // -----------------------------------------------------------------
     if (tag.action_type ===
         "link" ||
@@ -461,7 +474,7 @@ Deno.serve(async (req) => {
         }, 500);
     }
     // =================================================================
-    // 15. SI EL DISPOSITIVO NO ESTÁ VINCULADO
+    // 16. SI EL DISPOSITIVO NO ESTÁ VINCULADO
     // =================================================================
     if (!customer) {
         // ---------------------------------------------------------------
@@ -522,7 +535,7 @@ Deno.serve(async (req) => {
             }, 400);
         }
         // ---------------------------------------------------------------
-        // 16. Buscar cliente existente por cédula
+        // 17. Buscar cliente existente por cédula
         // ---------------------------------------------------------------
         const { data: existingCustomer, error: existingCustomerError, } = await supabase
             .from("customers")
@@ -544,7 +557,7 @@ Deno.serve(async (req) => {
             }, 500);
         }
         // ===============================================================
-        // 17. LA CÉDULA YA EXISTE
+        // 18. LA CÉDULA YA EXISTE
         // ===============================================================
         if (existingCustomer) {
             // La cédula sola no es suficiente para
@@ -612,7 +625,7 @@ Deno.serve(async (req) => {
         }
         else {
             // =============================================================
-            // 18. CLIENTE REALMENTE NUEVO
+            // 19. CLIENTE REALMENTE NUEVO
             // =============================================================
             const maxNew = Number(business.settings
                 ?.max_new_customers_per_hour ??
@@ -684,7 +697,7 @@ Deno.serve(async (req) => {
         }
     }
     // -----------------------------------------------------------------
-    // 19. Crear solicitud de visita pendiente de aprobación
+    // 20. Crear solicitud de visita pendiente de aprobación
     // -----------------------------------------------------------------
     const { error: requestError, } = await supabase
         .from("visit_requests")
@@ -712,7 +725,7 @@ Deno.serve(async (req) => {
         }, 500);
     }
     // -----------------------------------------------------------------
-    // 20. Respuesta
+    // 21. Respuesta
     // -----------------------------------------------------------------
     return json({
         status: "pending_approval",

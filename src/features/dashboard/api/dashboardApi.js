@@ -23,6 +23,7 @@ export async function getDashboardData(businessId) {
         slug,
         logo_url,
         brand_color,
+        active,
         settings
       `)
       .eq("id", businessId)
@@ -174,6 +175,8 @@ export async function reviewVisitRequest(
         "El cliente asociado a la solicitud ya no está disponible.",
       business_not_found:
         "El negocio asociado a la solicitud ya no está disponible.",
+      business_inactive:
+        "Este negocio está desactivado. Reactívalo para revisar solicitudes de sello.",
       too_soon:
         "El cliente todavía está dentro del tiempo mínimo entre visitas.",
     };
@@ -294,6 +297,11 @@ export async function redeemReward(earnedRewardId) {
     if (reason === "catalog_reward_not_found") {
       message =
         "La recompensa seleccionada ya no existe.";
+    }
+
+    if (reason === "business_inactive") {
+      message =
+        "Este negocio está desactivado. Reactívalo para canjear recompensas.";
     }
 
     const redeemError = new Error(message);

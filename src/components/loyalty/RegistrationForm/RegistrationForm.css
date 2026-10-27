@@ -1,72 +1,626 @@
 .registration-form {
   display: grid;
-  gap: var(--space-4);
-  margin-top: var(--space-7);
-  padding: var(--space-5);
-  border: 2px solid var(--color-accent);
-  border-radius: var(--radius-sm);
+  gap: 18px;
+
+  margin-top: 26px;
+  padding: 22px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.025
+    );
+
+  border: 1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.1
+    );
+
+  border-radius: 20px;
 }
+
+
+/* =========================================================
+   CAMPOS
+   ========================================================= */
 
 .form-field {
   display: grid;
-  gap: 7px;
-  font-size: 0.8125rem;
-  font-weight: var(--font-weight-bold);
-  letter-spacing: 0.55px;
+  gap: 8px;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.68
+    );
+
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
+
 .form-field input {
   width: 100%;
-  min-height: 46px;
-  padding: 11px 15px;
-  color: var(--color-text);
-  background: var(--color-white);
-  border: 1px solid var(--color-border-soft);
-  border-radius: var(--radius-sm);
+  min-height: 52px;
+
+  padding: 13px 15px;
+
+  color: #ffffff;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.045
+    );
+
+  border: 1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.12
+    );
+
+  border-radius: 13px;
+
   outline: none;
+
+  font-size: 1rem;
+  font-weight: 500;
+
+  letter-spacing: normal;
+  text-transform: none;
+
+  transition:
+    border-color 0.16s ease,
+    background 0.16s ease,
+    box-shadow 0.16s ease;
 }
 
-.form-field input:focus {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 2px rgba(210, 90, 36, 0.14);
+
+.form-field input::placeholder {
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.34
+    );
 }
+
+
+.form-field input:hover {
+  border-color:
+    rgba(
+      255,
+      255,
+      255,
+      0.2
+    );
+}
+
+
+.form-field input:focus {
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.065
+    );
+
+  border-color:
+    var(
+      --business-brand-text-color,
+      var(--color-accent, #f05a28)
+    );
+
+  box-shadow:
+    0 0 0 3px
+    color-mix(
+      in srgb,
+      var(
+        --business-brand-color,
+        #f05a28
+      )
+      18%,
+      transparent
+    );
+}
+
+
+/* =========================================================
+   AUTOCOMPLETADO DEL NAVEGADOR
+   ========================================================= */
+
+.form-field input:-webkit-autofill,
+.form-field input:-webkit-autofill:hover,
+.form-field input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #ffffff;
+
+  -webkit-box-shadow:
+    0 0 0 1000px
+    #151515
+    inset;
+
+  caret-color: #ffffff;
+}
+
+
+/* =========================================================
+   CONSENTIMIENTO
+   ========================================================= */
 
 .consent-row {
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 10px;
+  grid-template-columns: 22px 1fr;
+
+  gap: 12px;
   align-items: start;
-  color: var(--color-text-muted);
-  font-size: 0.75rem;
-  line-height: 1.45;
+
+  padding: 14px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.025
+    );
+
+  border: 1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.08
+    );
+
+  border-radius: 13px;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.58
+    );
+
+  font-size: 0.76rem;
+  line-height: 1.55;
+
+  cursor: pointer;
 }
 
+
 .consent-row input {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
+
   margin: 1px 0 0;
-  accent-color: var(--color-action);
+
+  accent-color:
+    var(
+      --business-brand-color,
+      #f05a28
+    );
+
+  cursor: pointer;
 }
+
+
+.consent-row span {
+  min-width: 0;
+}
+
+
+/* =========================================================
+   ERROR DEL SERVIDOR
+   ========================================================= */
 
 .registration-form__error {
   margin: 0;
-  font-size: 0.875rem;
+
+  padding: 12px 14px;
+
+  background:
+    rgba(
+      220,
+      53,
+      69,
+      0.1
+    );
+
+  border: 1px solid
+    rgba(
+      255,
+      95,
+      110,
+      0.28
+    );
+
+  border-radius: 12px;
+
+  color: #ff9ca6;
+
+  font-size: 0.86rem;
+  font-weight: 650;
+  line-height: 1.45;
+
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+
+/* =========================================================
+   VALIDACIÓN PERSONALIZADA
+   ========================================================= */
+
+.form-field__error {
+  margin-top: -1px;
+
+  color: #ff9ca6;
+
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.35;
+
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+
+.form-field--error input {
+  border-color:
+    rgba(
+      255,
+      95,
+      110,
+      0.72
+    );
+
+  background:
+    rgba(
+      220,
+      53,
+      69,
+      0.055
+    );
+}
+
+
+.form-field--error input:hover {
+  border-color:
+    rgba(
+      255,
+      95,
+      110,
+      0.82
+    );
+}
+
+
+.form-field--error input:focus {
+  border-color: #ff6675;
+
+  background:
+    rgba(
+      220,
+      53,
+      69,
+      0.065
+    );
+
+  box-shadow:
+    0 0 0 3px
+    rgba(
+      220,
+      53,
+      69,
+      0.13
+    );
+}
+
+
+.consent-row--error {
+  border-color:
+    rgba(
+      255,
+      95,
+      110,
+      0.45
+    );
+
+  background:
+    rgba(
+      220,
+      53,
+      69,
+      0.055
+    );
+}
+
+
+.form-consent-error {
+  margin:
+    -8px
+    0
+    0;
+
+  color: #ff9ca6;
+
+  font-size: 0.78rem;
+  font-weight: 700;
   line-height: 1.4;
 }
 
+
+/* =========================================================
+   BOTÓN PRINCIPAL
+   ========================================================= */
+
+.registration-form
+  button[type="submit"] {
+  min-height: 52px;
+
+  margin-top: 2px;
+
+  border-radius: 13px;
+
+  font-weight: 900;
+  letter-spacing: 0.025em;
+
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease,
+    filter 0.15s ease;
+}
+
+
+.registration-form
+  button[type="submit"]:not(:disabled):hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+
+.registration-form
+  button[type="submit"]:disabled {
+  opacity: 0.62;
+
+  cursor: not-allowed;
+  transform: none;
+}
+
+
+/* =========================================================
+   FECHA
+   ========================================================= */
+
 .form-field input[type="date"] {
-  color: #111111;
-  -webkit-text-fill-color: #111111;
+  color: #ffffff;
+
+  -webkit-text-fill-color: #ffffff;
+
+  color-scheme: dark;
+}
+
+
+.form-field
+  input[type="date"]::-webkit-datetime-edit {
+  color: #ffffff;
+
+  -webkit-text-fill-color: #ffffff;
+}
+
+
+.form-field
+  input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0.7;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   MODO CLARO
+   ========================================================= */
+
+[data-theme="light"]
+  .registration-form {
+  background: #ffffff;
+
+  border-color: #dedede;
+}
+
+
+[data-theme="light"]
+  .form-field {
+  color: #555555;
+}
+
+
+[data-theme="light"]
+  .form-field input {
+  color: #161616;
+
+  background: #f8f8f8;
+
+  border-color: #d8d8d8;
+}
+
+
+[data-theme="light"]
+  .form-field input::placeholder {
+  color: #969696;
+}
+
+
+[data-theme="light"]
+  .form-field input:hover {
+  border-color: #bdbdbd;
+}
+
+
+[data-theme="light"]
+  .form-field input:focus {
+  background: #ffffff;
+
+  border-color:
+    var(
+      --business-brand-color,
+      #f05a28
+    );
+}
+
+
+[data-theme="light"]
+  .form-field input:-webkit-autofill,
+[data-theme="light"]
+  .form-field input:-webkit-autofill:hover,
+[data-theme="light"]
+  .form-field input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #161616;
+
+  -webkit-box-shadow:
+    0 0 0 1000px
+    #f8f8f8
+    inset;
+
+  caret-color: #161616;
+}
+
+
+[data-theme="light"]
+  .consent-row {
+  background: #f8f8f8;
+
+  border-color: #dfdfdf;
+
+  color: #666666;
+}
+
+
+[data-theme="light"]
+  .registration-form__error {
+  background: #fff2f3;
+
+  border-color: #efc5c9;
+
+  color: #a72b38;
+}
+
+
+/* =========================================================
+   VALIDACIÓN PERSONALIZADA - LIGHT
+   ========================================================= */
+
+[data-theme="light"]
+  .form-field__error {
+  color: #a72b38;
+}
+
+
+[data-theme="light"]
+  .form-field--error input {
+  border-color: #d96a75;
+
+  background: #fff7f8;
+}
+
+
+[data-theme="light"]
+  .form-field--error input:hover {
+  border-color: #cf5966;
+}
+
+
+[data-theme="light"]
+  .form-field--error input:focus {
+  border-color: #c94755;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(
+      201,
+      71,
+      85,
+      0.11
+    );
+}
+
+
+[data-theme="light"]
+  .consent-row--error {
+  background: #fff7f8;
+
+  border-color: #e5a8ae;
+}
+
+
+[data-theme="light"]
+  .form-consent-error {
+  color: #a72b38;
+}
+
+
+[data-theme="light"]
+  .form-field input[type="date"] {
+  color: #161616;
+
+  -webkit-text-fill-color: #161616;
+
   color-scheme: light;
 }
 
-.form-field input[type="date"]::-webkit-datetime-edit {
-  color: #111111;
-  -webkit-text-fill-color: #111111;
+
+[data-theme="light"]
+  .form-field
+  input[type="date"]::-webkit-datetime-edit {
+  color: #161616;
+
+  -webkit-text-fill-color: #161616;
 }
 
-.form-field input[type="date"]::-webkit-calendar-picker-indicator {
-  opacity: 1;
-  cursor: pointer;
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 520px) {
+  .registration-form {
+    gap: 16px;
+
+    margin-top: 20px;
+    padding: 17px;
+
+    border-radius: 17px;
+  }
+
+
+  .form-field input {
+    min-height: 50px;
+
+    padding:
+      12px
+      14px;
+  }
+
+
+  .consent-row {
+    padding: 13px;
+  }
 }

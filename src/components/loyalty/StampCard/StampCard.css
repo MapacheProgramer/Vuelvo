@@ -218,6 +218,7 @@
   }
 
   .stamp-card__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 10px;
   }
 
@@ -226,7 +227,7 @@
   }
 
   .stamp-card__stamp--pending {
-    font-size: 0.54rem;
+    font-size: 0.68rem;
     padding: 3px;
   }
 

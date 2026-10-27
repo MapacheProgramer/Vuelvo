@@ -124,6 +124,178 @@
 }
 
 /* =========================================================
+   ESTADOS PÚBLICOS
+   ========================================================= */
+
+.public-state-content {
+  position: relative;
+  overflow: hidden;
+
+  min-height: min(
+    520px,
+    calc(100vh - 180px)
+  );
+
+  margin: 24px 20px 40px;
+  padding: 30px 26px;
+
+  justify-content: center;
+  gap: 16px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.045),
+      rgba(255, 255, 255, 0.018)
+    );
+
+  border: 1px solid
+    rgba(255, 255, 255, 0.1);
+
+  border-radius: 24px;
+
+  box-shadow:
+    0 20px 55px
+    rgba(0, 0, 0, 0.22);
+}
+
+.public-state-content::after {
+  content: "";
+
+  position: absolute;
+  top: 0;
+  left: 26px;
+  right: 26px;
+
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      color-mix(
+        in srgb,
+        var(--business-brand-color, #f05a28) 70%,
+        transparent
+      ),
+      transparent
+    );
+}
+
+.public-state-content::before {
+  content: "";
+
+  width: 46px;
+  height: 46px;
+
+  margin-bottom: 4px;
+
+  border-radius: 15px;
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--business-brand-color, #f05a28) 42%,
+      transparent
+    );
+
+  background:
+    radial-gradient(
+      circle,
+      var(
+        --business-brand-text-color,
+        #f05a28
+      ) 0 5px,
+      transparent 6px
+    ),
+    color-mix(
+      in srgb,
+      var(--business-brand-color, #f05a28) 10%,
+      transparent
+    );
+
+  box-shadow:
+    inset 0 0 0 1px
+    rgba(255, 255, 255, 0.025);
+}
+
+.public-state-content .display-title {
+  max-width: 420px;
+
+  font-size: clamp(
+    2rem,
+    8vw,
+    3rem
+  );
+}
+
+.public-state-content .body-copy {
+  max-width: 410px;
+}
+
+.public-state-content--loading::before {
+  width: 40px;
+  height: 40px;
+
+  border: 3px solid
+    rgba(255, 255, 255, 0.12);
+
+  border-top-color:
+    var(
+      --business-brand-text-color,
+      #f05a28
+    );
+
+  border-radius: 50%;
+
+  background: transparent;
+  box-shadow: none;
+
+  animation:
+    public-state-spin
+    0.8s
+    linear
+    infinite;
+}
+
+.public-state-content--error::before {
+  border-color:
+    rgba(
+      255,
+      95,
+      110,
+      0.36
+    );
+
+  background:
+    radial-gradient(
+      circle,
+      #ff7d89 0 5px,
+      transparent 6px
+    ),
+    rgba(
+      220,
+      53,
+      69,
+      0.08
+    );
+}
+
+.public-state-content--inactive::before {
+  opacity: 0.78;
+}
+
+.public-state-content--not-found::before {
+  opacity: 0.62;
+}
+
+@keyframes public-state-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
    SECCIÓN DE RECOMPENSAS
    ========================================================= */
 
@@ -467,6 +639,59 @@
   color: #646464;
 }
 
+[data-theme="light"]
+  .public-state-content {
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff,
+      #f8f8f8
+    );
+
+  border-color: #dedede;
+
+  box-shadow:
+    0 18px 45px
+    rgba(0, 0, 0, 0.07);
+}
+
+[data-theme="light"]
+  .public-state-content::before {
+  box-shadow:
+    inset 0 0 0 1px
+    rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"]
+  .public-state-content--loading::before {
+  border-color:
+    rgba(
+      0,
+      0,
+      0,
+      0.1
+    );
+
+  border-top-color:
+    var(
+      --business-brand-color,
+      #f05a28
+    );
+}
+
+[data-theme="light"]
+  .public-state-content--error::before {
+  border-color: #e8a6ad;
+
+  background:
+    radial-gradient(
+      circle,
+      #c94755 0 5px,
+      transparent 6px
+    ),
+    #fff2f3;
+}
+
 /* =========================================================
    RECOMPENSAS - LIGHT
    ========================================================= */
@@ -603,6 +828,35 @@
       22px
       16px
       36px;
+  }
+
+  .public-state-content {
+    min-height:
+      calc(100vh - 165px);
+
+    margin:
+      16px
+      16px
+      28px;
+
+    padding:
+      26px
+      20px;
+
+    border-radius: 20px;
+  }
+
+  .public-state-content::after {
+    left: 20px;
+    right: 20px;
+  }
+
+  .public-state-content .display-title {
+    font-size: clamp(
+      1.9rem,
+      9vw,
+      2.65rem
+    );
   }
 
   .reward-selector__title {

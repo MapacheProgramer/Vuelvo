@@ -256,6 +256,31 @@ export default function AdminBusinessesPage() {
                         >
                           {business.type}
                         </p>
+
+                        <span
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            marginTop: "8px",
+                            padding: "4px 8px",
+                            borderRadius: "999px",
+                            border:
+                              business.active === false
+                                ? "1px solid rgba(255,120,120,0.45)"
+                                : "1px solid rgba(120,220,150,0.45)",
+                            color:
+                              business.active === false
+                                ? "#ffb4ab"
+                                : "#9be9a8",
+                            fontSize: "0.72rem",
+                            fontWeight: 900,
+                            letterSpacing: "0.06em",
+                          }}
+                        >
+                          {business.active === false
+                            ? "DESACTIVADO"
+                            : "ACTIVO"}
+                        </span>
                       </div>
                     </div>
 

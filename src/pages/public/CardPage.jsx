@@ -239,6 +239,7 @@ export default function CardPage() {
       <PublicState
         title="Cargando..."
         text="Estamos consultando tu progreso."
+        tone="loading"
       />
     );
   }
@@ -252,11 +253,59 @@ export default function CardPage() {
         eyebrow="Vuelvo"
         title="Algo salió mal"
         text={state.error}
+        tone="error"
       />
     );
   }
 
   const data = state.data;
+
+  // =========================================================
+  // NEGOCIO DESACTIVADO
+  // =========================================================
+  if (
+    data?.status ===
+    "business_inactive"
+  ) {
+    return (
+      <main
+        className="loyalty-page"
+        style={{
+          "--business-brand-color":
+            data?.business?.brand_color || "#f05a28",
+        }}
+      >
+        <div className="loyalty-shell">
+          <BrandHeader
+            business={
+              data.business
+            }
+          />
+
+          <section className="loyalty-content public-state-content public-state-content--inactive">
+            <p className="eyebrow">
+              Vuelvo
+            </p>
+
+            <h1 className="display-title">
+              Negocio temporalmente desactivado
+            </h1>
+
+            <p className="body-copy">
+              {data.message ||
+                "Este negocio no está disponible en este momento."}
+            </p>
+
+            <p className="body-copy">
+              Tus sellos y recompensas no se han eliminado.
+              Podrás volver a consultar tu tarjeta cuando
+              el negocio sea reactivado.
+            </p>
+          </section>
+        </div>
+      </main>
+    );
+  }
 
   const businessBrandColor =
     data?.business?.brand_color || "#f05a28";
@@ -282,7 +331,7 @@ export default function CardPage() {
             business={data?.business}
           />
 
-          <section className="loyalty-content">
+          <section className="loyalty-content public-state-content public-state-content--empty">
             <p className="eyebrow">
               Tu tarjeta
             </p>
@@ -318,6 +367,7 @@ export default function CardPage() {
       <PublicState
         eyebrow="Código"
         title="No encontramos este negocio"
+        tone="not-found"
       />
     );
   }
@@ -619,13 +669,20 @@ function PublicState({
   eyebrow = "Tu tarjeta",
   title,
   text,
+  tone = "neutral",
 }) {
   return (
     <main className="loyalty-page">
       <div className="loyalty-shell">
         <BrandHeader />
 
-        <section className="loyalty-content">
+        <section
+          className={[
+            "loyalty-content",
+            "public-state-content",
+            `public-state-content--${tone}`,
+          ].join(" ")}
+        >
           <p className="eyebrow">
             {eyebrow}
           </p>

@@ -98,7 +98,10 @@ export default function TagPage() {
         if (!cancelled) {
           setState({
             status: "error",
-            message: "No hay conexión. Intenta de nuevo.",
+            message:
+              requestError?.status
+                ? requestError.message
+                : "No hay conexión. Intenta de nuevo.",
           });
         }
       }
@@ -156,7 +159,12 @@ export default function TagPage() {
       setState(data);
     } catch (requestError) {
       console.error("registration:", requestError);
-      setError("No hay conexión. Intenta de nuevo.");
+
+      setError(
+        requestError?.status
+          ? requestError.message
+          : "No hay conexión. Intenta de nuevo.",
+      );
     } finally {
       setSubmitting(false);
     }

@@ -28,8 +28,8 @@ function corsHeaders(origin: string | null): Record<string, string> {
   }
   return headers;
 }
-const CODE_RE = /^[A-Za-z0-9\_-]{3,32}$/;
-const TOKEN_RE = /^[A-Za-z0-9\_-]{8,64}$/;
+const CODE_RE = /^[A-Za-z0-9_-]{3,32}$/;
+const TOKEN_RE = /^[A-Za-z0-9_-]{8,64}$/;
 Deno.serve(async (req) => {
   const origin = req.headers.get("origin");
   const cors = corsHeaders(origin);
@@ -173,6 +173,7 @@ Deno.serve(async (req) => {
       name,
       logo_url,
       brand_color,
+      active,
       settings
       `,
     )
@@ -214,7 +215,17 @@ Deno.serve(async (req) => {
     stamps_required: required,
   };
   // ---------------------------------------------------------
-  // 11. Buscar cliente por negocio + dispositivo
+  // 11. Bloquear negocio desactivado
+  // ---------------------------------------------------------
+  if (business.active === false) {
+    return json({
+      status: "business_inactive",
+      message: "Este negocio está temporalmente desactivado.",
+      business: brand,
+    });
+  }
+  // ---------------------------------------------------------
+  // 13. Buscar cliente por negocio + dispositivo
   // ---------------------------------------------------------
   const {
     data: customer,
@@ -285,7 +296,7 @@ Deno.serve(async (req) => {
     );
   }
   // ---------------------------------------------------------
-  // 13. Buscar TODAS las recompensas pendientes
+  // 14. Buscar TODAS las recompensas pendientes
   // ---------------------------------------------------------
   const {
     data: pendingRewardsRaw,
@@ -323,7 +334,7 @@ Deno.serve(async (req) => {
   const rawPendingRewards =
     pendingRewardsRaw ?? [];
   // ---------------------------------------------------------
-  // 14. IDs de premios ya seleccionados
+  // 15. IDs de premios ya seleccionados
   // ---------------------------------------------------------
   const selectedRewardIds = [
     ...new Set(
@@ -336,7 +347,7 @@ Deno.serve(async (req) => {
     ),
   ];
   // ---------------------------------------------------------
-  // 15. Mapa con datos del catálogo ya seleccionado
+  // 16. Mapa con datos del catálogo ya seleccionado
   // ---------------------------------------------------------
   const selectedRewardMap = new Map<
     string,
@@ -384,7 +395,7 @@ Deno.serve(async (req) => {
     }
   }
   // ---------------------------------------------------------
-  // 16. Obtener catálogo activo
+  // 17. Obtener catálogo activo
   //
   // Se consulta siempre para que el cliente pueda ver
   // de antemano qué recompensas podrá desbloquear.
@@ -423,7 +434,7 @@ Deno.serve(async (req) => {
   const rewardCatalog =
     catalog ?? [];
   // ---------------------------------------------------------
-  // 18. Formatear premios pendientes
+  // 19. Formatear premios pendientes
   // ---------------------------------------------------------
   const pendingRewards =
     rawPendingRewards.map(
@@ -455,7 +466,7 @@ Deno.serve(async (req) => {
       },
     );
   // ---------------------------------------------------------
-  // 19. Contar sellos desde el último premio
+  // 20. Contar sellos desde el último premio
   // ---------------------------------------------------------
   let visitQuery = supabase
     .from("visits")
@@ -491,7 +502,7 @@ Deno.serve(async (req) => {
   const stamps =
     count ?? 0;
   // ---------------------------------------------------------
-  // 20. Buscar última visita
+  // 21. Buscar última visita
   // ---------------------------------------------------------
   const {
     data: lastVisit,
@@ -513,7 +524,7 @@ Deno.serve(async (req) => {
     );
   }
   // ---------------------------------------------------------
-  // 21. Calcular cuándo puede sumar el siguiente sello
+  // 22. Calcular cuándo puede sumar el siguiente sello
   // ---------------------------------------------------------
   const serverNowMs = Date.now();
   let nextVisitAt: string | null = null;
@@ -552,7 +563,7 @@ Deno.serve(async (req) => {
     }
   }
   // ---------------------------------------------------------
-// 22. Buscar solicitud de visita pendiente
+// 23. Buscar solicitud de visita pendiente
 // ---------------------------------------------------------
   const { data: pendingVisit, error: pendingVisitError } = await supabase
     .from("visit_requests")
@@ -570,7 +581,7 @@ Deno.serve(async (req) => {
   }
   const hasPendingVisit = Boolean(pendingVisit);
 // ---------------------------------------------------------
-// 23. Respuesta final
+// 24. Respuesta final
 // ---------------------------------------------------------
   return json({
     status: "ok",

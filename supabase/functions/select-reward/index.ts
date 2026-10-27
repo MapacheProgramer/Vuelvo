@@ -274,7 +274,59 @@ Deno.serve(async (req) => {
       404,
     );
   }
+  // ---------------------------------------------------------
+  // Verificar que el negocio esté activo
+  // ---------------------------------------------------------
 
+  const {
+    data: business,
+    error: businessError,
+  } = await supabase
+    .from("businesses")
+    .select("id, active")
+    .eq(
+      "id",
+      tag.business_id,
+    )
+    .maybeSingle();
+
+  if (businessError) {
+    console.error(
+      "business lookup error:",
+      businessError.message,
+    );
+
+    return json(
+      {
+        status: "error",
+        message:
+          "No pudimos consultar el negocio",
+      },
+      500,
+    );
+  }
+
+  if (!business) {
+    return json(
+      {
+        status: "not_found",
+        message:
+          "No encontramos este negocio",
+      },
+      404,
+    );
+  }
+
+  if (business.active === false) {
+    return json(
+      {
+        status: "business_inactive",
+        message:
+          "Este negocio está temporalmente desactivado.",
+      },
+      403,
+    );
+  }
   // ---------------------------------------------------------
   // 11. Buscar cliente por negocio + dispositivo
   // ---------------------------------------------------------
