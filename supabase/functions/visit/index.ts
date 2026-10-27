@@ -64,9 +64,30 @@ const TOKEN_RE = /^[A-Za-z0-9_-]{8,64}$/;
 const CEDULA_RE = /^[0-9]{5,15}$/;
 const RATE_LIMIT_SALT = Deno.env.get("RATE_LIMIT_SALT")?.trim();
 const CONSENT_TEXT = "Autorizo el tratamiento de mis datos personales " +
-    "(nombre, cédula de ciudadanía, WhatsApp y cumpleaños) " +
-    "para gestionar mis sellos y recibir mensajes y promociones " +
+    "(nombre, cédula de ciudadanía, número de WhatsApp y cumpleaños, si lo proporciono) " +
+    "para administrar mi tarjeta de fidelización, visitas, sellos y recompensas " +
     "de este negocio, conforme a la Ley 1581 de 2012.";
+const MARKETING_CONSENT_TEXT = "Acepto recibir mensajes y promociones comerciales " +
+    "de este negocio por WhatsApp. Esta autorización es opcional, " +
+    "no afecta mis sellos y puedo revocarla en cualquier momento.";
+// ---------------------------------------------------------------------
+// Política pública del negocio: solo enlaces HTTPS válidos.
+// ---------------------------------------------------------------------
+function cleanPrivacyUrl(raw: unknown): string | null {
+    if (typeof raw !== "string" || !raw.trim()) {
+        return null;
+    }
+    try {
+        const url = new URL(raw.trim());
+        if (url.protocol !== "https:" || url.username || url.password) {
+            return null;
+        }
+        return url.href;
+    }
+    catch {
+        return null;
+    }
+}
 // ---------------------------------------------------------------------
 // Errores de validación
 // ---------------------------------------------------------------------
@@ -393,7 +414,9 @@ Deno.serve(async (req) => {
           brand_color,
           google_review_url,
           active,
-          settings
+          settings,
+          privacy_legal_name,
+          privacy_policy_url
           `)
         .eq("id", tag.business_id)
         .single();
@@ -412,7 +435,14 @@ Deno.serve(async (req) => {
         brand_color: business.brand_color,
         stamps_required: business.settings
             ?.stamps_required,
+        privacy_legal_name: business.privacy_legal_name || business.name,
+        privacy_policy_url: cleanPrivacyUrl(business.privacy_policy_url),
     };
+    const responsibleName = brand.privacy_legal_name;
+    const consentText = CONSENT_TEXT.replace(
+        "de este negocio", `de ${responsibleName}`);
+    const marketingConsentText = MARKETING_CONSENT_TEXT.replace(
+        "de este negocio", `de ${responsibleName}`);
 
     // -----------------------------------------------------------------
     // 13. Bloquear negocio desactivado
@@ -484,7 +514,8 @@ Deno.serve(async (req) => {
             return json({
                 status: "needs_registration",
                 business: brand,
-                consent_text: CONSENT_TEXT,
+                consent_text: consentText,
+                marketing_consent_text: marketingConsentText,
             });
         }
         // ---------------------------------------------------------------
@@ -534,17 +565,16 @@ Deno.serve(async (req) => {
                 message: "Debes aceptar el tratamiento de datos",
             }, 400);
         }
+        // Solo la aceptacion explicita habilita promociones.
+        const marketingConsent =
+            registration.marketing_consent === true;
+
         // ---------------------------------------------------------------
         // 17. Buscar cliente existente por cédula
         // ---------------------------------------------------------------
         const { data: existingCustomer, error: existingCustomerError, } = await supabase
             .from("customers")
-            .select(`
-            id,
-            name,
-            whatsapp,
-            birthday
-            `)
+            .select("id")
             .eq("business_id", business.id)
             .eq("cedula", cedula)
             .maybeSingle();
@@ -560,68 +590,11 @@ Deno.serve(async (req) => {
         // 18. LA CÉDULA YA EXISTE
         // ===============================================================
         if (existingCustomer) {
-            // La cédula sola no es suficiente para
-            // tomar control de una tarjeta existente.
-            if (existingCustomer
-                .whatsapp !==
-                whatsapp) {
-                return json({
-                    status: "error",
-                    message: "Esta cédula ya está registrada. Usa el mismo número de WhatsApp asociado a tu cuenta.",
-                }, 409);
-            }
-            // Liberar este dispositivo de cualquier
-            // otra cuenta del mismo negocio.
-            const { error: releaseError, } = await supabase
-                .from("customers")
-                .update({
-                device_token: null,
-            })
-                .eq("business_id", business.id)
-                .eq("device_token", device_token)
-                .neq("id", existingCustomer
-                .id);
-            if (releaseError) {
-                console.error("release device:", releaseError
-                    .message);
-            }
-            const updateData: Record<string, unknown> = {
-                name,
-                whatsapp,
-                consent_at: new Date()
-                    .toISOString(),
-                consent_text: CONSENT_TEXT,
-                device_token,
-            };
-            // Si el usuario introduce cumpleaños,
-            // lo actualizamos. Si lo deja vacío,
-            // conservamos el anterior.
-            if (birthday) {
-                updateData
-                    .birthday =
-                    birthday;
-            }
-            const { data: linkedCustomer, error: linkError, } = await supabase
-                .from("customers")
-                .update(updateData)
-                .eq("id", existingCustomer
-                .id)
-                .eq("business_id", business.id)
-                .select(`
-              id,
-              name
-              `)
-                .single();
-            if (linkError ||
-                !linkedCustomer) {
-                console.error("link existing customer:", linkError?.message);
-                return json({
-                    status: "error",
-                    message: "No pudimos vincular tu tarjeta a este dispositivo",
-                }, 500);
-            }
-            customer =
-                linkedCustomer;
+            // No reasociar usando solo cédula y WhatsApp.
+            return json({
+                status: "error",
+                message: "No pudimos completar el registro. Si ya tienes una tarjeta, solicita ayuda al negocio para recuperarla.",
+            }, 409);
         }
         else {
             // =============================================================
@@ -645,21 +618,11 @@ Deno.serve(async (req) => {
                 }, 429);
             }
             // -------------------------------------------------------------
-            // Liberar el dispositivo de otra cuenta
-            // -------------------------------------------------------------
-            await supabase
-                .from("customers")
-                .update({
-                device_token: null,
-            })
-                .eq("business_id", business.id)
-                .eq("device_token", device_token);
-            // -------------------------------------------------------------
             // Crear cliente usando cédula como identidad
             // -------------------------------------------------------------
             const { data: saved, error: saveError, } = await supabase
                 .from("customers")
-                .upsert({
+                .insert({
                 business_id: business.id,
                 name,
                 cedula,
@@ -667,10 +630,15 @@ Deno.serve(async (req) => {
                 birthday,
                 consent_at: new Date()
                     .toISOString(),
-                consent_text: CONSENT_TEXT,
+                consent_text: consentText,
+                marketing_consent: marketingConsent,
+                marketing_consent_at: marketingConsent
+                    ? new Date().toISOString()
+                    : null,
+                marketing_consent_text: marketingConsent
+                    ? marketingConsentText
+                    : null,
                 device_token,
-            }, {
-                onConflict: "business_id,cedula",
             })
                 .select(`
               id,
@@ -684,7 +652,7 @@ Deno.serve(async (req) => {
                     "23505") {
                     return json({
                         status: "error",
-                        message: "La cédula o el WhatsApp ya están registrados en este negocio.",
+                        message: "No pudimos completar el registro. Si ya tienes una tarjeta, solicita ayuda al negocio para recuperarla.",
                     }, 409);
                 }
                 return json({

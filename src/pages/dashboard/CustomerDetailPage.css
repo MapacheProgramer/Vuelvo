@@ -822,3 +822,206 @@
   color:
     var(--color-text-muted);
 }
+
+/* VUELVO: RECUPERACION DE TARJETA */
+.customer-recovery__panel {
+  display: grid;
+  gap: 22px;
+  padding: clamp(18px, 3vw, 26px);
+  border: 1px solid var(--color-border-soft);
+  border-left: 4px solid var(--color-orange);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.customer-recovery__intro {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.customer-recovery__icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 48px;
+  height: 48px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+  color: var(--color-orange);
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.customer-recovery__description {
+  flex: 1 1 220px;
+  display: grid;
+  gap: 6px;
+}
+
+.customer-recovery__description strong,
+.customer-recovery__result-head strong {
+  color: var(--color-text);
+  font-size: 0.95rem;
+  font-weight: 900;
+}
+
+.customer-recovery__description p,
+.customer-recovery__result-head p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  line-height: 1.55;
+}
+
+.customer-recovery__owner {
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-sm);
+  padding: 7px 9px;
+  color: var(--color-text-muted);
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  white-space: nowrap;
+}
+
+.customer-recovery__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.customer-recovery__hint,
+.customer-recovery__privacy {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.customer-recovery__action,
+.customer-recovery__copy {
+  min-height: 44px;
+  border: 1px solid var(--color-orange);
+  border-radius: var(--radius-sm);
+  background: var(--color-orange);
+  color: var(--color-white);
+  padding: 11px 17px;
+  font: inherit;
+  font-size: 0.73rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: filter 150ms ease, transform 150ms ease;
+}
+
+.customer-recovery__action:hover:not(:disabled),
+.customer-recovery__copy:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.customer-recovery__action:disabled,
+.customer-recovery__copy:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.customer-recovery__result {
+  display: grid;
+  gap: 13px;
+  padding: 18px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+  min-width: 0;
+}
+
+.customer-recovery__result-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.customer-recovery__result-mark {
+  display: grid;
+  place-items: center;
+  flex: 0 0 32px;
+  height: 32px;
+  border: 1px solid var(--color-green);
+  border-radius: 50%;
+  color: var(--color-green);
+  font-size: 0.95rem;
+  font-weight: 900;
+}
+
+.customer-recovery__result-head > div {
+  display: grid;
+  gap: 4px;
+}
+
+.customer-recovery__link-row {
+  display: flex;
+  gap: 9px;
+  min-width: 0;
+}
+
+.customer-recovery__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.77rem;
+  text-overflow: ellipsis;
+}
+
+.customer-recovery__copy {
+  flex: 0 0 auto;
+}
+
+.customer-recovery__error {
+  margin: 0;
+  color: var(--color-danger);
+  font-size: 0.85rem;
+}
+
+.customer-recovery__modal-content {
+  display: grid;
+  gap: 15px;
+}
+
+.customer-recovery__modal-note {
+  display: grid;
+  gap: 7px;
+  padding: 14px 16px;
+  border-left: 3px solid var(--color-orange);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+}
+
+.customer-recovery__modal-note strong {
+  color: var(--color-text);
+  font-size: 0.8rem;
+}
+
+.customer-recovery__modal-note span {
+  color: var(--color-text-muted);
+  font-size: 0.83rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+  .customer-recovery__owner { display: none; }
+  .customer-recovery__link-row { flex-direction: column; }
+  .customer-recovery__copy,
+  .customer-recovery__action { width: 100%; }
+}

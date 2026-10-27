@@ -62,6 +62,11 @@ export async function getBusiness(
         brand_color,
         google_review_url,
         settings,
+        privacy_legal_name,
+        privacy_contact_email,
+        privacy_contact_phone,
+        privacy_contact_address,
+        privacy_policy_url,
         created_at
       `)
       .eq(
@@ -101,6 +106,7 @@ export async function updateBusiness({
   brandColor,
   googleReviewUrl,
   settings,
+  privacy,
 }) {
   if (!businessId) {
     throw new Error(
@@ -179,6 +185,52 @@ export async function updateBusiness({
   }
 
 
+  // Solo actualizar privacidad cuando el formulario la envíe.
+  // Las ediciones del administrador no borrarán estos campos.
+  const privacyFields = {};
+
+  if (privacy !== undefined) {
+    if (!privacy || typeof privacy !== "object" || Array.isArray(privacy)) {
+      throw new Error("Información de privacidad inválida.");
+    }
+
+    const values = {
+      privacy_legal_name: privacy.legalName,
+      privacy_contact_email: privacy.contactEmail,
+      privacy_contact_phone: privacy.contactPhone,
+      privacy_contact_address: privacy.contactAddress,
+      privacy_policy_url: privacy.policyUrl,
+    };
+
+    for (const [field, raw] of Object.entries(values)) {
+      if (typeof raw !== "string") {
+        throw new Error("Completa correctamente los datos de privacidad.");
+      }
+      const value = raw.trim();
+      if (value.length > (field === "privacy_policy_url" ? 2000 : 250)) {
+        throw new Error("Uno de los datos de privacidad es demasiado largo.");
+      }
+      privacyFields[field] = value || null;
+    }
+
+    const email = privacyFields.privacy_contact_email;
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      throw new Error("Escribe un correo de privacidad válido.");
+    }
+
+    const url = privacyFields.privacy_policy_url;
+    if (url) {
+      try {
+        const parsed = new URL(url);
+        if (parsed.protocol !== "https:" || parsed.username || parsed.password) {
+          throw new Error("Protocolo no permitido");
+        }
+      } catch {
+        throw new Error("La política debe tener una URL HTTPS válida.");
+      }
+    }
+  }
+
   const {
     data,
     error,
@@ -202,6 +254,7 @@ export async function updateBusiness({
           cleanGoogleReviewUrl,
 
         settings,
+        ...privacyFields,
       })
       .eq(
         "id",
@@ -216,6 +269,11 @@ export async function updateBusiness({
         brand_color,
         google_review_url,
         settings,
+        privacy_legal_name,
+        privacy_contact_email,
+        privacy_contact_phone,
+        privacy_contact_address,
+        privacy_policy_url,
         created_at
       `)
       .single();

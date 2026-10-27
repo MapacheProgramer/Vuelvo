@@ -133,6 +133,11 @@ const EMPTY_FORM = {
 
   reviewDelayMinutes:
     60,
+  privacyLegalName: "",
+  privacyContactEmail: "",
+  privacyContactPhone: "",
+  privacyContactAddress: "",
+  privacyPolicyUrl: "",
 };
 
 
@@ -633,6 +638,14 @@ export default function BusinessPage() {
 
           settings:
             nextSettings,
+
+          privacy: {
+            legalName: form.privacyLegalName,
+            contactEmail: form.privacyContactEmail,
+            contactPhone: form.privacyContactPhone,
+            contactAddress: form.privacyContactAddress,
+            policyUrl: form.privacyPolicyUrl,
+          },
         });
 
 
@@ -1448,6 +1461,44 @@ export default function BusinessPage() {
 
 
         {/* ===================================================
+            DATOS DE PRIVACIDAD
+            =================================================== */}
+
+        <BusinessSection
+          eyebrow="DATOS PERSONALES"
+          title="PRIVACIDAD Y TRATAMIENTO DE DATOS"
+          description="Identifica al responsable del tratamiento y facilita un enlace a su política completa. Esta información debe ser real antes de recibir clientes."
+        >
+          <div className="business-form-grid">
+            {[
+              { field: "privacyLegalName", label: "NOMBRE O RAZÓN SOCIAL", hint: "Nombre legal del responsable del tratamiento.", type: "text", placeholder: "Razón social o nombre del titular", maxLength: 250 },
+              { field: "privacyContactEmail", label: "CORREO DE PRIVACIDAD", hint: "Correo para solicitudes sobre datos personales.", type: "email", placeholder: "privacidad@negocio.com", maxLength: 250 },
+              { field: "privacyContactPhone", label: "TELÉFONO DE CONTACTO", hint: "Línea para comunicarse con el responsable.", type: "tel", placeholder: "Número de contacto", maxLength: 250 },
+              { field: "privacyContactAddress", label: "DOMICILIO Y DIRECCIÓN", hint: "Incluye ciudad y dirección del responsable.", type: "text", placeholder: "Ciudad, dirección", maxLength: 250 },
+              { field: "privacyPolicyUrl", label: "ENLACE A LA POLÍTICA DE DATOS", hint: "URL pública HTTPS de la política completa y vigente.", type: "url", placeholder: "https://negocio.com/privacidad", maxLength: 2000, wide: true },
+            ].map((item) => (
+              <BusinessField
+                key={item.field}
+                label={item.label}
+                hint={item.hint}
+                wide={item.wide}
+              >
+                <input
+                  type={item.type}
+                  value={form[item.field]}
+                  placeholder={item.placeholder}
+                  maxLength={item.maxLength}
+                  disabled={saving}
+                  onChange={(event) =>
+                    updateField(item.field, event.target.value)
+                  }
+                />
+              </BusinessField>
+            ))}
+          </div>
+        </BusinessSection>
+
+        {/* ===================================================
             PIE
             =================================================== */}
 
@@ -1663,6 +1714,11 @@ function mapBusinessToForm(
     reviewDelayMinutes:
       settings.review_delay_minutes ??
       60,
+    privacyLegalName: business?.privacy_legal_name ?? "",
+    privacyContactEmail: business?.privacy_contact_email ?? "",
+    privacyContactPhone: business?.privacy_contact_phone ?? "",
+    privacyContactAddress: business?.privacy_contact_address ?? "",
+    privacyPolicyUrl: business?.privacy_policy_url ?? "",
   };
 }
 

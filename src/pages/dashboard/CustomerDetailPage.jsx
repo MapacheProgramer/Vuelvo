@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 
 import DashboardLayout from "../../components/layout/DashboardLayout/DashboardLayout.jsx";
+import ConfirmModal from "../../components/ui/ConfirmModal/ConfirmModal.jsx";
 
 import {
   useAuth,
@@ -17,6 +18,10 @@ import {
 import {
   getCustomerDetails,
 } from "../../features/customers/api/customersApi.js";
+
+import {
+  supabase,
+} from "../../services/supabase.js";
 
 import "./CustomerDetailPage.css";
 
@@ -29,6 +34,7 @@ export default function CustomerDetailPage() {
 
   const {
     businessId,
+    isOwner,
   } = useAuth();
 
 
@@ -48,6 +54,19 @@ export default function CustomerDetailPage() {
     error,
     setError,
   ] = useState("");
+
+
+  const [
+    recovery,
+    setRecovery,
+  ] = useState({
+    loading: false,
+    url: "",
+    error: "",
+  });
+
+  const [recoveryConfirmOpen, setRecoveryConfirmOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
 
   // =========================================================
@@ -138,6 +157,107 @@ export default function CustomerDetailPage() {
     businessId,
     customerId,
   ]);
+
+
+  // =========================================================
+  // RECUPERACIÓN AUTORIZADA
+  // =========================================================
+
+  async function handleGenerateRecovery() {
+    if (!isOwner || !businessId || !customerId) {
+      return;
+    }
+
+    setRecovery({
+      loading: true,
+      url: "",
+      error: "",
+    });
+
+    try {
+      const {
+        data: token,
+        error: rpcError,
+      } = await supabase.rpc(
+        "create_customer_recovery",
+        {
+          p_business_id: businessId,
+          p_customer_id: customerId,
+        },
+      );
+
+      if (rpcError) {
+        throw rpcError;
+      }
+
+      if (
+        typeof token !== "string" ||
+        !/^[0-9a-f]{64}$/.test(token)
+      ) {
+        throw new Error(
+          "El enlace generado no es válido."
+        );
+      }
+
+      const url =
+        window.location.origin +
+        "/recuperar/" +
+        businessId +
+        "#" +
+        token;
+
+      setRecovery({
+        loading: false,
+        url,
+        error: "",
+      });
+      setCopied(false);
+      setRecoveryConfirmOpen(false);
+    } catch (recoveryError) {
+      console.error(
+        "customer recovery:",
+        recoveryError,
+      );
+
+      setRecovery({
+        loading: false,
+        url: "",
+        error:
+          "No pudimos generar el enlace. Intenta nuevamente.",
+      });
+      setRecoveryConfirmOpen(false);
+    }
+  }
+
+
+  // =========================================================
+  // COPIAR ENLACE
+  // =========================================================
+
+  async function handleCopyRecovery() {
+    if (!recovery.url) return;
+
+    const input = document.getElementById("customer-recovery-url");
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(recovery.url);
+      } else if (input) {
+        input.select();
+        if (!document.execCommand("copy")) {
+          throw new Error("No se pudo copiar");
+        }
+      } else {
+        throw new Error("No se encontró el enlace");
+      }
+      setCopied(true);
+    } catch (copyError) {
+      console.error("copy recovery link:", copyError);
+      input?.focus();
+      input?.select();
+      setCopied(false);
+    }
+  }
 
 
   // =========================================================
@@ -327,6 +447,86 @@ export default function CustomerDetailPage() {
           </div>
 
         </section>
+
+
+        {isOwner && (
+          <section className="customer-detail__section customer-recovery">
+            <SectionHeader
+              eyebrow="SEGURIDAD"
+              title="RECUPERACIÓN DE TARJETA"
+            />
+
+            <div className="customer-recovery__panel">
+              <div className="customer-recovery__intro">
+                <span className="customer-recovery__icon" aria-hidden="true">↻</span>
+                <div className="customer-recovery__description">
+                  <strong>Trasladar tarjeta a otro dispositivo</strong>
+                  <p>
+                    Si un cliente cambió de teléfono, genera un enlace
+                    privado después de verificar personalmente su identidad.
+                  </p>
+                </div>
+                <span className="customer-recovery__owner">SOLO PROPIETARIO</span>
+              </div>
+
+              <div className="customer-recovery__footer">
+                <span className="customer-recovery__hint">
+                  15 minutos · Un solo uso · Conserva sus sellos
+                </span>
+                <button
+                  type="button"
+                  className="customer-recovery__action"
+                  onClick={() => setRecoveryConfirmOpen(true)}
+                  disabled={recovery.loading}
+                >
+                  {recovery.loading ? "GENERANDO..." : "GENERAR ENLACE"}
+                </button>
+              </div>
+
+              {recovery.error && (
+                <p className="customer-recovery__error" role="alert">
+                  {recovery.error}
+                </p>
+              )}
+
+              {recovery.url && (
+                <div className="customer-recovery__result">
+                  <div className="customer-recovery__result-head">
+                    <span className="customer-recovery__result-mark" aria-hidden="true">✓</span>
+                    <div>
+                      <strong>Enlace listo para compartir</strong>
+                      <p>Entrégaselo únicamente al cliente verificado.</p>
+                    </div>
+                  </div>
+
+                  <div className="customer-recovery__link-row">
+                    <input
+                      id="customer-recovery-url"
+                      type="text"
+                      className="customer-recovery__input"
+                      aria-label="Enlace privado de recuperación"
+                      value={recovery.url}
+                      onFocus={(event) => event.currentTarget.select()}
+                      readOnly
+                    />
+                    <button
+                      type="button"
+                      className="customer-recovery__copy"
+                      onClick={handleCopyRecovery}
+                    >
+                      {copied ? "COPIADO" : "COPIAR ENLACE"}
+                    </button>
+                  </div>
+
+                  <p className="customer-recovery__privacy">
+                    El enlace es secreto: permite transferir la tarjeta
+                    y caduca a los 15 minutos.
+                  </p>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
 
 
         {/* ===================================================
@@ -551,6 +751,35 @@ export default function CustomerDetailPage() {
         </div>
 
       </section>
+
+      <ConfirmModal
+        open={recoveryConfirmOpen}
+        eyebrow="RECUPERACIÓN SEGURA"
+        title="CONFIRMAR IDENTIDAD"
+        confirmText="GENERAR ENLACE"
+        cancelText="CANCELAR"
+        loading={recovery.loading}
+        onConfirm={handleGenerateRecovery}
+        onClose={() => setRecoveryConfirmOpen(false)}
+      >
+        <div className="customer-recovery__modal-content">
+          <p>
+            Vas a generar un enlace para recuperar la tarjeta de
+            <strong> {customer.name}</strong>.
+          </p>
+          <div className="customer-recovery__modal-note">
+            <strong>Verificación obligatoria</strong>
+            <span>
+              Comprueba personalmente la identidad del cliente
+              antes de continuar. Con el enlace podrá trasladar
+              su tarjeta a otro teléfono.
+            </span>
+          </div>
+          <p>
+            El enlace será válido durante 15 minutos y solo podrá usarse una vez.
+          </p>
+        </div>
+      </ConfirmModal>
 
     </DashboardLayout>
   );

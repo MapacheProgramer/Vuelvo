@@ -226,6 +226,50 @@
 
 
 /* =========================================================
+   AVISO DE PRIVACIDAD
+   ========================================================= */
+
+.registration-form__privacy-notice {
+  margin: 0;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 3px solid var(--business-brand-text-color, #f05a28);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.025);
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.registration-form__privacy-notice strong {
+  color: #ffffff;
+  overflow-wrap: anywhere;
+}
+
+.registration-form__privacy-notice a {
+  color: var(--business-brand-text-color, #f05a28);
+  font-weight: 800;
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+}
+
+[data-theme="light"] .registration-form__privacy-notice {
+  background: #f8f8f8;
+  border-color: #dedede;
+  border-left-color: var(--business-brand-color, #f05a28);
+  color: #555555;
+}
+
+[data-theme="light"] .registration-form__privacy-notice strong {
+  color: #161616;
+}
+
+[data-theme="light"] .registration-form__privacy-notice a {
+  color: var(--business-brand-color, #c74419);
+}
+
+
+/* =========================================================
    ERROR DEL SERVIDOR
    ========================================================= */
 

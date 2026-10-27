@@ -6,6 +6,7 @@ import {
 
 import TagPage from "../pages/public/TagPage.jsx";
 import CardPage from "../pages/public/CardPage.jsx";
+import RecoveryPage from "../pages/public/RecoveryPage.jsx";
 
 import LoginPage from "../pages/auth/LoginPage.jsx";
 import InvitePage from "../pages/auth/InvitePage.jsx";
@@ -74,7 +75,13 @@ export default function AppRouter() {
           <CardPage />
         }
       />
-
+      
+      <Route
+        path="/recuperar/:businessId"
+        element={
+          <RecoveryPage />
+        }
+      />
 
       <Route
         path="/dashboard"

@@ -45,6 +45,7 @@ export default function TagPage() {
     whatsapp: "",
     birthday: "",
     consent: false,
+    marketing_consent: false,
   });
 
   const [submitting, setSubmitting] = useState(false);
@@ -308,6 +309,9 @@ function Registration({
         form={form}
         setForm={setForm}
         consentText={state.consent_text}
+        marketingConsentText={state.marketing_consent_text}
+        privacyLegalName={state.business?.privacy_legal_name}
+        privacyPolicyUrl={state.business?.privacy_policy_url}
         onSubmit={onSubmit}
         submitting={submitting}
         error={error}

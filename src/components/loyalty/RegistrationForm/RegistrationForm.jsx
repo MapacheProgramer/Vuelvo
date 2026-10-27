@@ -13,6 +13,9 @@ export default function RegistrationForm({
   form,
   setForm,
   consentText,
+  marketingConsentText,
+  privacyLegalName,
+  privacyPolicyUrl,
   onSubmit,
   submitting,
   error,
@@ -428,6 +431,34 @@ export default function RegistrationForm({
 
 
       {/* =====================================================
+          AVISO DE PRIVACIDAD DEL NEGOCIO
+          ===================================================== */}
+
+      <p className="registration-form__privacy-notice">
+        Responsable del tratamiento:{" "}
+        <strong>{privacyLegalName || "este negocio"}</strong>.
+        {privacyPolicyUrl ? (
+          <>
+            {" "}Consulta su{" "}
+            <a
+              href={privacyPolicyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              política de tratamiento de datos personales
+            </a>
+            {" "}antes de autorizar el registro.
+          </>
+        ) : (
+          <>
+            {" "}El negocio aún no ha publicado el enlace
+            a su política de tratamiento de datos.
+          </>
+        )}
+      </p>
+
+
+      {/* =====================================================
           CONSENTIMIENTO
           ===================================================== */}
 
@@ -481,6 +512,31 @@ export default function RegistrationForm({
           {fieldErrors.consent}
         </p>
       )}
+
+
+      {/* =====================================================
+          PROMOCIONES - OPCIONAL
+          ===================================================== */}
+
+      <label className="consent-row">
+
+        <input
+          type="checkbox"
+          checked={form.marketing_consent === true}
+          onChange={(event) =>
+            updateField(
+              "marketing_consent",
+              event.target.checked,
+            )
+          }
+        />
+
+        <span>
+          {marketingConsentText ||
+            "Quiero recibir promociones por WhatsApp (opcional)."}
+        </span>
+
+      </label>
 
 
       {/* =====================================================
