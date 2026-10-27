@@ -1,3 +1,4 @@
+
 import {
   useCallback,
   useEffect,
@@ -74,6 +75,20 @@ export default function CardPage() {
         console.error("card-status:", error);
 
         if (silent) {
+          return;
+        }
+
+        if (
+          error?.status === 404 &&
+          error?.data?.status === "not_found"
+        ) {
+          setState({
+            loading: false,
+            error: null,
+            data: {
+              status: "not_found",
+            },
+          });
           return;
         }
 

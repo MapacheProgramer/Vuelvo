@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -96,6 +97,16 @@ export default function TagPage() {
         console.error("visit:", requestError);
 
         if (!cancelled) {
+          if (
+            requestError?.status === 404 &&
+            requestError?.data?.status === "not_found"
+          ) {
+            setState({
+              status: "not_found",
+            });
+            return;
+          }
+
           setState({
             status: "error",
             message:
