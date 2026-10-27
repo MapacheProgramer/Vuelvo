@@ -15,7 +15,7 @@ import {
 const INITIAL_FORM = {
   name: "",
   slug: "",
-  type: "general",
+  type: "belleza",
   ownerDisplayName: "",
   ownerEmail: "",
 };
@@ -327,24 +327,37 @@ export default function AdminCreateBusinessPage() {
           />
 
 
-          <Field
-            label="Tipo de negocio"
-            value={
-              form.type
-            }
-            placeholder="Ej. cafetería"
-            disabled={
-              submitting
-            }
-            onChange={(
-              value,
-            ) =>
-              updateField(
-                "type",
-                value,
-              )
-            }
-          />
+          <label style={{ display: "grid", gap: "8px", fontWeight: 700 }}>
+            Tipo de negocio
+            <select
+              value={form.type}
+              disabled={submitting}
+              required
+              onChange={(event) => updateField("type", event.target.value)}
+              style={{
+                width: "100%",
+                boxSizing: "border-box",
+                padding: "13px 14px",
+                border: "1px solid rgba(255,255,255,0.18)",
+                borderRadius: "8px",
+                background: "#171717",
+                color: "#ffffff",
+                font: "inherit",
+              }}
+            >
+              <option value="belleza">Belleza / Barbería</option>
+              <option value="tienda">Tienda</option>
+              <option value="restaurante">Restaurante</option>
+              <option value="cafeteria">Cafetería</option>
+              <option value="salud">Salud</option>
+              <option value="veterinaria">Veterinaria</option>
+              <option value="automotriz">Automotriz</option>
+              <option value="fitness">Gimnasio / Fitness</option>
+              <option value="servicios">Servicios profesionales</option>
+              <option value="entretenimiento">Entretenimiento</option>
+              <option value="otro">Otro</option>
+            </select>
+          </label>
 
 
           <div

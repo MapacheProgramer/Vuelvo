@@ -654,6 +654,47 @@ Deno.serve(
 
 
     // =======================================================
+    // CREAR QR DE FIDELIZACION PARA EL NEGOCIO
+    // =======================================================
+
+    const tagCode =
+      "v" + crypto.randomUUID().replaceAll("-", "").slice(0, 20);
+
+    const { error: tagError } =
+      await supabase
+        .from("tags")
+        .insert({
+          business_id: business.id,
+          code: tagCode,
+          label: "Fidelizacion",
+          action_type: "stamp",
+          action_config: {},
+          active: true,
+        });
+
+    if (tagError) {
+      console.error("create business tag:", tagError.message);
+
+      const { error: rollbackTagError } =
+        await supabase
+          .from("businesses")
+          .delete()
+          .eq("id", business.id);
+
+      if (rollbackTagError) {
+        console.error("rollback business after tag:", rollbackTagError.message);
+      }
+
+      return json(
+        {
+          status: "error",
+          message: "No pudimos crear el QR del negocio.",
+        },
+        500,
+      );
+    }
+
+    // =======================================================
     // INVITAR PROPIETARIO
     // =======================================================
 

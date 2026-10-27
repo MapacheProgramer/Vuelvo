@@ -3,6 +3,8 @@ import {
   useState,
 } from "react";
 
+import QRCode from "qrcode";
+
 import {
   Link,
   useParams,
@@ -63,6 +65,10 @@ export default function AdminBusinessDetailPage() {
     setTeamSuccess,
   ] = useState("");
 
+  const [qrImage, setQrImage] = useState("");
+  const [qrError, setQrError] = useState("");
+  const [linkStatus, setLinkStatus] = useState("");
+
 
   useEffect(() => {
     let active = true;
@@ -104,6 +110,47 @@ export default function AdminBusinessDetailPage() {
     businessId,
   ]);
 
+
+  const tagCode = data?.stampTag?.code ?? "";
+  const tagUrl = tagCode
+    ? `${window.location.origin}/t/${tagCode}`
+    : "";
+
+  useEffect(() => {
+    let active = true;
+    setQrImage("");
+    setQrError("");
+
+    if (!tagUrl) {
+      return undefined;
+    }
+
+    QRCode.toDataURL(tagUrl, {
+      width: 720,
+      margin: 2,
+      errorCorrectionLevel: "M",
+      color: { dark: "#111827", light: "#FFFFFF" },
+    })
+      .then((image) => {
+        if (active) setQrImage(image);
+      })
+      .catch((error) => {
+        console.error("admin business QR:", error);
+        if (active) setQrError("No fue posible generar la imagen QR.");
+      });
+
+    return () => { active = false; };
+  }, [tagUrl]);
+
+  async function handleCopyTagUrl() {
+    if (!tagUrl) return;
+    try {
+      await navigator.clipboard.writeText(tagUrl);
+      setLinkStatus("Enlace copiado.");
+    } catch {
+      setLinkStatus("Selecciona la URL y copiala manualmente.");
+    }
+  }
 
   async function refreshBusiness() {
     const result =
@@ -474,6 +521,75 @@ export default function AdminBusinessDetailPage() {
           />
         </section>
 
+
+        <section style={cardStyle}>
+          <h2 style={sectionTitleStyle}>
+            QR de fidelización
+          </h2>
+
+          {data.stampTag ? (
+            <div style={{ display: "grid", gap: "14px" }}>
+              <p style={{ margin: 0, opacity: 0.75 }}>
+                Comparte este QR con los clientes para registrar sus visitas.
+              </p>
+              <div style={{
+                padding: "12px 14px",
+                background: "rgba(255,255,255,0.05)",
+                borderRadius: "8px",
+                overflowWrap: "anywhere",
+              }}>
+                {tagUrl}
+              </div>
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                <button
+                  type="button"
+                  onClick={handleCopyTagUrl}
+                  style={primaryButtonStyle}
+                >
+                  COPIAR URL
+                </button>
+                {qrImage && (
+                  <a
+                    href={qrImage}
+                    download={`vuelvo-${business.slug}-qr.png`}
+                    style={{
+                      ...primaryButtonStyle,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      textDecoration: "none",
+                      color: "#ffffff",
+                    }}
+                  >
+                    DESCARGAR QR PNG
+                  </a>
+                )}
+              </div>
+              {linkStatus && <p role="status" style={{ margin: 0 }}>{linkStatus}</p>}
+              {qrError && <p role="alert" style={{ color: "#ffb4ab" }}>{qrError}</p>}
+              {qrImage && (
+                <img
+                  src={qrImage}
+                  alt={`QR de fidelización de ${business.name}`}
+                  width="240"
+                  height="240"
+                  style={{
+                    display: "block",
+                    padding: "8px",
+                    background: "#ffffff",
+                    borderRadius: "10px",
+                    maxWidth: "100%",
+                    height: "auto",
+                  }}
+                />
+              )}
+            </div>
+          ) : (
+            <p style={{ margin: 0, opacity: 0.75 }}>
+              Este negocio no tiene un código de sellos activo.
+              Los códigos existentes no se modifican automáticamente.
+            </p>
+          )}
+        </section>
 
         <section style={cardStyle}>
           <h2 style={sectionTitleStyle}>

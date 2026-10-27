@@ -195,11 +195,26 @@ export async function getAdminBusinessDetail(
   }
 
 
+  const {
+    data: tags,
+    error: tagsError,
+  } = await supabase
+    .from("tags")
+    .select("id, code, label, action_type, active")
+    .eq("business_id", businessId)
+    .eq("action_type", "stamp")
+    .eq("active", true)
+    .order("created_at", { ascending: true })
+    .limit(1);
+
+  if (tagsError) {
+    throw tagsError;
+  }
+
   return {
     business,
-
-    members:
-      members ?? [],
+    members: members ?? [],
+    stampTag: tags?.[0] ?? null,
   };
 }
 // ===========================================================
