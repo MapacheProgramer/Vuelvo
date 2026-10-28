@@ -122,6 +122,16 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Guardar usuarios antes de borrar el negocio: las membresias caen por CASCADE.
+    // Si no se pueden consultar, no borrar el negocio.
+    const { data: formerMembers, error: formerMembersError } = await supabase
+      .from("business_members").select("user_id").eq("business_id", businessId);
+    if (formerMembersError || !formerMembers) {
+      console.error("read business members before delete:", formerMembersError?.message);
+      return json({ status: "error", message: "No pudimos verificar las cuentas del negocio." }, 500);
+    }
+    const formerUserIds = [...new Set(formerMembers.map((member) => member.user_id))];
+
     const { data: deleted, error: deleteError } = await supabase
       .from("businesses").delete()
       .eq("id", businessId).eq("active", false).select("id");
@@ -129,8 +139,48 @@ Deno.serve(async (req) => {
       console.error("delete empty business:", deleteError?.message ?? "no rows");
       return json({ status: "error", message: "No pudimos eliminar el negocio. No se han eliminado las cuentas de acceso." }, 500);
     }
-    // Los usuarios Auth no se borran: pueden tener otras membresías. Se revisarán separadamente.
-    return json({ status: "ok", message: "Negocio de prueba eliminado. Las cuentas de acceso no se han borrado." });
+    // La eliminacion del negocio ya se completo. Limpiar solo cuentas realmente huerfanas.
+    // No eliminar administradores, al usuario conectado ni usuarios con otras membresias.
+    let deletedAccounts = 0;
+    let preservedAccounts = 0;
+    let pendingAccounts = 0;
+    for (const userId of formerUserIds) {
+      if (userId === authData.user.id) {
+        preservedAccounts++;
+        continue;
+      }
+      const { data: memberships, error: membershipsError } = await supabase
+        .from("business_members").select("business_id")
+        .eq("user_id", userId).limit(1);
+      const { data: platformAdmin, error: platformAdminError } = await supabase
+        .from("platform_admins").select("user_id")
+        .eq("user_id", userId).maybeSingle();
+      if (membershipsError || platformAdminError) {
+        pendingAccounts++;
+        console.error("verify orphan account:", userId, membershipsError?.message, platformAdminError?.message);
+        continue;
+      }
+      if ((memberships?.length ?? 0) > 0 || platformAdmin) {
+        preservedAccounts++;
+        continue;
+      }
+      const { error: userDeleteError } = await supabase.auth.admin.deleteUser(userId);
+      if (userDeleteError) {
+        pendingAccounts++;
+        console.error("delete orphan auth user:", userId, userDeleteError.message);
+      } else {
+        deletedAccounts++;
+      }
+    }
+
+    let message = "Negocio de prueba eliminado. " + deletedAccounts + " cuenta(s) sin otros negocios eliminada(s).";
+    if (preservedAccounts > 0) {
+      message += " Se conservaron " + preservedAccounts + " cuenta(s) con otros permisos o negocios.";
+    }
+    if (pendingAccounts > 0) {
+      message += " ATENCION: " + pendingAccounts + " cuenta(s) quedaron pendientes de limpieza en Authentication > Users. El negocio SI fue eliminado.";
+    }
+    return json({ status: "ok", message, deletedAccounts, preservedAccounts, pendingAccounts });
   }
 
   return json({ status: "error", message: "Acción no permitida." }, 400);

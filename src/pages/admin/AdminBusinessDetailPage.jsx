@@ -185,11 +185,12 @@ export default function AdminBusinessDetailPage() {
       `ELIMINACIÓN PERMANENTE de ${business.name}. Solo funciona si NO tiene clientes, visitas ni recompensas. Escribe exactamente: ${business.slug}`,
     );
     if (confirmation !== business.slug) return;
-    if (!window.confirm("Última confirmación: el negocio y su QR dejarán de existir. ¿Eliminarlo?")) return;
+    if (!window.confirm("Última confirmación: se eliminarán el negocio, su QR y las cuentas de sus usuarios sin otros negocios ni permisos globales. Esta acción es irreversible. ¿Continuar?")) return;
     setBusinessBusy(true);
     setBusinessMessage("");
     try {
-      await deleteEmptyAdminBusiness({ businessId, confirmedSlug: confirmation });
+      const result = await deleteEmptyAdminBusiness({ businessId, confirmedSlug: confirmation });
+      window.alert(result.message || "Negocio de prueba eliminado.");
       navigate("/admin/negocios", { replace: true });
     } catch (actionError) {
       setBusinessMessage(actionError?.message || "No se pudo eliminar el negocio.");
