@@ -10,6 +10,7 @@ import RecoveryPage from "../pages/public/RecoveryPage.jsx";
 
 import LoginPage from "../pages/auth/LoginPage.jsx";
 import InvitePage from "../pages/auth/InvitePage.jsx";
+import ResetPasswordPage from "../pages/auth/ResetPasswordPage.jsx";
 
 import DashboardPage from "../pages/dashboard/DashboardPage.jsx";
 import CustomersPage from "../pages/dashboard/CustomersPage.jsx";
@@ -60,6 +61,11 @@ export default function AppRouter() {
         }
       />
 
+
+      <Route
+        path="/reset-password"
+        element={<ResetPasswordPage />}
+      />
 
       <Route
         path="/t/:code"

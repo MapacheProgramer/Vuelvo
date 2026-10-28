@@ -283,3 +283,28 @@ export async function updateAdminBusinessActive({
 
   return data;
 }
+
+// Acciones protegidas: solo para administradores de Vuelvo.
+async function invokeAdminManagement(body) {
+  const { data, error } = await supabase.functions.invoke("admin-management", { body });
+  if (error) {
+    let message = "No se pudo completar la operación.";
+    try {
+      const payload = await error.context?.json();
+      if (payload?.message) message = payload.message;
+    } catch { /* El servidor puede no devolver JSON. */ }
+    throw new Error(message);
+  }
+  if (data?.status !== "ok") {
+    throw new Error(data?.message || "No se pudo completar la operación.");
+  }
+  return data;
+}
+
+export function resetAdminUserPassword({ businessId, userId }) {
+  return invokeAdminManagement({ action: "reset_password", businessId, userId });
+}
+
+export function deleteEmptyAdminBusiness({ businessId, confirmedSlug }) {
+  return invokeAdminManagement({ action: "delete_empty_business", businessId, confirmedSlug });
+}

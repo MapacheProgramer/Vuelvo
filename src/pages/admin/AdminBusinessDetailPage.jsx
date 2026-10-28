@@ -7,11 +7,15 @@ import QRCode from "qrcode";
 
 import {
   Link,
+  useNavigate,
   useParams,
 } from "react-router-dom";
 
 import {
   getAdminBusinessDetail,
+  updateAdminBusinessActive,
+  resetAdminUserPassword,
+  deleteEmptyAdminBusiness,
 } from "../../features/admin/api/adminApi.js";
 
 import {
@@ -24,6 +28,7 @@ export default function AdminBusinessDetailPage() {
   const {
     businessId,
   } = useParams();
+  const navigate = useNavigate();
 
   const [
     data,
@@ -68,6 +73,8 @@ export default function AdminBusinessDetailPage() {
   const [qrImage, setQrImage] = useState("");
   const [qrError, setQrError] = useState("");
   const [linkStatus, setLinkStatus] = useState("");
+  const [businessBusy, setBusinessBusy] = useState(false);
+  const [businessMessage, setBusinessMessage] = useState("");
 
 
   useEffect(() => {
@@ -149,6 +156,61 @@ export default function AdminBusinessDetailPage() {
       setLinkStatus("Enlace copiado.");
     } catch {
       setLinkStatus("Selecciona la URL y copiala manualmente.");
+    }
+  }
+
+  async function handleToggleBusiness() {
+    if (businessBusy || !data?.business) return;
+    const current = data.business;
+    const nextActive = current.active === false;
+    const verb = nextActive ? "reactivar" : "desactivar";
+    if (!window.confirm(`¿Quieres ${verb} el negocio ${current.name}?`)) return;
+    setBusinessBusy(true);
+    setBusinessMessage("");
+    try {
+      const updated = await updateAdminBusinessActive({ businessId, active: nextActive });
+      setData((previous) => previous ? { ...previous, business: updated } : previous);
+      setBusinessMessage(nextActive ? "Negocio reactivado." : "Negocio desactivado. Sus datos se conservan.");
+    } catch (actionError) {
+      setBusinessMessage(actionError?.message || "No se pudo cambiar el estado.");
+    } finally {
+      setBusinessBusy(false);
+    }
+  }
+
+  async function handleDeleteBusiness() {
+    if (businessBusy || !data?.business || data.business.active !== false) return;
+    const business = data.business;
+    const confirmation = window.prompt(
+      `ELIMINACIÓN PERMANENTE de ${business.name}. Solo funciona si NO tiene clientes, visitas ni recompensas. Escribe exactamente: ${business.slug}`,
+    );
+    if (confirmation !== business.slug) return;
+    if (!window.confirm("Última confirmación: el negocio y su QR dejarán de existir. ¿Eliminarlo?")) return;
+    setBusinessBusy(true);
+    setBusinessMessage("");
+    try {
+      await deleteEmptyAdminBusiness({ businessId, confirmedSlug: confirmation });
+      navigate("/admin/negocios", { replace: true });
+    } catch (actionError) {
+      setBusinessMessage(actionError?.message || "No se pudo eliminar el negocio.");
+    } finally {
+      setBusinessBusy(false);
+    }
+  }
+
+  async function handleResetPassword(member) {
+    if (teamBusy || !member?.user_id) return;
+    if (!window.confirm(`¿Enviar un correo para restablecer la contraseña de ${member.display_name || "este usuario"}?`)) return;
+    setTeamError("");
+    setTeamSuccess("");
+    setTeamBusy(`reset-${member.user_id}`);
+    try {
+      await resetAdminUserPassword({ businessId, userId: member.user_id });
+      setTeamSuccess("Correo de restablecimiento enviado. El usuario establece su propia contraseña.");
+    } catch (actionError) {
+      setTeamError(actionError?.message || "No se pudo enviar el correo.");
+    } finally {
+      setTeamBusy("");
     }
   }
 
@@ -471,6 +533,28 @@ export default function AdminBusinessDetailPage() {
           </Link>
         </div>
 
+
+        <section style={cardStyle}>
+          <h2 style={sectionTitleStyle}>Administración del negocio</h2>
+          <p style={{ opacity: 0.75 }}>
+            Estado actual: <strong>{business.active === false ? "DESACTIVADO" : "ACTIVO"}</strong>
+          </p>
+          <p style={{ opacity: 0.75 }}>
+            Desactivar conserva los datos y suspende las operaciones de fidelización.
+            Eliminar es irreversible y solo se permite en negocios sin clientes ni actividad.
+          </p>
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+            <button type="button" disabled={businessBusy} onClick={handleToggleBusiness}
+              style={primaryButtonStyle}>
+              {businessBusy ? "PROCESANDO..." : (business.active === false ? "REACTIVAR NEGOCIO" : "DESACTIVAR NEGOCIO")}
+            </button>
+            {business.active === false && (
+              <button type="button" disabled={businessBusy} onClick={handleDeleteBusiness}
+                style={dangerButtonStyle}>ELIMINAR NEGOCIO VACÍO</button>
+            )}
+          </div>
+          {businessMessage && <p role="status" style={{ marginBottom: 0 }}>{businessMessage}</p>}
+        </section>
 
         <section style={cardStyle}>
           <h2 style={sectionTitleStyle}>
@@ -888,6 +972,15 @@ export default function AdminBusinessDetailPage() {
                     </p>
                   </div>
 
+
+                  <button
+                    type="button"
+                    disabled={Boolean(teamBusy)}
+                    onClick={() => handleResetPassword(member)}
+                    style={{ ...primaryButtonStyle, opacity: teamBusy ? 0.6 : 1 }}
+                  >
+                    {teamBusy === `reset-${member.user_id}` ? "ENVIANDO..." : "RESTABLECER CONTRASEÑA"}
+                  </button>
 
                   {member.role ===
                     "staff" && (

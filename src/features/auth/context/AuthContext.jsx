@@ -72,6 +72,7 @@ export function AuthProvider({
           business_id,
           user_id,
           role,
+          display_name,
           onboarding_completed
           `,
         )

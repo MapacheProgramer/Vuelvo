@@ -74,6 +74,7 @@ const items = [
 export default function DashboardSidebar({
   open,
   onClose,
+  businessName,
 }) {
   const navigate =
     useNavigate();
@@ -217,7 +218,7 @@ export default function DashboardSidebar({
 
 
         <strong>
-          MOTO GARAGE
+          {businessName}
         </strong>
 
 

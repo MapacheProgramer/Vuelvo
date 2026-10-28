@@ -3,7 +3,18 @@ import "./DashboardHeader.css";
 
 export default function DashboardHeader({
   onMenu,
+  businessName,
+  accountName,
+  role,
 }) {
+  const initials = accountName
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toLocaleUpperCase("es-CO"))
+    .join("") || "U";
+
   return (
     <header className="dashboard-header">
       <button
@@ -23,7 +34,7 @@ export default function DashboardHeader({
         </span>
 
         <strong>
-          Moto Garage
+          {businessName}
         </strong>
       </div>
 
@@ -38,16 +49,16 @@ export default function DashboardHeader({
             className="dashboard-header__avatar"
             aria-hidden="true"
           >
-            JS
+            {initials}
           </span>
 
           <span className="dashboard-header__account-copy">
             <strong>
-              José Sierra
+              {accountName}
             </strong>
 
             <small>
-              Propietario
+              {role === "owner" ? "Propietario" : role === "staff" ? "Personal" : "Usuario"}
             </small>
           </span>
         </button>
