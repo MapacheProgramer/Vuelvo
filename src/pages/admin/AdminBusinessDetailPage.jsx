@@ -169,7 +169,7 @@ export default function AdminBusinessDetailPage() {
     setBusinessMessage("");
     try {
       const updated = await updateAdminBusinessActive({ businessId, active: nextActive });
-      setData((previous) => previous ? { ...previous, business: updated } : previous);
+      setData((previous) => previous ? { ...previous, business: { ...previous.business, ...updated } } : previous);
       setBusinessMessage(nextActive ? "Negocio reactivado." : "Negocio desactivado. Sus datos se conservan.");
     } catch (actionError) {
       setBusinessMessage(actionError?.message || "No se pudo cambiar el estado.");
@@ -380,6 +380,24 @@ export default function AdminBusinessDetailPage() {
 
   const settings =
     business.settings ?? {};
+
+  const privacyFields = [
+    business.privacy_legal_name,
+    business.privacy_contact_email,
+    business.privacy_contact_phone,
+    business.privacy_contact_address,
+    business.privacy_policy_url,
+  ];
+  const privacyFilled = privacyFields.filter((value) => typeof value === "string" && value.trim()).length;
+  const privacyStatus = privacyFilled === 0
+    ? "SIN CONFIGURAR"
+    : privacyFilled < privacyFields.length
+      ? "INCOMPLETA"
+      : "DATOS CARGADOS · SIN VALIDAR";
+  const policyUrl = typeof business.privacy_policy_url === "string" &&
+    business.privacy_policy_url.trim().startsWith("https://")
+      ? business.privacy_policy_url.trim()
+      : "";
 
 
   return (
@@ -606,6 +624,33 @@ export default function AdminBusinessDetailPage() {
           />
         </section>
 
+
+        <section style={cardStyle}>
+          <h2 style={sectionTitleStyle}>Privacidad y datos legales</h2>
+          <p style={{ opacity: 0.85 }}>
+            Estado: <strong>{privacyStatus}</strong>
+          </p>
+          <p style={{ opacity: 0.72 }}>
+            Información registrada por el negocio. Su presencia no garantiza que la política sea válida,
+            vigente ni que su contenido haya sido revisado jurídicamente.
+          </p>
+          <InfoRow label="Responsable del tratamiento" value={business.privacy_legal_name || "No configurado"} />
+          <InfoRow label="Correo de privacidad" value={business.privacy_contact_email || "No configurado"} />
+          <InfoRow label="Teléfono de privacidad" value={business.privacy_contact_phone || "No configurado"} />
+          <InfoRow label="Dirección del responsable" value={business.privacy_contact_address || "No configurado"} />
+          <InfoRow label="Enlace de política" value={business.privacy_policy_url || "No configurado"} />
+          {policyUrl && (
+            <p style={{ marginTop: "16px" }}>
+              <a href={policyUrl} target="_blank" rel="noopener noreferrer"
+                style={{ color: "var(--color-accent, #f05a28)", fontWeight: 800 }}>
+                ABRIR POLÍTICA DE PRIVACIDAD
+              </a>
+            </p>
+          )}
+          <p style={{ opacity: 0.7, marginBottom: 0 }}>
+            Estos datos se administran desde el panel del propietario: Negocio → Privacidad.
+          </p>
+        </section>
 
         <section style={cardStyle}>
           <h2 style={sectionTitleStyle}>

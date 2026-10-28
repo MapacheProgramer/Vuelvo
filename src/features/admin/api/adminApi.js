@@ -21,6 +21,11 @@ export async function getAdminBusinesses() {
         type,
         logo_url,
         brand_color,
+        privacy_legal_name,
+        privacy_contact_email,
+        privacy_contact_phone,
+        privacy_contact_address,
+        privacy_policy_url,
         created_at
         `,
       )
@@ -138,6 +143,11 @@ export async function getAdminBusinessDetail(
         brand_color,
         google_review_url,
         settings,
+        privacy_legal_name,
+        privacy_contact_email,
+        privacy_contact_phone,
+        privacy_contact_address,
+        privacy_policy_url,
         created_at
         `,
       )

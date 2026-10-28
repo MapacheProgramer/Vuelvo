@@ -12,6 +12,20 @@ import {
 } from "../../features/admin/api/adminApi.js";
 
 
+function getPrivacyStatus(business) {
+  const fields = [
+    business.privacy_legal_name,
+    business.privacy_contact_email,
+    business.privacy_contact_phone,
+    business.privacy_contact_address,
+    business.privacy_policy_url,
+  ];
+  const filled = fields.filter((value) => typeof value === "string" && value.trim()).length;
+  if (filled === 0) return "SIN CONFIGURAR";
+  if (filled < fields.length) return "INCOMPLETA";
+  return "DATOS CARGADOS · SIN VALIDAR";
+}
+
 export default function AdminBusinessesPage() {
   const [businesses, setBusinesses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -292,6 +306,10 @@ export default function AdminBusinessesPage() {
                       }}
                     >
                       Código: {business.slug}
+                    </p>
+
+                    <p style={{ margin: "0 0 12px", fontSize: "0.8rem", fontWeight: 800, opacity: 0.9 }}>
+                      PRIVACIDAD: {getPrivacyStatus(business)}
                     </p>
 
                     <div
